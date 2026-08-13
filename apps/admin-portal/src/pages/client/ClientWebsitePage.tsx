@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import clsx from "clsx";
 import { Badge, Button, Checkbox, Input, Label, Skeleton, Textarea, Toast } from "@ovutor/ui";
 import { useCurrentClient } from "@/hooks/useCurrentClient";
-import { getWebsiteSections, updateSectionStatus, getWebsiteContent, updateWebsiteContent, uploadWebsiteImage } from "@/lib/api";
+import { getWebsiteSections, updateSectionStatus, getWebsiteContent, updateWebsiteContent, uploadWebsiteImage, errorMessage } from "@/lib/api";
 import type {
   WebsiteContent,
   WebsiteDetailCard,
@@ -62,6 +62,7 @@ export default function ClientWebsitePage() {
   const [loading, setLoading] = useState(true);
   const [selectedKey, setSelectedKey] = useState<WebsiteSectionKey>("hero");
   const [toast, setToast] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [savingContent, setSavingContent] = useState(false);
   const [savingStatus, setSavingStatus] = useState(false);
 
@@ -74,6 +75,11 @@ export default function ClientWebsitePage() {
   function flashToast(message: string) {
     setToast(message);
     window.setTimeout(() => setToast(null), 2200);
+  }
+
+  function flashError(message: string) {
+    setError(message);
+    window.setTimeout(() => setError(null), 3200);
   }
 
   if (!client) return null;
@@ -90,6 +96,8 @@ export default function ClientWebsitePage() {
       const updated = await updateSectionStatus(target.id, status);
       setSections((prev) => prev.map((s) => (s.key === key ? updated : s)));
       flashToast(status === "published" ? "Section published — now visible to guests" : status === "hidden" ? "Section hidden from guests" : "Saved as draft");
+    } catch (e) {
+      flashError(errorMessage(e, "Couldn't update that section — please try again."));
     } finally {
       setSavingStatus(false);
     }
@@ -104,6 +112,8 @@ export default function ClientWebsitePage() {
       const saved = await updateWebsiteContent(client.id, body);
       setContent(saved);
       flashToast("Saved");
+    } catch (e) {
+      flashError(errorMessage(e, "Couldn't save that section — please try again."));
     } finally {
       setSavingContent(false);
     }
@@ -200,6 +210,7 @@ export default function ClientWebsitePage() {
       </div>
 
       <Toast open={!!toast}>{toast}</Toast>
+      <Toast open={!!error} tone="error">{error}</Toast>
     </div>
   );
 }
@@ -316,9 +327,9 @@ function HeroForm({ clientId, hero, onSave, saving }: { clientId: string; hero: 
       <Label htmlFor="hero-names">Couple names</Label>
       <Input id="hero-names" value={form.coupleNames} onChange={(e) => setForm({ ...form, coupleNames: e.target.value })} />
       <Label htmlFor="hero-date">Wedding date</Label>
-      <Input id="hero-date" value={form.dateLabel} onChange={(e) => setForm({ ...form, dateLabel: e.target.value })} />
+      <Input id="hero-date" placeholder="e.g. September 14, 2025" value={form.dateLabel} onChange={(e) => setForm({ ...form, dateLabel: e.target.value })} />
       <Label htmlFor="hero-venue">Venue location</Label>
-      <Input id="hero-venue" value={form.venueLabel} onChange={(e) => setForm({ ...form, venueLabel: e.target.value })} />
+      <Input id="hero-venue" placeholder="e.g. Brooklyn, New York" value={form.venueLabel} onChange={(e) => setForm({ ...form, venueLabel: e.target.value })} />
       <Label>Hero photo</Label>
       <ImageField clientId={clientId} idPrefix="hero" image={form.image} onChange={(image) => setForm({ ...form, image })} />
       <Button type="submit" className="mt-5 w-full" loading={saving}>
@@ -381,13 +392,18 @@ function OurStoryForm({
       <Label htmlFor="story-eyebrow">Eyebrow</Label>
       <Input id="story-eyebrow" value={form.eyebrow} onChange={(e) => setForm({ ...form, eyebrow: e.target.value })} />
       <Label htmlFor="story-title">Title</Label>
-      <Input id="story-title" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} />
+      <Input id="story-title" placeholder='e.g. "A story worth telling."' value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} />
 
       <Label>Story paragraphs</Label>
       <div className="space-y-2">
         {form.paragraphs.map((p, i) => (
           <div key={i} className="flex gap-2">
-            <Textarea value={p} onChange={(e) => updateParagraph(i, e.target.value)} className="flex-1" />
+            <Textarea
+              placeholder="A sentence or two on how you met sets the tone for the whole page."
+              value={p}
+              onChange={(e) => updateParagraph(i, e.target.value)}
+              className="flex-1"
+            />
             <button type="button" onClick={() => removeParagraph(i)} className="text-xs font-bold text-primary" aria-label="Remove paragraph">
               &times;
             </button>
@@ -438,6 +454,13 @@ function OurStoryForm({
   );
 }
 
+const DETAIL_PLACEHOLDERS: Record<string, { heading: string; body: string; note: string }> = {
+  Ceremony: { heading: "e.g. 4:30 PM", body: "Venue name\nStreet address, City, State", note: 'e.g. "Please arrive by 4:00 PM to be seated."' },
+  Reception: { heading: "e.g. 5:30 PM–11:00 PM", body: "Reception location, if different from the ceremony", note: 'e.g. "Cocktails, dinner, and dancing to follow."' },
+  Attire: { heading: "e.g. Formal garden party", body: "", note: "Any helpful notes on dress code, weather or footwear." },
+  "Parking & arrival": { heading: "e.g. Easy to find", body: "", note: "Parking, rideshare drop-off, or accessibility notes." },
+};
+
 function DetailsForm({ details, onSave, saving }: { details: WebsiteDetailCard[]; onSave: (details: WebsiteDetailCard[]) => void; saving: boolean }) {
   const [form, setForm] = useState(details);
 
@@ -454,17 +477,20 @@ function DetailsForm({ details, onSave, saving }: { details: WebsiteDetailCard[]
     >
       <p className="mb-3 text-sm text-ink/60">These four cards make up the Details section guests see.</p>
       <div className="space-y-5">
-        {form.map((card, i) => (
-          <div key={card.eyebrow} className="border border-[#eee] p-3">
-            <p className="mb-2 text-[10px] font-bold uppercase tracking-[.08em] text-primary">{card.eyebrow}</p>
-            <Label htmlFor={`detail-${i}-heading`}>Heading</Label>
-            <Input id={`detail-${i}-heading`} value={card.heading} onChange={(e) => updateCard(i, { heading: e.target.value })} />
-            <Label htmlFor={`detail-${i}-body`}>Body</Label>
-            <Textarea id={`detail-${i}-body`} placeholder="Venue name and address, one per line" value={card.body} onChange={(e) => updateCard(i, { body: e.target.value })} />
-            <Label htmlFor={`detail-${i}-note`}>Note</Label>
-            <Input id={`detail-${i}-note`} value={card.note ?? ""} onChange={(e) => updateCard(i, { note: e.target.value })} />
-          </div>
-        ))}
+        {form.map((card, i) => {
+          const hint = DETAIL_PLACEHOLDERS[card.eyebrow];
+          return (
+            <div key={card.eyebrow} className="border border-[#eee] p-3">
+              <p className="mb-2 text-[10px] font-bold uppercase tracking-[.08em] text-primary">{card.eyebrow}</p>
+              <Label htmlFor={`detail-${i}-heading`}>Heading</Label>
+              <Input id={`detail-${i}-heading`} placeholder={hint?.heading} value={card.heading} onChange={(e) => updateCard(i, { heading: e.target.value })} />
+              <Label htmlFor={`detail-${i}-body`}>Body</Label>
+              <Textarea id={`detail-${i}-body`} placeholder={hint?.body} value={card.body} onChange={(e) => updateCard(i, { body: e.target.value })} />
+              <Label htmlFor={`detail-${i}-note`}>Note</Label>
+              <Input id={`detail-${i}-note`} placeholder={hint?.note} value={card.note ?? ""} onChange={(e) => updateCard(i, { note: e.target.value })} />
+            </div>
+          );
+        })}
       </div>
       <Button type="submit" className="mt-5 w-full" loading={saving}>
         Save details

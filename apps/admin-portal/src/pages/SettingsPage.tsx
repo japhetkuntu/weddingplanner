@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Button, Card, Input, Label, Modal, Toast } from "@ovutor/ui";
 import { useAuthStore } from "@/store/authStore";
-import { changePassword, updateProfile } from "@/lib/api";
+import { changePassword, updateProfile, errorMessage } from "@/lib/api";
 
 export default function SettingsPage() {
   const user = useAuthStore((s) => s.user);
@@ -14,6 +14,7 @@ export default function SettingsPage() {
   const [newPassword, setNewPassword] = useState("");
   const [logoutOpen, setLogoutOpen] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [savingProfile, setSavingProfile] = useState(false);
   const [savingPassword, setSavingPassword] = useState(false);
 
@@ -22,12 +23,19 @@ export default function SettingsPage() {
     window.setTimeout(() => setToast(null), 2000);
   }
 
+  function flashError(message: string) {
+    setError(message);
+    window.setTimeout(() => setError(null), 3200);
+  }
+
   async function saveProfile() {
     setSavingProfile(true);
     try {
       const updated = await updateProfile(fullName, email);
       setUser(updated);
       flashToast("Profile saved");
+    } catch (e) {
+      flashError(errorMessage(e, "Couldn't save your profile — please try again."));
     } finally {
       setSavingProfile(false);
     }
@@ -40,8 +48,8 @@ export default function SettingsPage() {
       setCurrentPassword("");
       setNewPassword("");
       flashToast("Password updated");
-    } catch {
-      flashToast("Couldn't update password — check your current password");
+    } catch (e) {
+      flashError(errorMessage(e, "Couldn't update password — check your current password."));
     } finally {
       setSavingPassword(false);
     }
@@ -126,6 +134,7 @@ export default function SettingsPage() {
       </Modal>
 
       <Toast open={!!toast}>{toast}</Toast>
+      <Toast open={!!error} tone="error">{error}</Toast>
     </div>
   );
 }

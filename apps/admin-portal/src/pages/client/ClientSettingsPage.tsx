@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Button, Card, Input, Label, Select, Toast } from "@ovutor/ui";
 import { useCurrentClient } from "@/hooks/useCurrentClient";
-import { updateClient as apiUpdateClient, updatePortalEmail, resetPortalPassword } from "@/lib/api";
+import { updateClient as apiUpdateClient, updatePortalEmail, resetPortalPassword, errorMessage } from "@/lib/api";
 import { useClientsStore } from "@/store/clientsStore";
 import { CURRENCIES } from "@/lib/currency";
 import type { Client, ClientCredentials, ClientStatus } from "@/types";
@@ -19,6 +19,7 @@ export default function ClientSettingsPage() {
   const [credentials, setCredentials] = useState<ClientCredentials | null>(null);
   const [resetting, setResetting] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [savingDetails, setSavingDetails] = useState(false);
   const [savingEmail, setSavingEmail] = useState(false);
 
@@ -29,6 +30,11 @@ export default function ClientSettingsPage() {
   function flashToast(message: string) {
     setToast(message);
     window.setTimeout(() => setToast(null), 2400);
+  }
+
+  function flashError(message: string) {
+    setError(message);
+    window.setTimeout(() => setError(null), 3200);
   }
 
   if (!client || !form) return null;
@@ -44,9 +50,12 @@ export default function ClientSettingsPage() {
         guestCount: form!.guestCount,
         status: form!.status,
         currency: form!.currency,
+        budgetTarget: form!.budgetTotal,
       });
       upsertClient(updated);
       flashToast("Client details saved");
+    } catch (e) {
+      flashError(errorMessage(e, "Couldn't save these details — please try again."));
     } finally {
       setSavingDetails(false);
     }
@@ -58,6 +67,8 @@ export default function ClientSettingsPage() {
       const updated = await updatePortalEmail(client!.id, form!.portalEmail);
       upsertClient(updated);
       flashToast("Portal email saved");
+    } catch (e) {
+      flashError(errorMessage(e, "Couldn't save the portal email — please try again."));
     } finally {
       setSavingEmail(false);
     }
@@ -69,6 +80,8 @@ export default function ClientSettingsPage() {
       const creds = await resetPortalPassword(client!.id);
       setCredentials(creds);
       flashToast("New password generated — copy and share it with the couple");
+    } catch (e) {
+      flashError(errorMessage(e, "Couldn't generate a new password — please try again."));
     } finally {
       setResetting(false);
     }
@@ -140,6 +153,16 @@ export default function ClientSettingsPage() {
                 ))}
               </Select>
             </div>
+            <div>
+              <Label htmlFor="budgetTotal">Budget target</Label>
+              <Input
+                id="budgetTotal"
+                type="number"
+                min={0}
+                value={form.budgetTotal}
+                onChange={(e) => setForm({ ...form, budgetTotal: Number(e.target.value) || 0 })}
+              />
+            </div>
           </div>
           <Button className="mt-4" onClick={saveDetails} loading={savingDetails}>
             Save changes
@@ -199,6 +222,7 @@ export default function ClientSettingsPage() {
       </div>
 
       <Toast open={!!toast}>{toast}</Toast>
+      <Toast open={!!error} tone="error">{error}</Toast>
     </div>
   );
 }

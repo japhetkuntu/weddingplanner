@@ -11,6 +11,7 @@ import {
   updateTask as apiUpdateTask,
   toggleTask as apiToggleTask,
   deleteTask as apiDeleteTask,
+  errorMessage,
 } from "@/lib/api";
 import type { ChecklistPhase, ChecklistTask } from "@/types";
 
@@ -66,6 +67,7 @@ export default function ClientChecklistPage() {
   const [showAddPhase, setShowAddPhase] = useState(false);
   const [newPhaseTitle, setNewPhaseTitle] = useState("");
   const [toast, setToast] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [editingTask, setEditingTask] = useState<ChecklistTask | null>(null);
   const [editingPhase, setEditingPhase] = useState<ChecklistPhase | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<DeleteCandidate | null>(null);
@@ -88,29 +90,49 @@ export default function ClientChecklistPage() {
     window.setTimeout(() => setToast(null), 2200);
   }
 
+  function flashError(message: string) {
+    setError(message);
+    window.setTimeout(() => setError(null), 3200);
+  }
+
   async function toggleTask(id: string) {
-    const updated = await apiToggleTask(id);
-    setTasks((prev) => prev.map((t) => (t.id === id ? updated : t)));
-    flashToast("Saved");
+    try {
+      const updated = await apiToggleTask(id);
+      setTasks((prev) => prev.map((t) => (t.id === id ? updated : t)));
+      flashToast("Saved");
+    } catch (e) {
+      flashError(errorMessage(e, "Couldn't update that task — please try again."));
+    }
   }
 
   async function saveTask(updated: ChecklistTask) {
-    const saved = await apiUpdateTask(updated.id, { title: updated.title.trim() || "New task", note: updated.note, dueDate: updated.dueDate });
-    setTasks((prev) => prev.map((t) => (t.id === saved.id ? saved : t)));
-    setEditingTask(null);
-    flashToast("Saved");
+    try {
+      const saved = await apiUpdateTask(updated.id, { title: updated.title.trim() || "New task", note: updated.note, dueDate: updated.dueDate });
+      setTasks((prev) => prev.map((t) => (t.id === saved.id ? saved : t)));
+      setEditingTask(null);
+      flashToast("Saved");
+    } catch (e) {
+      flashError(errorMessage(e, "Couldn't save that task — please try again."));
+    }
   }
 
   async function addTaskToPhase(phaseId: string) {
-    const task = await apiAddTask(phaseId);
-    setTasks((prev) => [...prev, task]);
-    setEditingTask(task);
+    try {
+      const task = await apiAddTask(phaseId);
+      setTasks((prev) => [...prev, task]);
+      setEditingTask(task);
+    } catch (e) {
+      flashError(errorMessage(e, "Couldn't add a task — please try again."));
+    }
   }
 
   async function addPhase() {
     if (!client) return;
     const title = newPhaseTitle.trim();
-    if (!title) return;
+    if (!title) {
+      flashError("Give the checklist a name before adding it.");
+      return;
+    }
     setAddingPhase(true);
     try {
       const phase = await apiAddPhase(client.id, title);
@@ -118,16 +140,22 @@ export default function ClientChecklistPage() {
       setNewPhaseTitle("");
       setShowAddPhase(false);
       flashToast("Checklist added");
+    } catch (e) {
+      flashError(errorMessage(e, "Couldn't add that checklist — please try again."));
     } finally {
       setAddingPhase(false);
     }
   }
 
   async function savePhase(updated: ChecklistPhase) {
-    const saved = await apiUpdatePhase(updated.id, updated.title.trim() || updated.title, updated.description);
-    setPhases((prev) => prev.map((p) => (p.id === saved.id ? saved : p)));
-    setEditingPhase(null);
-    flashToast("Saved");
+    try {
+      const saved = await apiUpdatePhase(updated.id, updated.title.trim() || updated.title, updated.description);
+      setPhases((prev) => prev.map((p) => (p.id === saved.id ? saved : p)));
+      setEditingPhase(null);
+      flashToast("Saved");
+    } catch (e) {
+      flashError(errorMessage(e, "Couldn't save that checklist — please try again."));
+    }
   }
 
   function requestDelete(candidate: DeleteCandidate) {
@@ -150,6 +178,8 @@ export default function ClientChecklistPage() {
       }
       setConfirmDelete(null);
       flashToast("Deleted");
+    } catch (e) {
+      flashError(errorMessage(e, "Couldn't delete that — please try again."));
     } finally {
       setDeleting(false);
     }
@@ -372,6 +402,7 @@ export default function ClientChecklistPage() {
       </Modal>
 
       <Toast open={!!toast}>{toast}</Toast>
+      <Toast open={!!error} tone="error">{error}</Toast>
     </div>
   );
 }

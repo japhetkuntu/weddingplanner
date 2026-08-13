@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Badge, DataGrid, Drawer, Input, Label, Select, Skeleton, StatCard, Textarea, Button, Toast, type DataGridColumn } from "@ovutor/ui";
 import { useCurrentClient } from "@/hooks/useCurrentClient";
-import { getRsvps, updateRsvp } from "@/lib/api";
+import { getRsvps, updateRsvp, errorMessage } from "@/lib/api";
 import type { RsvpGuest, RsvpStatus } from "@/types";
 
 const STATUS_LABEL: Record<RsvpStatus, string> = { attending: "Attending", declined: "Declined", awaiting: "Awaiting" };
@@ -39,6 +39,7 @@ export default function ClientRsvpsPage() {
   const [statusFilter, setStatusFilter] = useState<RsvpStatus | "all">("all");
   const [selected, setSelected] = useState<RsvpGuest | null>(null);
   const [toast, setToast] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const filtered = useMemo(
     () =>
@@ -66,16 +67,21 @@ export default function ClientRsvpsPage() {
   const awaiting = guests.filter((g) => g.status === "awaiting").length;
 
   async function saveSelected(updated: RsvpGuest) {
-    const saved = await updateRsvp(updated.id, {
-      status: updated.status,
-      attendanceCount: updated.attendanceCount,
-      dietary: updated.dietary,
-      plannerNote: updated.plannerNote,
-    });
-    setGuests((prev) => prev.map((g) => (g.id === saved.id ? saved : g)));
-    setSelected(null);
-    setToast("Saved");
-    window.setTimeout(() => setToast(null), 2000);
+    try {
+      const saved = await updateRsvp(updated.id, {
+        status: updated.status,
+        attendanceCount: updated.attendanceCount,
+        dietary: updated.dietary,
+        plannerNote: updated.plannerNote,
+      });
+      setGuests((prev) => prev.map((g) => (g.id === saved.id ? saved : g)));
+      setSelected(null);
+      setToast("Saved");
+      window.setTimeout(() => setToast(null), 2000);
+    } catch (e) {
+      setError(errorMessage(e, "Couldn't save that RSVP — please try again."));
+      window.setTimeout(() => setError(null), 3200);
+    }
   }
 
   const columns: DataGridColumn<RsvpGuest>[] = [
@@ -136,6 +142,7 @@ export default function ClientRsvpsPage() {
       </Drawer>
 
       <Toast open={!!toast}>{toast}</Toast>
+      <Toast open={!!error} tone="error">{error}</Toast>
     </div>
   );
 }

@@ -17,6 +17,7 @@ public record UpdateClientRequest(
     string Venue,
     int GuestCount,
     string Status,
-    string Currency);
+    string Currency,
+    decimal BudgetTarget);
 
 public record UpdatePortalEmailRequest(string PortalEmail);

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button, Input, Label } from "@ovutor/ui";
 import { AuthShell, AuthCard, AuthLogo, AuthEyebrow } from "@/components/AuthCard";
-import { resetPassword } from "@/lib/api";
+import { resetPassword, errorMessage } from "@/lib/api";
 import clsx from "clsx";
 
 const RULES = ["At least 10 characters", "A mix of letters, numbers and symbols", "Not a commonly used password"];
@@ -14,6 +14,7 @@ export default function NewPasswordPage() {
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [loading, setLoading] = useState(false);
+  const [apiError, setApiError] = useState<string | null>(null);
   const match = password.length > 0 && password === confirm;
   const showError = confirm.length > 0 && !match;
 
@@ -28,9 +29,12 @@ export default function NewPasswordPage() {
           onSubmit={async (e) => {
             e.preventDefault();
             setLoading(true);
+            setApiError(null);
             try {
               await resetPassword(token, password);
               navigate("/reset-password/complete");
+            } catch (err) {
+              setApiError(errorMessage(err, "We couldn't reset your password. The link may have expired — request a new one."));
             } finally {
               setLoading(false);
             }
@@ -47,6 +51,8 @@ export default function NewPasswordPage() {
             </div>
           ) : null}
 
+          {apiError ? <div className="my-4 border-l-[3px] border-primary bg-[#fff2f0] p-3 text-sm text-[#5d2924]">{apiError}</div> : null}
+
           <div className="my-4 border border-[#ddd] p-3 text-sm">
             <b className="mb-2 block">Password guidance</b>
             {RULES.map((rule) => (
@@ -59,8 +65,8 @@ export default function NewPasswordPage() {
             </div>
           </div>
 
-          <Button type="submit" className="w-full" disabled={!match || loading}>
-            {loading ? "Saving…" : "Reset password"}
+          <Button type="submit" className="w-full" disabled={!match} loading={loading} loadingText="Saving…">
+            Reset password
           </Button>
         </form>
         <p className="mt-4 text-xs text-ink/50">This secure link is valid for a limited time · Need help? Contact support</p>

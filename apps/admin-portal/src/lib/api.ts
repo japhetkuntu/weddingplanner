@@ -1,4 +1,12 @@
-import { api, tokenStore } from "@/lib/httpClient";
+import { api, tokenStore, ApiError } from "@/lib/httpClient";
+
+export { ApiError };
+
+/** Best-effort user-facing message for a caught error — the backend's own validation/error
+ * message when available (e.g. "Partner one is required"), a generic fallback otherwise. */
+export function errorMessage(e: unknown, fallback = "Something went wrong. Please try again."): string {
+  return e instanceof ApiError ? e.message : fallback;
+}
 import type {
   ActivityEvent,
   AdminUser,
@@ -120,6 +128,7 @@ export interface UpdateClientPayload {
   guestCount: number;
   status: ClientStatus;
   currency: string;
+  budgetTarget: number;
 }
 
 export async function updateClient(id: string, payload: UpdateClientPayload): Promise<Client> {

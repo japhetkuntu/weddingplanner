@@ -2,12 +2,13 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button, Input, Label } from "@ovutor/ui";
 import { AuthShell, AuthCard, AuthLogo, AuthEyebrow } from "@/components/AuthCard";
-import { forgotPassword } from "@/lib/api";
+import { forgotPassword, errorMessage } from "@/lib/api";
 
 export default function ForgotPasswordPage() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   return (
     <AuthShell>
@@ -22,9 +23,12 @@ export default function ForgotPasswordPage() {
           onSubmit={async (e) => {
             e.preventDefault();
             setLoading(true);
+            setError(null);
             try {
               await forgotPassword(email);
               navigate("/reset-password/sent");
+            } catch (err) {
+              setError(errorMessage(err, "We couldn't send that reset link. Please try again."));
             } finally {
               setLoading(false);
             }
@@ -32,8 +36,11 @@ export default function ForgotPasswordPage() {
         >
           <Label htmlFor="email">Email address</Label>
           <Input id="email" type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} />
-          <Button type="submit" className="mt-5 w-full" disabled={loading}>
-            {loading ? "Sending…" : "Send reset link"}
+          {error ? (
+            <div className="my-4 border-l-[3px] border-primary bg-[#fff2f0] p-3 leading-snug text-[#5d2924]">{error}</div>
+          ) : null}
+          <Button type="submit" className="mt-5 w-full" loading={loading} loadingText="Sending…">
+            Send reset link
           </Button>
         </form>
         <a href="/login" onClick={(e) => { e.preventDefault(); navigate("/login"); }} className="mt-5 block text-sm font-bold text-primary">

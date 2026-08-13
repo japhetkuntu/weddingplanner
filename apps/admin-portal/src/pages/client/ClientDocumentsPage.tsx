@@ -8,6 +8,7 @@ import {
   uploadDocument,
   updateDocument,
   deleteDocument,
+  errorMessage,
 } from "@/lib/api";
 import type { DocumentFile, DocumentVisibility } from "@/types";
 
@@ -55,6 +56,7 @@ export default function ClientDocumentsPage() {
   const [editingDoc, setEditingDoc] = useState<DocumentFile | null>(null);
   const [confirmDeleteDoc, setConfirmDeleteDoc] = useState<DocumentFile | null>(null);
   const [toast, setToast] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
@@ -68,9 +70,18 @@ export default function ClientDocumentsPage() {
     window.setTimeout(() => setToast(null), 2200);
   }
 
+  function flashError(message: string) {
+    setError(message);
+    window.setTimeout(() => setError(null), 3200);
+  }
+
   async function registerCategory(name: string) {
-    const updated = await addDocumentCategory(name);
-    setCategories(updated);
+    try {
+      const updated = await addDocumentCategory(name);
+      setCategories(updated);
+    } catch (e) {
+      flashError(errorMessage(e, "Couldn't add that category — please try again."));
+    }
   }
 
   if (!client) return null;
@@ -83,10 +94,14 @@ export default function ClientDocumentsPage() {
   }
 
   async function saveDoc(updated: DocumentFile) {
-    const saved = await updateDocument(updated.id, updated.name.trim() || updated.name, updated.category, updated.visibility);
-    setDocuments((prev) => prev.map((d) => (d.id === saved.id ? saved : d)));
-    setEditingDoc(null);
-    flashToast("Saved");
+    try {
+      const saved = await updateDocument(updated.id, updated.name.trim() || updated.name, updated.category, updated.visibility);
+      setDocuments((prev) => prev.map((d) => (d.id === saved.id ? saved : d)));
+      setEditingDoc(null);
+      flashToast("Saved");
+    } catch (e) {
+      flashError(errorMessage(e, "Couldn't save that document — please try again."));
+    }
   }
 
   async function confirmDelete() {
@@ -98,6 +113,8 @@ export default function ClientDocumentsPage() {
       setConfirmDeleteDoc(null);
       setEditingDoc(null);
       flashToast("Document deleted");
+    } catch (e) {
+      flashError(errorMessage(e, "Couldn't delete that document — please try again."));
     } finally {
       setDeleting(false);
     }
@@ -201,6 +218,7 @@ export default function ClientDocumentsPage() {
       </Modal>
 
       <Toast open={!!toast}>{toast}</Toast>
+      <Toast open={!!error} tone="error">{error}</Toast>
     </div>
   );
 }
@@ -416,6 +434,8 @@ function UploadForm({
     try {
       const doc = await uploadDocument(clientId, file, category, visibility);
       onUploaded(doc);
+    } catch (err) {
+      setError(errorMessage(err, "Couldn't upload that file — please try again."));
     } finally {
       setUploading(false);
     }

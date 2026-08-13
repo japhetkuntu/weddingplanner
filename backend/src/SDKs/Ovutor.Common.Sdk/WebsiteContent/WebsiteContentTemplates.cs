@@ -1,8 +1,13 @@
 namespace Ovutor.Common.Sdk.WebsiteContent;
 
-/// <summary>Every field pre-filled with a realistic example — shows the admin what "good" looks like
-/// and doubles as instructions. Used both to seed the fixture clients and to give every newly created
-/// client a starting point instead of a blank site.</summary>
+/// <summary>Starting point for a newly created client's website content. Every field the admin still
+/// needs to fill in is left genuinely empty — every field here is rendered verbatim on the couple's
+/// live public site (see wedding-website/src/App.tsx), so seeding it with instructional filler text
+/// like "Add your venue" risks that literally shipping to guests if a section gets published before
+/// it's edited. The admin-portal editor's inputs show the same guidance as HTML placeholders instead
+/// (see ClientWebsitePage.tsx), which can never be accidentally submitted as real content. Only fields
+/// with genuinely reasonable, ready-to-publish defaults (generic copy, sensible toggles) are seeded
+/// with real values here.</summary>
 public static class WebsiteContentTemplates {
     public static readonly (string Key, string Title, string Description)[] SectionTemplate =
     [
@@ -16,45 +21,23 @@ public static class WebsiteContentTemplates {
     ];
 
     public static WebsiteHero HeroTemplate(string coupleNames) => new(
-        "Together with their families", coupleNames, "Add your wedding date", "Add your venue",
-        new WebsiteImage(null, "Upload a hero photo — a wide landscape shot of the couple works best"));
+        "Together with their families", coupleNames, "", "", new WebsiteImage(null, "Upload a hero photo — a wide landscape shot of the couple works best"));
 
-    public static WebsiteOurStory OurStoryTemplate() => new(
-        "Our Story", "Replace with your own line, e.g. \"A story worth telling.\"",
-        [
-            "This is where your story begins — a sentence or two on how you met sets the tone for the whole page.",
-            "Add a second paragraph about your journey together, or what led to the proposal.",
-        ],
-        [new WebsiteStoryMoment("First date", "2019"), new WebsiteStoryMoment("The proposal", "2025")],
-        [new WebsiteImage(null, "Add a photo of the two of you"), new WebsiteImage(null, "Add a favorite travel or date photo")]);
+    public static WebsiteOurStory OurStoryTemplate() => new("Our Story", "", [], [], []);
 
     public static List<WebsiteDetailCard> DetailsTemplate() =>
     [
-        new WebsiteDetailCard("Ceremony", "4:30 PM", "Venue name\nStreet address, City, State", "Add any arrival guidance for guests, e.g. \"Please arrive by 4:00 PM to be seated.\""),
-        new WebsiteDetailCard("Reception", "5:30 PM–11:00 PM", "Reception location, if different from the ceremony", "e.g. \"Cocktails, dinner, and dancing to follow.\""),
-        new WebsiteDetailCard("Attire", "e.g. Formal garden party", "", "Any helpful notes on dress code, weather or footwear."),
-        new WebsiteDetailCard("Parking & arrival", "e.g. Easy to find", "", "Parking, rideshare drop-off, or accessibility notes."),
+        new WebsiteDetailCard("Ceremony", "", "", ""),
+        new WebsiteDetailCard("Reception", "", "", ""),
+        new WebsiteDetailCard("Attire", "", "", ""),
+        new WebsiteDetailCard("Parking & arrival", "", "", ""),
     ];
 
-    public static List<WebsiteScheduleEvent> ScheduleTemplate() =>
-    [
-        new WebsiteScheduleEvent("4:00 PM", "Guest arrival", "Please arrive in time to be seated."),
-        new WebsiteScheduleEvent("4:30 PM", "Ceremony", "Add the ceremony location"),
-        new WebsiteScheduleEvent("5:30 PM", "Cocktail hour", "Add the location"),
-        new WebsiteScheduleEvent("6:30 PM", "Dinner & toasts", "Add the location"),
-    ];
+    public static List<WebsiteScheduleEvent> ScheduleTemplate() => [];
 
-    public static List<WebsiteTravelItem> TravelTemplate() =>
-    [
-        new WebsiteTravelItem("Hotel block", "Add details of a room block or recommended hotel for out-of-town guests."),
-        new WebsiteTravelItem("Getting there", "Add directions, parking, or public transport tips."),
-    ];
+    public static List<WebsiteTravelItem> TravelTemplate() => [];
 
-    public static List<WebsiteGalleryPhoto> GalleryTemplate() =>
-    [
-        new WebsiteGalleryPhoto(null, "Add a favorite photo", "Add a short caption"),
-        new WebsiteGalleryPhoto(null, "Add another photo", "Add a short caption"),
-    ];
+    public static List<WebsiteGalleryPhoto> GalleryTemplate() => [];
 
     public static WebsiteRsvpConfig RsvpTemplate() =>
         new("", "We can't wait to celebrate with you. Your response has been received.", true, false);

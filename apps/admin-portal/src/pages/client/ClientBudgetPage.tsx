@@ -9,6 +9,7 @@ import {
   addBudgetExpense,
   updateBudgetExpense,
   deleteBudgetExpense,
+  errorMessage,
 } from "@/lib/api";
 import { formatMoney } from "@/lib/currency";
 import type { BudgetCategory, BudgetExpense } from "@/types";
@@ -52,6 +53,7 @@ export default function ClientBudgetPage() {
   const [showAddCategory, setShowAddCategory] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState("");
   const [toast, setToast] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [editingCategory, setEditingCategory] = useState<BudgetCategory | null>(null);
   const [editingExpense, setEditingExpense] = useState<{ categoryId: string; expense: BudgetExpense } | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<DeleteCandidate | null>(null);
@@ -71,6 +73,11 @@ export default function ClientBudgetPage() {
     window.setTimeout(() => setToast(null), 2000);
   }
 
+  function flashError(message: string) {
+    setError(message);
+    window.setTimeout(() => setError(null), 3200);
+  }
+
   function updateExpenseAmount(categoryId: string, expenseId: string, field: "planned" | "agreed" | "paid", value: string) {
     const num = Number(value.replace(/[^0-9.]/g, "")) || 0;
     setCategories((prev) =>
@@ -84,43 +91,58 @@ export default function ClientBudgetPage() {
     const category = categories.find((c) => c.id === categoryId);
     const expense = category?.expenses.find((e) => e.id === expenseId);
     if (!expense) return;
-    await updateBudgetExpense(expenseId, {
-      vendor: expense.vendor,
-      description: expense.description,
-      planned: expense.planned,
-      agreed: expense.agreed,
-      paid: expense.paid,
-      nextDue: expense.nextDue,
-    });
+    try {
+      await updateBudgetExpense(expenseId, {
+        vendor: expense.vendor,
+        description: expense.description,
+        planned: expense.planned,
+        agreed: expense.agreed,
+        paid: expense.paid,
+        nextDue: expense.nextDue,
+      });
+    } catch (e) {
+      flashError(errorMessage(e, "Couldn't save that amount — please try again."));
+    }
   }
 
   // One click adds the row and immediately opens it for editing, so a blank "New expense" never lingers.
   async function addExpense(categoryId: string) {
-    const expense = await addBudgetExpense(categoryId);
-    setCategories((prev) => prev.map((c) => (c.id !== categoryId ? c : { ...c, expenses: [...c.expenses, expense] })));
-    setEditingExpense({ categoryId, expense });
+    try {
+      const expense = await addBudgetExpense(categoryId);
+      setCategories((prev) => prev.map((c) => (c.id !== categoryId ? c : { ...c, expenses: [...c.expenses, expense] })));
+      setEditingExpense({ categoryId, expense });
+    } catch (e) {
+      flashError(errorMessage(e, "Couldn't add an expense — please try again."));
+    }
   }
 
   async function saveExpense(categoryId: string, updated: BudgetExpense) {
-    const saved = await updateBudgetExpense(updated.id, {
-      vendor: updated.vendor.trim() || updated.vendor,
-      description: updated.description,
-      planned: updated.planned,
-      agreed: updated.agreed,
-      paid: updated.paid,
-      nextDue: updated.nextDue,
-    });
-    setCategories((prev) =>
-      prev.map((c) => (c.id !== categoryId ? c : { ...c, expenses: c.expenses.map((e) => (e.id === saved.id ? saved : e)) })),
-    );
-    setEditingExpense(null);
-    flashToast("Saved");
+    try {
+      const saved = await updateBudgetExpense(updated.id, {
+        vendor: updated.vendor.trim() || updated.vendor,
+        description: updated.description,
+        planned: updated.planned,
+        agreed: updated.agreed,
+        paid: updated.paid,
+        nextDue: updated.nextDue,
+      });
+      setCategories((prev) =>
+        prev.map((c) => (c.id !== categoryId ? c : { ...c, expenses: c.expenses.map((e) => (e.id === saved.id ? saved : e)) })),
+      );
+      setEditingExpense(null);
+      flashToast("Saved");
+    } catch (e) {
+      flashError(errorMessage(e, "Couldn't save that expense — please try again."));
+    }
   }
 
   async function addCategory() {
     if (!client) return;
     const name = newCategoryName.trim();
-    if (!name) return;
+    if (!name) {
+      flashError("Give the category a name before adding it.");
+      return;
+    }
     setAddingCategory(true);
     try {
       const category = await addBudgetCategory(client.id, name);
@@ -128,16 +150,22 @@ export default function ClientBudgetPage() {
       setNewCategoryName("");
       setShowAddCategory(false);
       flashToast("Category added");
+    } catch (e) {
+      flashError(errorMessage(e, "Couldn't add that category — please try again."));
     } finally {
       setAddingCategory(false);
     }
   }
 
   async function saveCategory(updated: BudgetCategory) {
-    const saved = await updateBudgetCategory(updated.id, updated.name.trim() || updated.name, updated.description);
-    setCategories((prev) => prev.map((c) => (c.id === saved.id ? { ...c, ...saved } : c)));
-    setEditingCategory(null);
-    flashToast("Saved");
+    try {
+      const saved = await updateBudgetCategory(updated.id, updated.name.trim() || updated.name, updated.description);
+      setCategories((prev) => prev.map((c) => (c.id === saved.id ? { ...c, ...saved } : c)));
+      setEditingCategory(null);
+      flashToast("Saved");
+    } catch (e) {
+      flashError(errorMessage(e, "Couldn't save that category — please try again."));
+    }
   }
 
   function requestDelete(candidate: DeleteCandidate) {
@@ -161,6 +189,8 @@ export default function ClientBudgetPage() {
       }
       setConfirmDelete(null);
       flashToast("Deleted");
+    } catch (e) {
+      flashError(errorMessage(e, "Couldn't delete that — please try again."));
     } finally {
       setDeleting(false);
     }
@@ -367,6 +397,7 @@ export default function ClientBudgetPage() {
       </Modal>
 
       <Toast open={!!toast}>{toast}</Toast>
+      <Toast open={!!error} tone="error">{error}</Toast>
     </div>
   );
 }

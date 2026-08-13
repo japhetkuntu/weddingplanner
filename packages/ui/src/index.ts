@@ -11,6 +11,7 @@ export * from "./components/ContextBar";
 export * from "./components/Drawer";
 export * from "./components/DataGrid";
 export * from "./components/Modal";
+export * from "./components/ErrorModal";
 export * from "./components/Toast";
 export * from "./components/Toggle";
 export * from "./components/EmptyState";

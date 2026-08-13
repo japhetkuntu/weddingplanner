@@ -15,7 +15,6 @@ namespace Ovutor.Admin.Api.Services;
 
 public class ClientService(
     IRepository<Client> clients,
-    IRepository<ChecklistPhase> checklistPhases,
     IRepository<WebsiteSection> websiteSections,
     IRepository<WebsiteContent> websiteContents,
     IConfiguration configuration,
@@ -93,12 +92,6 @@ public class ClientService(
                 }
             }
 
-            var defaultPhases = new[] { "I. Set the foundation", "II. Secure your team", "III. Shape the celebration", "IV. Finalize the details" };
-            for (var i = 0; i < defaultPhases.Length; i++)
-            {
-                await checklistPhases.AddAsync(new ChecklistPhase { ClientId = client.Id, Title = defaultPhases[i], Order = i + 1 }, ct);
-            }
-
             for (var i = 0; i < WebsiteContentTemplates.SectionTemplate.Length; i++)
             {
                 var (key, title, description) = WebsiteContentTemplates.SectionTemplate[i];
@@ -141,6 +134,7 @@ public class ClientService(
             client.GuestCount = request.GuestCount;
             client.Status = request.Status;
             client.Currency = request.Currency;
+            client.BudgetTotal = request.BudgetTarget;
             await clients.UpdateAsync(client, ct);
             return ToResponse(client).ToOkApiResponse("Client details saved.");
         }
