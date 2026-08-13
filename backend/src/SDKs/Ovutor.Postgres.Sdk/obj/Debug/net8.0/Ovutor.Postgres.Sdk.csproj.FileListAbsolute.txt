@@ -15,3 +15,4 @@
 /Users/joe/Work/Others/Ovutor/backend/src/SDKs/Ovutor.Postgres.Sdk/obj/Debug/net8.0/Ovutor.Postgres.Sdk.pdb
 /Users/joe/Work/Others/Ovutor/backend/src/SDKs/Ovutor.Postgres.Sdk/obj/Debug/net8.0/Ovutor.Postgres.Sdk.genruntimeconfig.cache
 /Users/joe/Work/Others/Ovutor/backend/src/SDKs/Ovutor.Postgres.Sdk/obj/Debug/net8.0/ref/Ovutor.Postgres.Sdk.dll
+/Users/joe/Work/Others/Ovutor/backend/src/SDKs/Ovutor.Postgres.Sdk/obj/Debug/net8.0/Ovutor.Postgres.Sdk.sourcelink.json

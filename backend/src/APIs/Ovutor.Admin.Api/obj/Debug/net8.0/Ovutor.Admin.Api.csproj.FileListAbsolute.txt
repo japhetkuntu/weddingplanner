@@ -143,3 +143,4 @@
 /Users/joe/Work/Others/Ovutor/backend/src/APIs/Ovutor.Admin.Api/bin/Debug/net8.0/Ovutor.Storage.Sdk.dll
 /Users/joe/Work/Others/Ovutor/backend/src/APIs/Ovutor.Admin.Api/bin/Debug/net8.0/Ovutor.Storage.Sdk.pdb
 /Users/joe/Work/Others/Ovutor/backend/src/APIs/Ovutor.Admin.Api/bin/Debug/net8.0/Ovutor.Cache.Sdk.pdb
+/Users/joe/Work/Others/Ovutor/backend/src/APIs/Ovutor.Admin.Api/obj/Debug/net8.0/Ovutor.Admin.Api.sourcelink.json

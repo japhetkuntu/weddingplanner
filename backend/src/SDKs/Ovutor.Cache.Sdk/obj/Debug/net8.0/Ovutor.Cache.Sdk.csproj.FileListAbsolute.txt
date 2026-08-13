@@ -13,3 +13,4 @@
 /Users/joe/Work/Others/Ovutor/backend/src/SDKs/Ovutor.Cache.Sdk/obj/Debug/net8.0/refint/Ovutor.Cache.Sdk.dll
 /Users/joe/Work/Others/Ovutor/backend/src/SDKs/Ovutor.Cache.Sdk/obj/Debug/net8.0/Ovutor.Cache.Sdk.pdb
 /Users/joe/Work/Others/Ovutor/backend/src/SDKs/Ovutor.Cache.Sdk/obj/Debug/net8.0/ref/Ovutor.Cache.Sdk.dll
+/Users/joe/Work/Others/Ovutor/backend/src/SDKs/Ovutor.Cache.Sdk/obj/Debug/net8.0/Ovutor.Cache.Sdk.sourcelink.json

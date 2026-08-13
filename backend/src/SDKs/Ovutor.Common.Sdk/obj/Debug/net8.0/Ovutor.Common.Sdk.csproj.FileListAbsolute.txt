@@ -10,3 +10,4 @@
 /Users/joe/Work/Others/Ovutor/backend/src/SDKs/Ovutor.Common.Sdk/obj/Debug/net8.0/Ovutor.Common.Sdk.pdb
 /Users/joe/Work/Others/Ovutor/backend/src/SDKs/Ovutor.Common.Sdk/obj/Debug/net8.0/ref/Ovutor.Common.Sdk.dll
 /Users/joe/Work/Others/Ovutor/backend/src/SDKs/Ovutor.Common.Sdk/obj/Debug/net8.0/Ovutor.Common.Sdk.csproj.AssemblyReference.cache
+/Users/joe/Work/Others/Ovutor/backend/src/SDKs/Ovutor.Common.Sdk/obj/Debug/net8.0/Ovutor.Common.Sdk.sourcelink.json

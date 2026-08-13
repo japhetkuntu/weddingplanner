@@ -13,3 +13,4 @@
 /Users/joe/Work/Others/Ovutor/backend/src/SDKs/Ovutor.Storage.Sdk/obj/Debug/net8.0/refint/Ovutor.Storage.Sdk.dll
 /Users/joe/Work/Others/Ovutor/backend/src/SDKs/Ovutor.Storage.Sdk/obj/Debug/net8.0/Ovutor.Storage.Sdk.pdb
 /Users/joe/Work/Others/Ovutor/backend/src/SDKs/Ovutor.Storage.Sdk/obj/Debug/net8.0/ref/Ovutor.Storage.Sdk.dll
+/Users/joe/Work/Others/Ovutor/backend/src/SDKs/Ovutor.Storage.Sdk/obj/Debug/net8.0/Ovutor.Storage.Sdk.sourcelink.json

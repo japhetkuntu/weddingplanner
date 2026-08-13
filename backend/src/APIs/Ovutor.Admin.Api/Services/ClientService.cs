@@ -1,4 +1,6 @@
 using System.Text.Json;
+using Microsoft.EntityFrameworkCore;
+using Npgsql;
 using Ovutor.Admin.Api.Interfaces;
 using Ovutor.Admin.Api.Models.Requests;
 using Ovutor.Admin.Api.Models.Responses;
@@ -46,30 +48,50 @@ public class ClientService(
     {
         try
         {
-            var slug = await UniqueSlugAsync(CredentialGenerator.Slugify(request.PartnerA, request.PartnerB), ct);
+            var baseSlug = CredentialGenerator.Slugify(request.PartnerA, request.PartnerB);
             var password = CredentialGenerator.GeneratePassword();
             var coupleNames = $"{request.PartnerA} & {request.PartnerB}";
 
-            var client = new Client
+            // UniqueSlugAsync's own check is only a pre-check, not a guarantee — two admins could
+            // both pass it for the same base slug in the same instant. The database's unique index
+            // on Slug is what actually rules out a duplicate ever being persisted; this retry loop
+            // just means the loser of that race gets a different slug and still succeeds, instead
+            // of a raw 500 from the constraint violation.
+            const int maxAttempts = 5;
+            Client client = null!;
+            for (var attempt = 1; ; attempt++)
             {
-                Slug = slug,
-                CoupleNames = coupleNames,
-                PartnerA = request.PartnerA,
-                PartnerB = request.PartnerB,
-                WeddingDate = DateOnly.Parse(request.WeddingDate),
-                Venue = request.Venue,
-                GuestCount = request.GuestCount,
-                Status = "early-planning",
-                PlanningPercent = 2,
-                BudgetTotal = request.BudgetTarget,
-                BudgetPaid = 0,
-                Currency = request.Currency,
-                NextAttention = "Book venue walkthrough",
-                AvatarInitials = $"{request.PartnerA.FirstOrDefault()}{request.PartnerB.FirstOrDefault()}".ToUpperInvariant(),
-                PortalEmail = request.ContactEmail.Trim().ToLowerInvariant(),
-                PortalPasswordHash = PasswordHasher.Hash(password),
-            };
-            await clients.AddAsync(client, ct);
+                var slug = await UniqueSlugAsync(baseSlug, ct);
+                client = new Client
+                {
+                    Slug = slug,
+                    CoupleNames = coupleNames,
+                    PartnerA = request.PartnerA,
+                    PartnerB = request.PartnerB,
+                    WeddingDate = DateOnly.Parse(request.WeddingDate),
+                    Venue = request.Venue,
+                    GuestCount = request.GuestCount,
+                    Status = "early-planning",
+                    PlanningPercent = 2,
+                    BudgetTotal = request.BudgetTarget,
+                    BudgetPaid = 0,
+                    Currency = request.Currency,
+                    NextAttention = "Book venue walkthrough",
+                    AvatarInitials = $"{request.PartnerA.FirstOrDefault()}{request.PartnerB.FirstOrDefault()}".ToUpperInvariant(),
+                    PortalEmail = request.ContactEmail.Trim().ToLowerInvariant(),
+                    PortalPasswordHash = PasswordHasher.Hash(password),
+                };
+
+                try
+                {
+                    await clients.AddAsync(client, ct);
+                    break;
+                }
+                catch (DbUpdateException e) when (attempt < maxAttempts && IsSlugConflict(e))
+                {
+                    logger.LogWarning("[CreateAsync] Slug '{Slug}' collided with a concurrent create — retrying ({Attempt}/{Max}).", slug, attempt, maxAttempts);
+                }
+            }
 
             var defaultPhases = new[] { "I. Set the foundation", "II. Secure your team", "III. Shape the celebration", "IV. Finalize the details" };
             for (var i = 0; i < defaultPhases.Length; i++)
@@ -166,6 +188,10 @@ public class ClientService(
             return ApiResponseFactory.InternalError<ClientCredentialsResponse>("Failed to reset password.");
         }
     }
+
+    private static bool IsSlugConflict(DbUpdateException e) =>
+        e.InnerException is PostgresException { SqlState: PostgresErrorCodes.UniqueViolation } pg
+        && pg.ConstraintName == "IX_Clients_Slug";
 
     private async Task<string> UniqueSlugAsync(string baseSlug, CancellationToken ct)
     {
