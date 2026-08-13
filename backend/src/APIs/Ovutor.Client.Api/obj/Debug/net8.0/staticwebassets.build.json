@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "JDL0fsqLKP9R3fXza4yF5KNAyaiq6Qn2PWUx3BkzuIA=",
+  "Source": "Ovutor.Client.Api",
+  "BasePath": "_content/Ovutor.Client.Api",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}

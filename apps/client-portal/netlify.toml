@@ -1,0 +1,11 @@
+[build]
+  command = "pnpm --filter @ovutor/client-portal build"
+  publish = "apps/client-portal/dist"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

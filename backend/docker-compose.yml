@@ -1,0 +1,71 @@
+name: ovutor-backend
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: ovutor-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: Ovutor
+      POSTGRES_USER: ovutor
+      POSTGRES_PASSWORD: localdev
+    ports:
+      - "5432:5432"
+    volumes:
+      - ovutor-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ovutor -d Ovutor"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    container_name: ovutor-redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # Local stand-in for DigitalOcean Spaces (both are S3-compatible, so the app talks
+  # to whichever via the same AWSSDK.S3 client — only Storage:* config differs).
+  minio:
+    image: minio/minio:latest
+    container_name: ovutor-minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ovutorapp
+      MINIO_ROOT_PASSWORD: ovutorapp
+    ports:
+      - "9000:9000" # S3 API
+      - "9001:9001" # web console
+    volumes:
+      - ovutor-minio-data:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # One-shot: creates the "ovutor" bucket and makes it public-read, then exits.
+  # appsettings.Development.json expects this bucket to already exist.
+  minio-init:
+    image: minio/mc:latest
+    container_name: ovutor-minio-init
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      mc alias set local http://minio:9000 ovutorapp ovutorapp &&
+      mc mb -p local/ovutor &&
+      mc anonymous set download local/ovutor
+      "
+    restart: "no"
+
+volumes:
+  ovutor-postgres-data:
+  ovutor-minio-data:

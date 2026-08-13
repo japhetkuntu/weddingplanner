@@ -1,0 +1,23 @@
+{
+  "version": 2,
+  "dgSpecHash": "LenhLczBoHw=",
+  "success": true,
+  "projectFilePath": "/Users/joe/Work/Others/Ovutor/backend/src/SDKs/Ovutor.Storage.Sdk/Ovutor.Storage.Sdk.csproj",
+  "expectedPackageFiles": [
+    "/Users/joe/.nuget/packages/awssdk.core/3.7.400.43/awssdk.core.3.7.400.43.nupkg.sha512",
+    "/Users/joe/.nuget/packages/awssdk.s3/3.7.405.7/awssdk.s3.3.7.405.7.nupkg.sha512",
+    "/Users/joe/.nuget/packages/microsoft.bcl.timeprovider/8.0.1/microsoft.bcl.timeprovider.8.0.1.nupkg.sha512",
+    "/Users/joe/.nuget/packages/microsoft.extensions.configuration.abstractions/8.0.0/microsoft.extensions.configuration.abstractions.8.0.0.nupkg.sha512",
+    "/Users/joe/.nuget/packages/microsoft.extensions.configuration.binder/8.0.2/microsoft.extensions.configuration.binder.8.0.2.nupkg.sha512",
+    "/Users/joe/.nuget/packages/microsoft.extensions.dependencyinjection.abstractions/8.0.2/microsoft.extensions.dependencyinjection.abstractions.8.0.2.nupkg.sha512",
+    "/Users/joe/.nuget/packages/microsoft.extensions.options/8.0.2/microsoft.extensions.options.8.0.2.nupkg.sha512",
+    "/Users/joe/.nuget/packages/microsoft.extensions.options.configurationextensions/8.0.0/microsoft.extensions.options.configurationextensions.8.0.0.nupkg.sha512",
+    "/Users/joe/.nuget/packages/microsoft.extensions.primitives/8.0.0/microsoft.extensions.primitives.8.0.0.nupkg.sha512",
+    "/Users/joe/.nuget/packages/microsoft.identitymodel.abstractions/8.1.2/microsoft.identitymodel.abstractions.8.1.2.nupkg.sha512",
+    "/Users/joe/.nuget/packages/microsoft.identitymodel.jsonwebtokens/8.1.2/microsoft.identitymodel.jsonwebtokens.8.1.2.nupkg.sha512",
+    "/Users/joe/.nuget/packages/microsoft.identitymodel.logging/8.1.2/microsoft.identitymodel.logging.8.1.2.nupkg.sha512",
+    "/Users/joe/.nuget/packages/microsoft.identitymodel.tokens/8.1.2/microsoft.identitymodel.tokens.8.1.2.nupkg.sha512",
+    "/Users/joe/.nuget/packages/system.identitymodel.tokens.jwt/8.1.2/system.identitymodel.tokens.jwt.8.1.2.nupkg.sha512"
+  ],
+  "logs": []
+}

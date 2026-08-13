@@ -1,0 +1,12 @@
+/Users/joe/Work/Others/Ovutor/backend/src/SDKs/Ovutor.Common.Sdk/bin/Debug/net8.0/Ovutor.Common.Sdk.deps.json
+/Users/joe/Work/Others/Ovutor/backend/src/SDKs/Ovutor.Common.Sdk/bin/Debug/net8.0/Ovutor.Common.Sdk.dll
+/Users/joe/Work/Others/Ovutor/backend/src/SDKs/Ovutor.Common.Sdk/bin/Debug/net8.0/Ovutor.Common.Sdk.pdb
+/Users/joe/Work/Others/Ovutor/backend/src/SDKs/Ovutor.Common.Sdk/obj/Debug/net8.0/Ovutor.Common.Sdk.GeneratedMSBuildEditorConfig.editorconfig
+/Users/joe/Work/Others/Ovutor/backend/src/SDKs/Ovutor.Common.Sdk/obj/Debug/net8.0/Ovutor.Common.Sdk.AssemblyInfoInputs.cache
+/Users/joe/Work/Others/Ovutor/backend/src/SDKs/Ovutor.Common.Sdk/obj/Debug/net8.0/Ovutor.Common.Sdk.AssemblyInfo.cs
+/Users/joe/Work/Others/Ovutor/backend/src/SDKs/Ovutor.Common.Sdk/obj/Debug/net8.0/Ovutor.Common.Sdk.csproj.CoreCompileInputs.cache
+/Users/joe/Work/Others/Ovutor/backend/src/SDKs/Ovutor.Common.Sdk/obj/Debug/net8.0/Ovutor.Common.Sdk.dll
+/Users/joe/Work/Others/Ovutor/backend/src/SDKs/Ovutor.Common.Sdk/obj/Debug/net8.0/refint/Ovutor.Common.Sdk.dll
+/Users/joe/Work/Others/Ovutor/backend/src/SDKs/Ovutor.Common.Sdk/obj/Debug/net8.0/Ovutor.Common.Sdk.pdb
+/Users/joe/Work/Others/Ovutor/backend/src/SDKs/Ovutor.Common.Sdk/obj/Debug/net8.0/ref/Ovutor.Common.Sdk.dll
+/Users/joe/Work/Others/Ovutor/backend/src/SDKs/Ovutor.Common.Sdk/obj/Debug/net8.0/Ovutor.Common.Sdk.csproj.AssemblyReference.cache

@@ -1,0 +1,15 @@
+/Users/joe/Work/Others/Ovutor/backend/src/SDKs/Ovutor.Storage.Sdk/bin/Debug/net8.0/Ovutor.Storage.Sdk.deps.json
+/Users/joe/Work/Others/Ovutor/backend/src/SDKs/Ovutor.Storage.Sdk/bin/Debug/net8.0/Ovutor.Storage.Sdk.dll
+/Users/joe/Work/Others/Ovutor/backend/src/SDKs/Ovutor.Storage.Sdk/bin/Debug/net8.0/Ovutor.Storage.Sdk.pdb
+/Users/joe/Work/Others/Ovutor/backend/src/SDKs/Ovutor.Storage.Sdk/bin/Debug/net8.0/Ovutor.Common.Sdk.dll
+/Users/joe/Work/Others/Ovutor/backend/src/SDKs/Ovutor.Storage.Sdk/bin/Debug/net8.0/Ovutor.Common.Sdk.pdb
+/Users/joe/Work/Others/Ovutor/backend/src/SDKs/Ovutor.Storage.Sdk/obj/Debug/net8.0/Ovutor.Storage.Sdk.csproj.AssemblyReference.cache
+/Users/joe/Work/Others/Ovutor/backend/src/SDKs/Ovutor.Storage.Sdk/obj/Debug/net8.0/Ovutor.Storage.Sdk.GeneratedMSBuildEditorConfig.editorconfig
+/Users/joe/Work/Others/Ovutor/backend/src/SDKs/Ovutor.Storage.Sdk/obj/Debug/net8.0/Ovutor.Storage.Sdk.AssemblyInfoInputs.cache
+/Users/joe/Work/Others/Ovutor/backend/src/SDKs/Ovutor.Storage.Sdk/obj/Debug/net8.0/Ovutor.Storage.Sdk.AssemblyInfo.cs
+/Users/joe/Work/Others/Ovutor/backend/src/SDKs/Ovutor.Storage.Sdk/obj/Debug/net8.0/Ovutor.Storage.Sdk.csproj.CoreCompileInputs.cache
+/Users/joe/Work/Others/Ovutor/backend/src/SDKs/Ovutor.Storage.Sdk/obj/Debug/net8.0/Ovutor.S.54D72E7B.Up2Date
+/Users/joe/Work/Others/Ovutor/backend/src/SDKs/Ovutor.Storage.Sdk/obj/Debug/net8.0/Ovutor.Storage.Sdk.dll
+/Users/joe/Work/Others/Ovutor/backend/src/SDKs/Ovutor.Storage.Sdk/obj/Debug/net8.0/refint/Ovutor.Storage.Sdk.dll
+/Users/joe/Work/Others/Ovutor/backend/src/SDKs/Ovutor.Storage.Sdk/obj/Debug/net8.0/Ovutor.Storage.Sdk.pdb
+/Users/joe/Work/Others/Ovutor/backend/src/SDKs/Ovutor.Storage.Sdk/obj/Debug/net8.0/ref/Ovutor.Storage.Sdk.dll

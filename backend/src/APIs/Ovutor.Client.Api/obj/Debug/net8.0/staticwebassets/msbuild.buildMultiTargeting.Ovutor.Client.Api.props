@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="../build/Ovutor.Client.Api.props" />
+</Project>

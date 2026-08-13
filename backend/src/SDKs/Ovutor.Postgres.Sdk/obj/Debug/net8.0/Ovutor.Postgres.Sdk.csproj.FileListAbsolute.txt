@@ -1,0 +1,17 @@
+/Users/joe/Work/Others/Ovutor/backend/src/SDKs/Ovutor.Postgres.Sdk/bin/Debug/net8.0/Ovutor.Postgres.Sdk.deps.json
+/Users/joe/Work/Others/Ovutor/backend/src/SDKs/Ovutor.Postgres.Sdk/bin/Debug/net8.0/Ovutor.Postgres.Sdk.runtimeconfig.json
+/Users/joe/Work/Others/Ovutor/backend/src/SDKs/Ovutor.Postgres.Sdk/bin/Debug/net8.0/Ovutor.Postgres.Sdk.dll
+/Users/joe/Work/Others/Ovutor/backend/src/SDKs/Ovutor.Postgres.Sdk/bin/Debug/net8.0/Ovutor.Postgres.Sdk.pdb
+/Users/joe/Work/Others/Ovutor/backend/src/SDKs/Ovutor.Postgres.Sdk/bin/Debug/net8.0/Ovutor.Common.Sdk.dll
+/Users/joe/Work/Others/Ovutor/backend/src/SDKs/Ovutor.Postgres.Sdk/bin/Debug/net8.0/Ovutor.Common.Sdk.pdb
+/Users/joe/Work/Others/Ovutor/backend/src/SDKs/Ovutor.Postgres.Sdk/obj/Debug/net8.0/Ovutor.Postgres.Sdk.csproj.AssemblyReference.cache
+/Users/joe/Work/Others/Ovutor/backend/src/SDKs/Ovutor.Postgres.Sdk/obj/Debug/net8.0/Ovutor.Postgres.Sdk.GeneratedMSBuildEditorConfig.editorconfig
+/Users/joe/Work/Others/Ovutor/backend/src/SDKs/Ovutor.Postgres.Sdk/obj/Debug/net8.0/Ovutor.Postgres.Sdk.AssemblyInfoInputs.cache
+/Users/joe/Work/Others/Ovutor/backend/src/SDKs/Ovutor.Postgres.Sdk/obj/Debug/net8.0/Ovutor.Postgres.Sdk.AssemblyInfo.cs
+/Users/joe/Work/Others/Ovutor/backend/src/SDKs/Ovutor.Postgres.Sdk/obj/Debug/net8.0/Ovutor.Postgres.Sdk.csproj.CoreCompileInputs.cache
+/Users/joe/Work/Others/Ovutor/backend/src/SDKs/Ovutor.Postgres.Sdk/obj/Debug/net8.0/Ovutor.P.4A4CD182.Up2Date
+/Users/joe/Work/Others/Ovutor/backend/src/SDKs/Ovutor.Postgres.Sdk/obj/Debug/net8.0/Ovutor.Postgres.Sdk.dll
+/Users/joe/Work/Others/Ovutor/backend/src/SDKs/Ovutor.Postgres.Sdk/obj/Debug/net8.0/refint/Ovutor.Postgres.Sdk.dll
+/Users/joe/Work/Others/Ovutor/backend/src/SDKs/Ovutor.Postgres.Sdk/obj/Debug/net8.0/Ovutor.Postgres.Sdk.pdb
+/Users/joe/Work/Others/Ovutor/backend/src/SDKs/Ovutor.Postgres.Sdk/obj/Debug/net8.0/Ovutor.Postgres.Sdk.genruntimeconfig.cache
+/Users/joe/Work/Others/Ovutor/backend/src/SDKs/Ovutor.Postgres.Sdk/obj/Debug/net8.0/ref/Ovutor.Postgres.Sdk.dll

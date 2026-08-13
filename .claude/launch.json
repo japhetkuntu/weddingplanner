@@ -1,0 +1,23 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "admin-portal",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["--filter", "@ovutor/admin-portal", "dev"],
+      "port": 5174
+    },
+    {
+      "name": "client-portal",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["--filter", "@ovutor/client-portal", "dev"],
+      "port": 5173
+    },
+    {
+      "name": "wedding-website",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["--filter", "@ovutor/wedding-website", "dev"],
+      "port": 5175
+    }
+  ]
+}

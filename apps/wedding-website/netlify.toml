@@ -1,0 +1,16 @@
+[build]
+  command = "pnpm --filter @ovutor/wedding-website build"
+  publish = "apps/wedding-website/dist"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+# Every couple's URL is a path on this one site (ovutor.com/<slug>) rather than a
+# separate page — there's no server-side route for any of them, the app reads the
+# slug from window.location.pathname on load. So unlike a typical SPA fallback,
+# this redirect isn't just for client-side routing edge cases, it's how every
+# single wedding site on this domain gets served at all.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

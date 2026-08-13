@@ -1,0 +1,39 @@
+{
+  "Version": 1,
+  "Hash": "CLPoIkFImtmX/GZ1SRgLTwOQHxjrU+EEMPgv3tVQiss=",
+  "Source": "Ovutor.Admin.Api",
+  "BasePath": "_content/Ovutor.Admin.Api",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [
+    {
+      "Name": "Ovutor.Admin.Api/wwwroot",
+      "Source": "Ovutor.Admin.Api",
+      "ContentRoot": "/Users/joe/Work/Others/Ovutor/backend/src/APIs/Ovutor.Admin.Api/wwwroot/",
+      "BasePath": "_content/Ovutor.Admin.Api",
+      "Pattern": "**"
+    }
+  ],
+  "Assets": [
+    {
+      "Identity": "/Users/joe/Work/Others/Ovutor/backend/src/APIs/Ovutor.Admin.Api/wwwroot/uploads/.gitkeep",
+      "SourceId": "Ovutor.Admin.Api",
+      "SourceType": "Discovered",
+      "ContentRoot": "/Users/joe/Work/Others/Ovutor/backend/src/APIs/Ovutor.Admin.Api/wwwroot/",
+      "BasePath": "_content/Ovutor.Admin.Api",
+      "RelativePath": "uploads/.gitkeep",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot/uploads/.gitkeep"
+    }
+  ]
+}

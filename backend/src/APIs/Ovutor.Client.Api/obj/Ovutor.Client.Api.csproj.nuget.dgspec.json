@@ -1,0 +1,341 @@
+{
+  "format": 1,
+  "restore": {
+    "/Users/joe/Work/Others/Ovutor/backend/src/APIs/Ovutor.Client.Api/Ovutor.Client.Api.csproj": {}
+  },
+  "projects": {
+    "/Users/joe/Work/Others/Ovutor/backend/src/APIs/Ovutor.Client.Api/Ovutor.Client.Api.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/Users/joe/Work/Others/Ovutor/backend/src/APIs/Ovutor.Client.Api/Ovutor.Client.Api.csproj",
+        "projectName": "Ovutor.Client.Api",
+        "projectPath": "/Users/joe/Work/Others/Ovutor/backend/src/APIs/Ovutor.Client.Api/Ovutor.Client.Api.csproj",
+        "packagesPath": "/Users/joe/.nuget/packages/",
+        "outputPath": "/Users/joe/Work/Others/Ovutor/backend/src/APIs/Ovutor.Client.Api/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/Users/joe/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {},
+          "https://pkgs.dev.azure.com/hubtel/_packaging/hubtel/nuget/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {
+              "/Users/joe/Work/Others/Ovutor/backend/src/SDKs/Ovutor.Common.Sdk/Ovutor.Common.Sdk.csproj": {
+                "projectPath": "/Users/joe/Work/Others/Ovutor/backend/src/SDKs/Ovutor.Common.Sdk/Ovutor.Common.Sdk.csproj"
+              },
+              "/Users/joe/Work/Others/Ovutor/backend/src/SDKs/Ovutor.Postgres.Sdk/Ovutor.Postgres.Sdk.csproj": {
+                "projectPath": "/Users/joe/Work/Others/Ovutor/backend/src/SDKs/Ovutor.Postgres.Sdk/Ovutor.Postgres.Sdk.csproj"
+              },
+              "/Users/joe/Work/Others/Ovutor/backend/src/SDKs/Ovutor.Storage.Sdk/Ovutor.Storage.Sdk.csproj": {
+                "projectPath": "/Users/joe/Work/Others/Ovutor/backend/src/SDKs/Ovutor.Storage.Sdk/Ovutor.Storage.Sdk.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        }
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "dependencies": {
+            "FluentValidation.AspNetCore": {
+              "target": "Package",
+              "version": "[11.3.0, )"
+            },
+            "Microsoft.AspNetCore.Authentication.JwtBearer": {
+              "target": "Package",
+              "version": "[8.0.10, )"
+            },
+            "Microsoft.EntityFrameworkCore.Design": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[8.0.10, )"
+            },
+            "Serilog.AspNetCore": {
+              "target": "Package",
+              "version": "[8.0.3, )"
+            },
+            "Swashbuckle.AspNetCore": {
+              "target": "Package",
+              "version": "[6.6.2, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.AspNetCore.App": {
+              "privateAssets": "none"
+            },
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/8.0.413/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "/Users/joe/Work/Others/Ovutor/backend/src/SDKs/Ovutor.Common.Sdk/Ovutor.Common.Sdk.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/Users/joe/Work/Others/Ovutor/backend/src/SDKs/Ovutor.Common.Sdk/Ovutor.Common.Sdk.csproj",
+        "projectName": "Ovutor.Common.Sdk",
+        "projectPath": "/Users/joe/Work/Others/Ovutor/backend/src/SDKs/Ovutor.Common.Sdk/Ovutor.Common.Sdk.csproj",
+        "packagesPath": "/Users/joe/.nuget/packages/",
+        "outputPath": "/Users/joe/Work/Others/Ovutor/backend/src/SDKs/Ovutor.Common.Sdk/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/Users/joe/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {},
+          "https://pkgs.dev.azure.com/hubtel/_packaging/hubtel/nuget/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        }
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "dependencies": {
+            "Microsoft.Extensions.Options": {
+              "target": "Package",
+              "version": "[8.0.2, )"
+            },
+            "System.IdentityModel.Tokens.Jwt": {
+              "target": "Package",
+              "version": "[8.1.2, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/8.0.413/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "/Users/joe/Work/Others/Ovutor/backend/src/SDKs/Ovutor.Postgres.Sdk/Ovutor.Postgres.Sdk.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/Users/joe/Work/Others/Ovutor/backend/src/SDKs/Ovutor.Postgres.Sdk/Ovutor.Postgres.Sdk.csproj",
+        "projectName": "Ovutor.Postgres.Sdk",
+        "projectPath": "/Users/joe/Work/Others/Ovutor/backend/src/SDKs/Ovutor.Postgres.Sdk/Ovutor.Postgres.Sdk.csproj",
+        "packagesPath": "/Users/joe/.nuget/packages/",
+        "outputPath": "/Users/joe/Work/Others/Ovutor/backend/src/SDKs/Ovutor.Postgres.Sdk/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/Users/joe/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {},
+          "https://pkgs.dev.azure.com/hubtel/_packaging/hubtel/nuget/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {
+              "/Users/joe/Work/Others/Ovutor/backend/src/SDKs/Ovutor.Common.Sdk/Ovutor.Common.Sdk.csproj": {
+                "projectPath": "/Users/joe/Work/Others/Ovutor/backend/src/SDKs/Ovutor.Common.Sdk/Ovutor.Common.Sdk.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        }
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "dependencies": {
+            "Microsoft.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[8.0.10, )"
+            },
+            "Microsoft.EntityFrameworkCore.Design": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[8.0.10, )"
+            },
+            "Npgsql.EntityFrameworkCore.PostgreSQL": {
+              "target": "Package",
+              "version": "[8.0.10, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/8.0.413/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "/Users/joe/Work/Others/Ovutor/backend/src/SDKs/Ovutor.Storage.Sdk/Ovutor.Storage.Sdk.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/Users/joe/Work/Others/Ovutor/backend/src/SDKs/Ovutor.Storage.Sdk/Ovutor.Storage.Sdk.csproj",
+        "projectName": "Ovutor.Storage.Sdk",
+        "projectPath": "/Users/joe/Work/Others/Ovutor/backend/src/SDKs/Ovutor.Storage.Sdk/Ovutor.Storage.Sdk.csproj",
+        "packagesPath": "/Users/joe/.nuget/packages/",
+        "outputPath": "/Users/joe/Work/Others/Ovutor/backend/src/SDKs/Ovutor.Storage.Sdk/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/Users/joe/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {},
+          "https://pkgs.dev.azure.com/hubtel/_packaging/hubtel/nuget/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {
+              "/Users/joe/Work/Others/Ovutor/backend/src/SDKs/Ovutor.Common.Sdk/Ovutor.Common.Sdk.csproj": {
+                "projectPath": "/Users/joe/Work/Others/Ovutor/backend/src/SDKs/Ovutor.Common.Sdk/Ovutor.Common.Sdk.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        }
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "dependencies": {
+            "AWSSDK.S3": {
+              "target": "Package",
+              "version": "[3.7.405.7, )"
+            },
+            "Microsoft.Extensions.Configuration.Abstractions": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "Microsoft.Extensions.Configuration.Binder": {
+              "target": "Package",
+              "version": "[8.0.2, )"
+            },
+            "Microsoft.Extensions.DependencyInjection.Abstractions": {
+              "target": "Package",
+              "version": "[8.0.2, )"
+            },
+            "Microsoft.Extensions.Options": {
+              "target": "Package",
+              "version": "[8.0.2, )"
+            },
+            "Microsoft.Extensions.Options.ConfigurationExtensions": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/8.0.413/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}

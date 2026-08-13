@@ -1,0 +1,25 @@
+{
+  "Files": [
+    {
+      "Id": "/Users/joe/Work/Others/Ovutor/backend/src/APIs/Ovutor.Admin.Api/wwwroot/uploads/.gitkeep",
+      "PackagePath": "staticwebassets/uploads/.gitkeep"
+    },
+    {
+      "Id": "obj/Debug/net8.0/staticwebassets/msbuild.Ovutor.Admin.Api.Microsoft.AspNetCore.StaticWebAssets.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssets.props"
+    },
+    {
+      "Id": "obj/Debug/net8.0/staticwebassets/msbuild.build.Ovutor.Admin.Api.props",
+      "PackagePath": "build\\Ovutor.Admin.Api.props"
+    },
+    {
+      "Id": "obj/Debug/net8.0/staticwebassets/msbuild.buildMultiTargeting.Ovutor.Admin.Api.props",
+      "PackagePath": "buildMultiTargeting\\Ovutor.Admin.Api.props"
+    },
+    {
+      "Id": "obj/Debug/net8.0/staticwebassets/msbuild.buildTransitive.Ovutor.Admin.Api.props",
+      "PackagePath": "buildTransitive\\Ovutor.Admin.Api.props"
+    }
+  ],
+  "ElementsToRemove": []
+}
