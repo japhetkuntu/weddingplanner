@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Button, Card, Input, Label, Modal, Toast } from "@ovutor/ui";
+import { Button, Card, Input, Label, Modal, PasswordInput, Toast } from "@ovutor/ui";
 import { useAuthStore } from "@/store/authStore";
 import { changePassword, updateProfile, errorMessage } from "@/lib/api";
 
@@ -94,9 +94,9 @@ export default function SettingsPage() {
           <Card>
             <h2 className="mb-4 font-display text-xl">Security</h2>
             <Label htmlFor="currentPassword">Current password</Label>
-            <Input id="currentPassword" type="password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} />
+            <PasswordInput id="currentPassword" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} />
             <Label htmlFor="newPassword">New password</Label>
-            <Input id="newPassword" type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
+            <PasswordInput id="newPassword" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
             {passwordError ? (
               <p className="mt-2 border-l-[3px] border-primary bg-[#fff2f0] p-2.5 text-sm text-[#5d2924]">
                 Use at least 10 characters, including a number.

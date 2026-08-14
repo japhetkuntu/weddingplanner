@@ -110,7 +110,7 @@ public class ClientService(
                 RsvpJson = JsonSerializer.Serialize(WebsiteContentTemplates.RsvpTemplate(), JsonOptions),
             }, ct);
 
-            var portalUrl = $"{configuration["Frontend:ClientPortalUrl"] ?? "https://portal.ovutor.com"}/{client.Slug}";
+            var portalUrl = $"{configuration["Frontend:ClientPortalUrl"] ?? "https://client.ovutor.com"}/{client.Slug}";
             var credentials = new ClientCredentialsResponse(portalUrl, client.PortalEmail, password);
             return new ClientWithCredentialsResponse(ToResponse(client), credentials).ToCreatedApiResponse("Client workspace created.");
         }
@@ -172,7 +172,7 @@ public class ClientService(
             client.PortalPasswordHash = PasswordHasher.Hash(password);
             await clients.UpdateAsync(client, ct);
 
-            var portalUrl = $"{configuration["Frontend:ClientPortalUrl"] ?? "https://portal.ovutor.com"}/{client.Slug}";
+            var portalUrl = $"{configuration["Frontend:ClientPortalUrl"] ?? "https://client.ovutor.com"}/{client.Slug}";
             return new ClientCredentialsResponse(portalUrl, client.PortalEmail, password).ToOkApiResponse("New password generated — copy and share it with the couple.");
         }
         catch (OvutorException) { throw; }

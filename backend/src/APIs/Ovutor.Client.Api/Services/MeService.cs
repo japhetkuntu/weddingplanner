@@ -85,7 +85,7 @@ public class MeService(
             }).ToList();
 
             var totalCommitted = categoryResponses.Sum(c => c.Committed);
-            var response = new BudgetResponse(client.BudgetTotal, totalCommitted, client.BudgetTotal - totalCommitted, categoryResponses);
+            var response = new BudgetResponse(client.BudgetTotal, totalCommitted, client.BudgetTotal - totalCommitted, client.Currency, categoryResponses);
             return response.ToOkApiResponse();
         }
         catch (OvutorException) { throw; }
@@ -182,7 +182,7 @@ public class MeService(
                 .Select(a => new UpdateEventResponse(a.Message, a.TimestampUtc))
                 .ToList();
 
-            var metrics = new DashboardMetricsResponse(checklistDone, tasks.Count, client.BudgetTotal - committed, rsvpAttending, guests.Count, websiteLive);
+            var metrics = new DashboardMetricsResponse(checklistDone, tasks.Count, client.BudgetTotal - committed, client.Currency, rsvpAttending, guests.Count, websiteLive);
             return new DashboardResponse(metrics, upcoming, updates).ToOkApiResponse();
         }
         catch (OvutorException) { throw; }

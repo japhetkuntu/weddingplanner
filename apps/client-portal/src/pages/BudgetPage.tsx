@@ -2,10 +2,7 @@ import { useEffect, useState } from "react";
 import { Card, EmptyState, ProgressBar, Skeleton, StatCard } from "@ovutor/ui";
 import { useAuthStore } from "@/store/authStore";
 import { getBudget, type BudgetData } from "@/lib/api";
-
-function money(n: number) {
-  return `$${n.toLocaleString()}`;
-}
+import { formatMoney } from "@/lib/currency";
 
 function BudgetSkeleton() {
   return (
@@ -45,6 +42,7 @@ export default function BudgetPage() {
 
   if (loading || !budget || !profile) return <BudgetSkeleton />;
 
+  const money = (n: number) => formatMoney(n, budget.currency);
   const pctCommitted = budget.totalBudget ? Math.round((budget.committed / budget.totalBudget) * 100) : 0;
 
   return (

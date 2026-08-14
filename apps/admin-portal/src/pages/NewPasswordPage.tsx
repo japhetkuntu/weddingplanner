@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { Button, Input, Label } from "@ovutor/ui";
+import { Button, Label, PasswordInput } from "@ovutor/ui";
 import { AuthShell, AuthCard, AuthLogo, AuthEyebrow } from "@/components/AuthCard";
 import { resetPassword, errorMessage } from "@/lib/api";
 import clsx from "clsx";
@@ -41,9 +41,9 @@ export default function NewPasswordPage() {
           }}
         >
           <Label htmlFor="new-password">New password</Label>
-          <Input id="new-password" type="password" autoComplete="new-password" value={password} onChange={(e) => setPassword(e.target.value)} />
+          <PasswordInput id="new-password" autoComplete="new-password" value={password} onChange={(e) => setPassword(e.target.value)} />
           <Label htmlFor="confirm-password">Confirm new password</Label>
-          <Input id="confirm-password" type="password" autoComplete="new-password" value={confirm} onChange={(e) => setConfirm(e.target.value)} />
+          <PasswordInput id="confirm-password" autoComplete="new-password" value={confirm} onChange={(e) => setConfirm(e.target.value)} />
 
           {showError ? (
             <div className="my-4 border-l-[3px] border-primary bg-[#fff2f0] p-3 text-sm text-[#5d2924]">

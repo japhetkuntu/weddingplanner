@@ -22,7 +22,7 @@ public record BudgetExpenseResponse(Guid Id, Guid CategoryId, string Vendor, str
 
 public record BudgetCategoryResponse(Guid Id, string Name, decimal Committed, string Trend, List<BudgetExpenseResponse> Expenses);
 
-public record BudgetResponse(decimal TotalBudget, decimal Committed, decimal Remaining, List<BudgetCategoryResponse> Categories);
+public record BudgetResponse(decimal TotalBudget, decimal Committed, decimal Remaining, string Currency, List<BudgetCategoryResponse> Categories);
 
 public record RsvpGuestResponse(Guid Id, string Household, string Status, int? AttendanceCount, string? Dietary, string? Note, string? RespondedAt);
 
@@ -30,7 +30,7 @@ public record DocumentFileResponse(Guid Id, string Name, string Category, string
 
 public record WebsiteStatusResponse(bool IsLive, string SiteUrl);
 
-public record DashboardMetricsResponse(int ChecklistDone, int ChecklistTotal, decimal BudgetRemaining, int RsvpAttending, int RsvpTotal, bool WebsiteLive);
+public record DashboardMetricsResponse(int ChecklistDone, int ChecklistTotal, decimal BudgetRemaining, string Currency, int RsvpAttending, int RsvpTotal, bool WebsiteLive);
 
 public record UpcomingItemResponse(string Title, string Detail, string DueDate);
 

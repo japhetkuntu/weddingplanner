@@ -77,6 +77,7 @@ interface DashboardResponse {
     checklistDone: number;
     checklistTotal: number;
     budgetRemaining: number;
+    currency: string;
     rsvpAttending: number;
     rsvpTotal: number;
     websiteLive: boolean;
@@ -117,6 +118,7 @@ export interface BudgetData {
   totalBudget: number;
   committed: number;
   remaining: number;
+  currency: string;
   categories: BudgetCategory[];
 }
 

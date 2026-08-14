@@ -4,6 +4,7 @@ import { useCurrentClient } from "@/hooks/useCurrentClient";
 import { updateClient as apiUpdateClient, updatePortalEmail, resetPortalPassword, errorMessage } from "@/lib/api";
 import { useClientsStore } from "@/store/clientsStore";
 import { CURRENCIES } from "@/lib/currency";
+import { CredentialsPanel } from "@/components/CredentialsPanel";
 import type { Client, ClientCredentials, ClientStatus } from "@/types";
 
 const STATUS_OPTIONS: { value: ClientStatus; label: string }[] = [
@@ -191,20 +192,9 @@ export default function ClientSettingsPage() {
           </div>
 
           {credentials ? (
-            <div className="mt-4 space-y-2 border border-[#ddd] bg-bg-warm p-3 text-sm">
-              <p className="text-xs font-bold uppercase tracking-[.06em] text-primary">Shown once — copy it now</p>
-              <div>
-                <b className="block">Portal URL</b>
-                <span className="text-ink/70">{credentials.portalUrl}</span>
-              </div>
-              <div>
-                <b className="block">Login email</b>
-                <span className="text-ink/70">{credentials.portalEmail}</span>
-              </div>
-              <div>
-                <b className="block">Password</b>
-                <span className="text-ink/70">{credentials.portalPassword}</span>
-              </div>
+            <div className="mt-4">
+              <p className="mb-1.5 text-xs font-bold uppercase tracking-[.06em] text-primary">Shown once — copy it now</p>
+              <CredentialsPanel portalUrl={credentials.portalUrl} portalEmail={credentials.portalEmail} portalPassword={credentials.portalPassword} />
             </div>
           ) : (
             <p className="mt-4 text-sm text-ink/50">Generate a password to see it and share it with the couple.</p>

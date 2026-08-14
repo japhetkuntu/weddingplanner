@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Card, EmptyState, LinkButton, Skeleton, StatCard } from "@ovutor/ui";
 import { useAuthStore } from "@/store/authStore";
 import { getDashboard, type DashboardData } from "@/lib/api";
+import { formatMoney } from "@/lib/currency";
 
 function daysToGo(dateIso: string) {
   const diff = Math.ceil((new Date(dateIso).getTime() - Date.now()) / 86_400_000);
@@ -86,7 +87,7 @@ export default function DashboardPage() {
 
       <section className="mb-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
         <StatCard label="Checklist" value={`${dashboard.metrics.checklistDone} / ${dashboard.metrics.checklistTotal}`} hint="tasks complete" />
-        <StatCard label="Budget" value={`$${dashboard.metrics.budgetRemaining.toLocaleString()}`} hint="remaining to plan" />
+        <StatCard label="Budget" value={formatMoney(dashboard.metrics.budgetRemaining, dashboard.metrics.currency)} hint="remaining to plan" />
         <StatCard label="RSVPs" value={`${dashboard.metrics.rsvpAttending} / ${dashboard.metrics.rsvpTotal}`} hint="responded" />
         <StatCard label="Wedding website" value={websiteStatus} valueClassName="text-primary" hint="view your site" />
       </section>

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button, Checkbox, Input, Label } from "@ovutor/ui";
+import { Button, Checkbox, Input, Label, PasswordInput } from "@ovutor/ui";
 import { useAuthStore } from "@/store/authStore";
 
 export default function LoginPage() {
@@ -57,7 +57,7 @@ export default function LoginPage() {
             <Label htmlFor="email">Email address</Label>
             <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
             <Label htmlFor="password">Password</Label>
-            <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+            <PasswordInput id="password" value={password} onChange={(e) => setPassword(e.target.value)} />
             <div className="my-4">
               <Checkbox id="remember" label="Remember me" />
             </div>

@@ -5,6 +5,7 @@ import { Button, Card, ErrorModal, Input, Label, Modal, Select } from "@ovutor/u
 import { createClient, errorMessage } from "@/lib/api";
 import { useClientsStore } from "@/store/clientsStore";
 import { CURRENCIES } from "@/lib/currency";
+import { CredentialsPanel } from "@/components/CredentialsPanel";
 import type { ClientCredentials } from "@/types";
 
 const STEPS = ["Couple details", "Wedding basics", "Start their plan"];
@@ -294,20 +295,11 @@ export default function AddClientPage() {
           their Settings page.
         </p>
         {credentials ? (
-          <div className="space-y-3 border border-[#ddd] bg-bg-warm p-3 text-sm">
-            <div>
-              <b className="block">Portal URL</b>
-              <span className="text-ink/70">{credentials.creds.portalUrl}</span>
-            </div>
-            <div>
-              <b className="block">Login email</b>
-              <span className="text-ink/70">{credentials.creds.portalEmail}</span>
-            </div>
-            <div>
-              <b className="block">Password</b>
-              <span className="text-ink/70">{credentials.creds.portalPassword}</span>
-            </div>
-          </div>
+          <CredentialsPanel
+            portalUrl={credentials.creds.portalUrl}
+            portalEmail={credentials.creds.portalEmail}
+            portalPassword={credentials.creds.portalPassword}
+          />
         ) : null}
         <Button className="mt-5 w-full" onClick={() => credentials && navigate(`/clients/${credentials.clientId}/overview`)}>
           Continue to workspace

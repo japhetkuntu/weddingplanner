@@ -4,6 +4,8 @@ export * from "./components/LinkButton";
 export * from "./components/Card";
 export * from "./components/Badge";
 export * from "./components/Field";
+export * from "./components/PasswordInput";
+export * from "./components/CopyButton";
 export * from "./components/StatCard";
 export * from "./components/ProgressBar";
 export * from "./components/Sidebar";
