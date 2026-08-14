@@ -44,6 +44,16 @@ if [[ -f "$NGINX_SITE" ]]; then
   fi
 fi
 
+# Publishing into a directory the running app is still serving from can fail outright
+# (dotnet publish tries to overwrite the live .dll/.pdb, which the running process has
+# open — "The process cannot access the file ... because it is being used by another
+# process") rather than just risking a half-updated app. Stop both services first;
+# `systemctl restart` below brings them back up on the freshly published build. Safe
+# to run even before either service has ever started (stopping an inactive/nonexistent
+# unit is a no-op, not an error).
+echo "== stopping services before publish =="
+systemctl stop ovutor-client-api ovutor-admin-api 2>/dev/null || true
+
 echo "== publishing client-api =="
 dotnet publish "$SRC_DIR/backend/src/APIs/Ovutor.Client.Api/Ovutor.Client.Api.csproj" \
   -c Release -o "$CLIENT_OUT"
@@ -54,11 +64,11 @@ dotnet publish "$SRC_DIR/backend/src/APIs/Ovutor.Admin.Api/Ovutor.Admin.Api.cspr
 
 chown -R www-data:www-data "$CLIENT_OUT" "$ADMIN_OUT"
 
-echo "== restarting client-api (applies any new EF migrations on boot) =="
+echo "== starting client-api (applies any new EF migrations on boot) =="
 systemctl restart ovutor-client-api
 wait_healthy "http://127.0.0.1:5000/health" ovutor-client-api
 
-echo "== restarting admin-api =="
+echo "== starting admin-api =="
 systemctl restart ovutor-admin-api
 wait_healthy "http://127.0.0.1:5001/health" ovutor-admin-api
 
