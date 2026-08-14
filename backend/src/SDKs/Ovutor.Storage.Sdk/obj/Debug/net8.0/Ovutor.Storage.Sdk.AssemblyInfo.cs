@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Ovutor.Storage.Sdk")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+bb9f67630f6b1fddbde7ece0df8dac8e7c82fa81")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+9cfb62f4d14dd1249a5ed01d01fb954c17d3ca5f")]
 [assembly: System.Reflection.AssemblyProductAttribute("Ovutor.Storage.Sdk")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Ovutor.Storage.Sdk")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
