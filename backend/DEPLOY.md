@@ -114,8 +114,8 @@ Then, once DNS has actually propagated (`dig` from step 1), get the certificate 
 
 ```bash
 sudo ufw enable   # if you haven't already
-sudo certbot --nginx -d api.yourdomain.com -d admin-api.yourdomain.com \
-  -m you@yourdomain.com --agree-tos -n --redirect
+sudo certbot --nginx -d client-api.ovutor.com -d admin-api.ovutor.com \
+  -m japhetkuntublankson1@gmail.com --agree-tos -n --redirect
 ```
 
 This single command gets one certificate covering both domains, edits
@@ -209,6 +209,13 @@ sudo -u postgres pg_dump Ovutor > "backup-$(date +%F).sql"
   table is empty, which is exactly what a fresh Production database looks like on
   first boot. The Production gate means your real deployment starts genuinely empty;
   create the first real client through the admin-portal UI once it's up.
+- **Real admin accounts come from `AdminBootstrap:Admins` in config, in every
+  environment** (`AdminBootstrapSeeder` in `Ovutor.Admin.Api`'s `Program.cs`) — there's
+  no public registration endpoint, so set `AdminBootstrap__Admins__0__Name/Email/Password`
+  (and `__1__...`, `__2__...` for more) in `admin-api.env` before your first deploy.
+  Runs on every startup but only ever creates accounts that don't already exist by
+  email — it never resets an existing admin's password, so the env vars are safe to
+  leave in place. See `backend/deploy/admin-api.env.example`.
 - **The admin "forgot password" endpoint only echoes the reset link in non-Production
   responses** (`AuthService.ForgotPasswordAsync`) — no email provider is wired up yet,
   so in Development/Staging the link comes back directly in the API response for

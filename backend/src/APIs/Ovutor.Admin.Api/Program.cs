@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Ovutor.Admin.Api.Extensions;
 using Ovutor.Admin.Api.Middleware;
+using Ovutor.Admin.Api.Services;
 using Ovutor.Postgres.Sdk.Persistence;
 using Ovutor.Postgres.Sdk.Seed;
 using Serilog;
@@ -66,6 +67,10 @@ using (var scope = app.Services.CreateScope())
     // Ports the frontend's old mock fixtures (demo clients, a demo planner login) — useful for a
     // fresh local/staging database, but must never seed known credentials into a real deployment.
     if (!app.Environment.IsProduction()) await DbSeeder.SeedAsync(db);
+    // Bootstraps real admin accounts from config/env (AdminBootstrap:Admins) since there's no public
+    // registration endpoint — safe to run in every environment, it only ever creates accounts that
+    // don't already exist and does nothing if no AdminBootstrap:Admins entries are configured.
+    await AdminBootstrapSeeder.SeedAsync(db, app.Configuration, app.Logger);
 }
 
 if (app.Environment.IsDevelopment())
