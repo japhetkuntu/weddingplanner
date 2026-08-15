@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Badge, DataGrid, Input, LinkButton, Select, Skeleton, type DataGridColumn } from "@ovutor/ui";
+import clsx from "clsx";
+import { Badge, DataGrid, Input, LinkButton, Select, Skeleton, Toast, type DataGridColumn } from "@ovutor/ui";
 import { useClientsStore } from "@/store/clientsStore";
+import { archiveClient, unarchiveClient, errorMessage } from "@/lib/api";
 import type { Client, ClientStatus } from "@/types";
 
 function ClientsListSkeleton() {
@@ -54,15 +56,34 @@ export default function ClientsListPage() {
   const loading = useClientsStore((s) => s.loading);
   const loaded = useClientsStore((s) => s.loaded);
   const fetch = useClientsStore((s) => s.fetch);
+  const upsertClient = useClientsStore((s) => s.upsert);
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState<ClientStatus | "all">("all");
+  const [tab, setTab] = useState<"active" | "archived">("active");
+  const [toast, setToast] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [workingId, setWorkingId] = useState<string | null>(null);
 
   useEffect(() => {
     fetch();
   }, [fetch]);
 
+  function flashToast(message: string) {
+    setToast(message);
+    window.setTimeout(() => setToast(null), 2400);
+  }
+
+  function flashError(message: string) {
+    setError(message);
+    window.setTimeout(() => setError(null), 3200);
+  }
+
+  const active = useMemo(() => clients.filter((c) => !c.isArchived), [clients]);
+  const archived = useMemo(() => clients.filter((c) => c.isArchived), [clients]);
+  const tabClients = tab === "active" ? active : archived;
+
   const filtered = useMemo(() => {
-    return clients.filter((c) => {
+    return tabClients.filter((c) => {
       const matchesQuery =
         query.trim().length === 0 ||
         c.coupleNames.toLowerCase().includes(query.toLowerCase()) ||
@@ -70,7 +91,31 @@ export default function ClientsListPage() {
       const matchesStatus = status === "all" || c.status === status;
       return matchesQuery && matchesStatus;
     });
-  }, [clients, query, status]);
+  }, [tabClients, query, status]);
+
+  async function handleArchive(c: Client) {
+    setWorkingId(c.id);
+    try {
+      upsertClient(await archiveClient(c.id));
+      flashToast(`${c.coupleNames} archived`);
+    } catch (e) {
+      flashError(errorMessage(e, "Couldn't archive that client — please try again."));
+    } finally {
+      setWorkingId(null);
+    }
+  }
+
+  async function handleUnarchive(c: Client) {
+    setWorkingId(c.id);
+    try {
+      upsertClient(await unarchiveClient(c.id));
+      flashToast(`${c.coupleNames} restored to active clients`);
+    } catch (e) {
+      flashError(errorMessage(e, "Couldn't unarchive that client — please try again."));
+    } finally {
+      setWorkingId(null);
+    }
+  }
 
   const columns: DataGridColumn<Client>[] = [
     {
@@ -101,14 +146,68 @@ export default function ClientsListPage() {
       render: (c) => <Badge tone={STATUS_TONE[c.status]}>{STATUS_LABEL[c.status]}</Badge>,
       width: "w-[140px]",
     },
+    {
+      key: "action",
+      header: "",
+      render: (c) =>
+        tab === "active" ? (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleArchive(c);
+            }}
+            disabled={workingId === c.id}
+            className="text-xs font-bold uppercase tracking-[.06em] text-ink/50 hover:text-primary disabled:opacity-40"
+          >
+            Archive
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleUnarchive(c);
+            }}
+            disabled={workingId === c.id}
+            className="text-xs font-bold uppercase tracking-[.06em] text-primary hover:text-ink disabled:opacity-40"
+          >
+            Unarchive
+          </button>
+        ),
+      width: "w-[100px]",
+    },
   ];
 
   if (loading && !loaded) return <ClientsListSkeleton />;
 
   return (
     <div className="ovutor-fade-in">
-      <p className="text-[10px] font-bold uppercase tracking-[.12em] text-primary">Portfolio · {clients.length} active weddings</p>
+      <p className="text-[10px] font-bold uppercase tracking-[.12em] text-primary">Portfolio · {active.length} active weddings</p>
       <h1 className="my-1.5 font-display text-4xl">Clients</h1>
+
+      <div className="mt-5 flex gap-4 border-b border-[#ddd]">
+        <button
+          type="button"
+          onClick={() => setTab("active")}
+          className={clsx(
+            "border-b-2 pb-2.5 text-sm font-bold uppercase tracking-[.06em]",
+            tab === "active" ? "border-primary text-primary" : "border-transparent text-ink/50 hover:text-ink",
+          )}
+        >
+          Active ({active.length})
+        </button>
+        <button
+          type="button"
+          onClick={() => setTab("archived")}
+          className={clsx(
+            "border-b-2 pb-2.5 text-sm font-bold uppercase tracking-[.06em]",
+            tab === "archived" ? "border-primary text-primary" : "border-transparent text-ink/50 hover:text-ink",
+          )}
+        >
+          Archived ({archived.length})
+        </button>
+      </div>
 
       <div className="my-5 flex flex-wrap gap-2">
         <Input
@@ -131,8 +230,11 @@ export default function ClientsListPage() {
         rows={filtered}
         rowKey={(c) => c.id}
         onRowClick={(c) => navigate(`/clients/${c.id}/overview`)}
-        emptyMessage="No clients match your search."
+        emptyMessage={tab === "active" ? "No clients match your search." : "No archived clients."}
       />
+
+      <Toast open={!!toast}>{toast}</Toast>
+      <Toast open={!!error} tone="error">{error}</Toast>
     </div>
   );
 }

@@ -15,9 +15,10 @@ export function AdminLayout({ children }: { children: ReactNode }) {
     fetchClients();
   }, [fetchClients]);
 
-  // The sidebar always needs a real client to link to — fall back to the first client in the
-  // portfolio until the admin has actually opened one, so these links never point at an empty id.
-  const activeClientId = lastClientId || clients[0]?.id || "";
+  // The sidebar always needs a real client to link to — fall back to the first active (non-archived)
+  // client in the portfolio until the admin has actually opened one, so these links never point at
+  // an empty id or default into an archived client's workspace.
+  const activeClientId = lastClientId || clients.find((c) => !c.isArchived)?.id || "";
 
   const items: SidebarNavItem[] = [
     { label: "Dashboard", to: "/dashboard" },

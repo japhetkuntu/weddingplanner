@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { NavLink } from "react-router-dom";
 import clsx from "clsx";
+import { Badge } from "@ovutor/ui";
 import type { Client } from "@/types";
 import { useClientsStore } from "@/store/clientsStore";
 import { useUiStore } from "@/store/uiStore";
@@ -37,8 +38,9 @@ export function ClientHeader({ client }: { client: Client }) {
             {new Date(client.weddingDate).toLocaleDateString(undefined, { month: "long", day: "numeric", year: "numeric" })} · {client.venue}
           </span>
           <span className="text-xs font-bold uppercase tracking-[.08em] text-primary">{daysToGo(client.weddingDate)} days to go</span>
+          {client.isArchived ? <Badge tone="muted">Archived</Badge> : null}
         </div>
-        <ClientSwitcher clients={clients} current={client} />
+        <ClientSwitcher clients={clients.filter((c) => !c.isArchived || c.id === client.id)} current={client} />
       </div>
       <nav className="flex flex-wrap gap-1 border-b border-[#ddd]">
         {TABS.map((tab) => (

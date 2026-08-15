@@ -30,6 +30,12 @@ public class Client : BaseEntity
     public required string PortalEmail { get; set; }
     public required string PortalPasswordHash { get; set; }
 
+    /// <summary>Archiving hides a client from the active portfolio without deleting anything — every
+    /// record stays intact and reachable, and it can be unarchived at any time. Distinct from
+    /// BaseEntity.IsDeleted, which is a hard removal the admin never triggers for clients.</summary>
+    public bool IsArchived { get; set; }
+    public DateTime? ArchivedAtUtc { get; set; }
+
     public List<ChecklistPhase> ChecklistPhases { get; set; } = [];
     public List<BudgetCategory> BudgetCategories { get; set; } = [];
     public List<RsvpGuest> RsvpGuests { get; set; } = [];

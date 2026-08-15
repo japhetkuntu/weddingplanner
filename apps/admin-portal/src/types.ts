@@ -28,6 +28,9 @@ export interface Client {
   avatarInitials: string;
   /** Client Portal login the couple uses — set up and reset by the admin, never chosen by the couple. */
   portalEmail: string;
+  /** Archived clients are hidden from the active portfolio but never deleted — everything stays
+   * intact and can be unarchived at any time. */
+  isArchived: boolean;
 }
 
 /** Only returned right after creating a client or resetting their portal password — the plaintext

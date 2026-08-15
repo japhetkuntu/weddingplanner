@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { Button, Card, Input, Label, Select, Toast } from "@ovutor/ui";
+import { Button, Card, Input, Label, Modal, Select, Toast } from "@ovutor/ui";
 import { useCurrentClient } from "@/hooks/useCurrentClient";
-import { updateClient as apiUpdateClient, updatePortalEmail, resetPortalPassword, errorMessage } from "@/lib/api";
+import { updateClient as apiUpdateClient, updatePortalEmail, resetPortalPassword, archiveClient, unarchiveClient, errorMessage } from "@/lib/api";
 import { useClientsStore } from "@/store/clientsStore";
 import { CURRENCIES } from "@/lib/currency";
 import { CredentialsPanel } from "@/components/CredentialsPanel";
@@ -23,6 +23,8 @@ export default function ClientSettingsPage() {
   const [error, setError] = useState<string | null>(null);
   const [savingDetails, setSavingDetails] = useState(false);
   const [savingEmail, setSavingEmail] = useState(false);
+  const [archiving, setArchiving] = useState(false);
+  const [confirmArchive, setConfirmArchive] = useState(false);
 
   useEffect(() => {
     setForm(client);
@@ -85,6 +87,33 @@ export default function ClientSettingsPage() {
       flashError(errorMessage(e, "Couldn't generate a new password — please try again."));
     } finally {
       setResetting(false);
+    }
+  }
+
+  async function handleArchive() {
+    setArchiving(true);
+    try {
+      const updated = await archiveClient(client!.id);
+      upsertClient(updated);
+      setConfirmArchive(false);
+      flashToast("Client archived — you can restore them anytime from the Clients list");
+    } catch (e) {
+      flashError(errorMessage(e, "Couldn't archive this client — please try again."));
+    } finally {
+      setArchiving(false);
+    }
+  }
+
+  async function handleUnarchive() {
+    setArchiving(true);
+    try {
+      const updated = await unarchiveClient(client!.id);
+      upsertClient(updated);
+      flashToast("Client restored to your active portfolio");
+    } catch (e) {
+      flashError(errorMessage(e, "Couldn't unarchive this client — please try again."));
+    } finally {
+      setArchiving(false);
     }
   }
 
@@ -210,6 +239,46 @@ export default function ClientSettingsPage() {
           </div>
         </Card>
       </div>
+
+      <Card className="mt-4">
+        <h2 className="mb-1 font-display text-xl">{client.isArchived ? "Archived" : "Archive this client"}</h2>
+        {client.isArchived ? (
+          <>
+            <p className="mb-4 text-sm text-ink/60">
+              This client is archived — hidden from your active portfolio and dashboard, but nothing has been deleted. Restore them anytime.
+            </p>
+            <Button variant="outline" onClick={handleUnarchive} loading={archiving} loadingText="Restoring…">
+              Unarchive client
+            </Button>
+          </>
+        ) : (
+          <>
+            <p className="mb-4 text-sm text-ink/60">
+              Hide {client.coupleNames} from your active clients and dashboard once their wedding has wrapped up. Nothing is deleted — every
+              checklist, budget, RSVP, and document stays intact, and you can unarchive them at any time.
+            </p>
+            <Button variant="outline" onClick={() => setConfirmArchive(true)}>
+              Archive client
+            </Button>
+          </>
+        )}
+      </Card>
+
+      <Modal open={confirmArchive} onClose={() => setConfirmArchive(false)}>
+        <h3 className="mb-2 font-display text-2xl">Archive {client.coupleNames}?</h3>
+        <p className="mb-6 text-ink/60">
+          They'll be hidden from your active clients list and dashboard. Nothing is deleted — you can unarchive them anytime from the Clients
+          list.
+        </p>
+        <div className="flex gap-2">
+          <Button onClick={handleArchive} className="flex-1" loading={archiving} loadingText="Archiving…">
+            Archive
+          </Button>
+          <Button variant="outline" onClick={() => setConfirmArchive(false)} className="flex-1" disabled={archiving}>
+            Cancel
+          </Button>
+        </div>
+      </Modal>
 
       <Toast open={!!toast}>{toast}</Toast>
       <Toast open={!!error} tone="error">{error}</Toast>

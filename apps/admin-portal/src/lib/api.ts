@@ -89,6 +89,7 @@ interface ClientResponse {
   nextAttention: string;
   avatarInitials: string;
   portalEmail: string;
+  isArchived: boolean;
 }
 
 function toClient(r: ClientResponse): Client {
@@ -141,6 +142,14 @@ export async function updatePortalEmail(id: string, portalEmail: string): Promis
 
 export function resetPortalPassword(id: string) {
   return api.post<ClientCredentials>(`/api/clients/${id}/portal-password/reset`);
+}
+
+export async function archiveClient(id: string): Promise<Client> {
+  return toClient(await api.post<ClientResponse>(`/api/clients/${id}/archive`));
+}
+
+export async function unarchiveClient(id: string): Promise<Client> {
+  return toClient(await api.post<ClientResponse>(`/api/clients/${id}/unarchive`));
 }
 
 // ---------- Dashboard ----------

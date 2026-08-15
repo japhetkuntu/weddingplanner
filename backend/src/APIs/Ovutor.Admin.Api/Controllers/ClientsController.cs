@@ -51,4 +51,18 @@ public class ClientsController(IClientService clientService) : ControllerBase
         var response = await clientService.ResetPortalPasswordAsync(id, ct);
         return StatusCode(response.Code, response);
     }
+
+    [HttpPost("{id:guid}/archive")]
+    public async Task<IActionResult> Archive(Guid id, CancellationToken ct)
+    {
+        var response = await clientService.ArchiveAsync(id, ct);
+        return StatusCode(response.Code, response);
+    }
+
+    [HttpPost("{id:guid}/unarchive")]
+    public async Task<IActionResult> Unarchive(Guid id, CancellationToken ct)
+    {
+        var response = await clientService.UnarchiveAsync(id, ct);
+        return StatusCode(response.Code, response);
+    }
 }

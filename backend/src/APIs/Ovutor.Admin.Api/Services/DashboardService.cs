@@ -32,7 +32,9 @@ public class DashboardService(
             var weekOut = today.AddDays(7);
             var monthOut = today.AddDays(30);
 
-            var allClients = await clients.FindManyAsync(_ => true, ct);
+            // Archived clients are hidden from the active dashboard entirely — no stale attention
+            // items, RSVP deadlines, or "active weddings" count for a wedding that's been archived.
+            var allClients = (await clients.FindManyAsync(_ => true, ct)).Where(c => !c.IsArchived).ToList();
             var clientsById = allClients.ToDictionary(c => c.Id);
 
             var openTasks = await checklistTasks.GetQueryable().Where(t => t.Status != "done").ToListAsync(ct);

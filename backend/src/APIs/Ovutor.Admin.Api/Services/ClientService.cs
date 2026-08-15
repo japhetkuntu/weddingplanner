@@ -183,6 +183,42 @@ public class ClientService(
         }
     }
 
+    public async Task<IApiResponse<ClientResponse>> ArchiveAsync(Guid id, CancellationToken ct = default)
+    {
+        try
+        {
+            var client = await clients.GetByIdAsync(id, ct) ?? throw new NotFoundException("We couldn't find that client.");
+            client.IsArchived = true;
+            client.ArchivedAtUtc = DateTime.UtcNow;
+            await clients.UpdateAsync(client, ct);
+            return ToResponse(client).ToOkApiResponse("Client archived.");
+        }
+        catch (OvutorException) { throw; }
+        catch (Exception e)
+        {
+            logger.LogError(e, "[ArchiveAsync] Failed to archive client {ClientId}", id);
+            return ApiResponseFactory.InternalError<ClientResponse>("Failed to archive this client.");
+        }
+    }
+
+    public async Task<IApiResponse<ClientResponse>> UnarchiveAsync(Guid id, CancellationToken ct = default)
+    {
+        try
+        {
+            var client = await clients.GetByIdAsync(id, ct) ?? throw new NotFoundException("We couldn't find that client.");
+            client.IsArchived = false;
+            client.ArchivedAtUtc = null;
+            await clients.UpdateAsync(client, ct);
+            return ToResponse(client).ToOkApiResponse("Client unarchived.");
+        }
+        catch (OvutorException) { throw; }
+        catch (Exception e)
+        {
+            logger.LogError(e, "[UnarchiveAsync] Failed to unarchive client {ClientId}", id);
+            return ApiResponseFactory.InternalError<ClientResponse>("Failed to unarchive this client.");
+        }
+    }
+
     private static bool IsSlugConflict(DbUpdateException e) =>
         e.InnerException is PostgresException { SqlState: PostgresErrorCodes.UniqueViolation } pg
         && pg.ConstraintName == "IX_Clients_Slug";
@@ -201,5 +237,5 @@ public class ClientService(
 
     private static ClientResponse ToResponse(Client c) => new(
         c.Id, c.Slug, c.CoupleNames, c.PartnerA, c.PartnerB, c.WeddingDate, c.Venue, c.GuestCount, c.Status,
-        c.PlanningPercent, c.BudgetTotal, c.BudgetPaid, c.Currency, c.NextAttention, c.AvatarInitials, c.PortalEmail);
+        c.PlanningPercent, c.BudgetTotal, c.BudgetPaid, c.Currency, c.NextAttention, c.AvatarInitials, c.PortalEmail, c.IsArchived);
 }
