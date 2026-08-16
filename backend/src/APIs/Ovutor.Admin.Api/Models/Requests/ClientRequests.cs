@@ -21,3 +21,5 @@ public record UpdateClientRequest(
     decimal BudgetTarget);
 
 public record UpdatePortalEmailRequest(string PortalEmail);
+
+public record UpdateFullPaymentDueDateRequest(string? FullPaymentDueDate);

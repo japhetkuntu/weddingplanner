@@ -51,6 +51,13 @@ export default function BudgetPage() {
       <h1 className="my-1.5 font-display text-4xl">Your wedding budget</h1>
       <p className="mb-6 text-ink/60">The same figures your planner sees — estimated, actual, paid, and what's still owed.</p>
 
+      {budget.fullPaymentDueDate ? (
+        <p className="mb-4 text-sm text-ink/60">
+          <b className="text-ink">Full payment due</b>{" "}
+          {new Date(budget.fullPaymentDueDate).toLocaleDateString(undefined, { month: "long", day: "numeric", year: "numeric" })}
+        </p>
+      ) : null}
+
       <section className="mb-6 grid grid-cols-2 gap-3 lg:grid-cols-5">
         <StatCard label="Total target" value={money(budget.totalBudget)} />
         <StatCard label="Estimated" value={money(budget.totalEstimated)} />

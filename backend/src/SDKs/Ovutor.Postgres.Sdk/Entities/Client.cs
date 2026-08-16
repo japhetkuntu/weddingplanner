@@ -23,6 +23,9 @@ public class Client : BaseEntity
     public int PlanningPercent { get; set; }
     public decimal BudgetTotal { get; set; }
     public decimal BudgetPaid { get; set; }
+    /// <summary>When the couple's full budget is expected to be paid off — distinct from any single
+    /// expense's NextDue date, this is the target for the whole wedding.</summary>
+    public DateOnly? FullPaymentDueDate { get; set; }
     public required string Currency { get; set; }
     public required string NextAttention { get; set; }
     public required string AvatarInitials { get; set; }

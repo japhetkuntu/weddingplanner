@@ -19,6 +19,7 @@ public class OvutorDbContext(DbContextOptions<OvutorDbContext> options) : DbCont
     public DbSet<MilestoneItem> Milestones => Set<MilestoneItem>();
     public DbSet<WebsiteSection> WebsiteSections => Set<WebsiteSection>();
     public DbSet<WebsiteContent> WebsiteContents => Set<WebsiteContent>();
+    public DbSet<Vendor> Vendors => Set<Vendor>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -72,6 +73,9 @@ public class OvutorDbContext(DbContextOptions<OvutorDbContext> options) : DbCont
             e.Property(x => x.Estimated).HasColumnType("numeric(14,2)");
             e.Property(x => x.Actual).HasColumnType("numeric(14,2)");
             e.Property(x => x.Paid).HasColumnType("numeric(14,2)");
+            // No navigation property back to Vendor — it's a plain lookup FK, resolved by the service
+            // layer, so BudgetExpense.Vendor (the string label) never collides with the entity name.
+            e.HasOne<Vendor>().WithMany().HasForeignKey(x => x.VendorId).OnDelete(DeleteBehavior.SetNull);
         });
 
         modelBuilder.Entity<RsvpGuest>(e =>

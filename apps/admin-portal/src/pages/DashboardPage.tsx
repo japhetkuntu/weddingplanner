@@ -16,8 +16,8 @@ function DashboardSkeleton() {
         </div>
         <Skeleton className="h-11 w-32" />
       </div>
-      <section className="my-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
-        {Array.from({ length: 4 }).map((_, i) => (
+      <section className="my-6 grid grid-cols-2 gap-3 lg:grid-cols-5">
+        {Array.from({ length: 5 }).map((_, i) => (
           <Skeleton key={i} className="h-24" />
         ))}
       </section>
@@ -74,11 +74,12 @@ export default function DashboardPage() {
         <LinkButton to="/clients/new">Add client</LinkButton>
       </div>
 
-      <section className="my-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
+      <section className="my-6 grid grid-cols-2 gap-3 lg:grid-cols-5">
         <StatCard label="Active weddings" value={dashboard.metrics.activeWeddings} />
         <StatCard label="Due this week" value={dashboard.metrics.dueThisWeek} />
         <StatCard label="Overdue" value={dashboard.metrics.overdue} valueClassName="text-primary" hint="Open checklist tasks" />
         <StatCard label="RSVP deadlines" value={dashboard.metrics.rsvpDeadlines} />
+        <StatCard label="Weddings done" value={dashboard.metrics.weddingsDone} hint="All-time total" />
       </section>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1.25fr_.75fr]">

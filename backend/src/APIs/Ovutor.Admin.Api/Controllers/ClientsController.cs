@@ -45,6 +45,13 @@ public class ClientsController(IClientService clientService) : ControllerBase
         return StatusCode(response.Code, response);
     }
 
+    [HttpPut("{id:guid}/full-payment-due-date")]
+    public async Task<IActionResult> UpdateFullPaymentDueDate(Guid id, UpdateFullPaymentDueDateRequest request, CancellationToken ct)
+    {
+        var response = await clientService.UpdateFullPaymentDueDateAsync(id, request, ct);
+        return StatusCode(response.Code, response);
+    }
+
     [HttpPost("{id:guid}/portal-password/reset")]
     public async Task<IActionResult> ResetPortalPassword(Guid id, CancellationToken ct)
     {

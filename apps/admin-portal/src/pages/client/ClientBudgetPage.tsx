@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
-import { Button, Card, Drawer, EmptyState, Input, Label, Modal, Skeleton, StatCard, Textarea, Toast } from "@ovutor/ui";
+import { Button, Card, Drawer, EmptyState, Input, Label, Modal, Select, Skeleton, StatCard, Textarea, Toast } from "@ovutor/ui";
 import { useCurrentClient } from "@/hooks/useCurrentClient";
+import { useClientsStore } from "@/store/clientsStore";
 import {
   getBudget,
   addBudgetCategory,
@@ -9,10 +10,14 @@ import {
   addBudgetExpense,
   updateBudgetExpense,
   deleteBudgetExpense,
+  updateFullPaymentDueDate,
+  getVendors,
+  addVendor,
   errorMessage,
 } from "@/lib/api";
 import { formatMoney } from "@/lib/currency";
-import type { BudgetCategory, BudgetExpense } from "@/types";
+import { vendorsEnabled } from "@/lib/featureFlags";
+import type { BudgetCategory, BudgetExpense, Vendor } from "@/types";
 
 interface DeleteCandidate {
   type: "category" | "expense";
@@ -59,6 +64,8 @@ export default function ClientBudgetPage() {
   const [confirmDelete, setConfirmDelete] = useState<DeleteCandidate | null>(null);
   const [addingCategory, setAddingCategory] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [savingDueDate, setSavingDueDate] = useState(false);
+  const upsertClient = useClientsStore((s) => s.upsert);
 
   useEffect(() => {
     if (!client) return;
@@ -120,6 +127,7 @@ export default function ClientBudgetPage() {
     try {
       const saved = await updateBudgetExpense(updated.id, {
         vendor: updated.vendor.trim() || updated.vendor,
+        vendorId: updated.vendorId,
         description: updated.description,
         estimated: updated.estimated,
         actual: updated.actual,
@@ -133,6 +141,20 @@ export default function ClientBudgetPage() {
       flashToast("Saved");
     } catch (e) {
       flashError(errorMessage(e, "Couldn't save that expense — please try again."));
+    }
+  }
+
+  async function saveDueDate(value: string) {
+    if (!client) return;
+    setSavingDueDate(true);
+    try {
+      const updated = await updateFullPaymentDueDate(client.id, value || null);
+      upsertClient(updated);
+      flashToast("Due date saved");
+    } catch (e) {
+      flashError(errorMessage(e, "Couldn't save that due date — please try again."));
+    } finally {
+      setSavingDueDate(false);
     }
   }
 
@@ -223,9 +245,22 @@ export default function ClientBudgetPage() {
           <h1 className="font-display text-3xl">Budget</h1>
           <p className="text-ink/60">Track what's estimated, actual and paid against the overall target.</p>
         </div>
-        <Button variant="outline" size="sm" onClick={() => setShowAddCategory((v) => !v)}>
-          + Add category
-        </Button>
+        <div className="flex flex-wrap items-end gap-3">
+          <div>
+            <Label htmlFor="full-payment-due-date">Due date for full payment</Label>
+            <Input
+              id="full-payment-due-date"
+              type="date"
+              defaultValue={client.fullPaymentDueDate ?? ""}
+              onBlur={(e) => saveDueDate(e.target.value)}
+              disabled={savingDueDate}
+              className="h-9"
+            />
+          </div>
+          <Button variant="outline" size="sm" onClick={() => setShowAddCategory((v) => !v)}>
+            + Add category
+          </Button>
+        </div>
       </div>
 
       {showAddCategory ? (
@@ -447,6 +482,9 @@ function CategoryEditForm({
   );
 }
 
+const NEW_VENDOR_OPTION = "__new__";
+const CUSTOM_VENDOR_OPTION = "__custom__";
+
 function ExpenseEditForm({
   expense,
   onSave,
@@ -458,6 +496,18 @@ function ExpenseEditForm({
 }) {
   const [form, setForm] = useState(expense);
   const [saving, setSaving] = useState(false);
+  const [vendors, setVendors] = useState<Vendor[]>([]);
+  const [showNewVendor, setShowNewVendor] = useState(false);
+  const [newVendorName, setNewVendorName] = useState("");
+  const [newVendorContact, setNewVendorContact] = useState("");
+  const [newVendorLocation, setNewVendorLocation] = useState("");
+  const [addingVendor, setAddingVendor] = useState(false);
+  const [vendorError, setVendorError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!vendorsEnabled) return;
+    getVendors().then(setVendors);
+  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -469,10 +519,82 @@ function ExpenseEditForm({
     }
   }
 
+  async function handleAddVendor() {
+    if (!newVendorName.trim() || !newVendorLocation.trim()) {
+      setVendorError("Name and location are both required.");
+      return;
+    }
+    setAddingVendor(true);
+    setVendorError(null);
+    try {
+      const vendor = await addVendor(newVendorName.trim(), newVendorContact.trim() || undefined, newVendorLocation.trim());
+      setVendors((prev) => [...prev, vendor]);
+      setForm({ ...form, vendor: vendor.name, vendorId: vendor.id });
+      setShowNewVendor(false);
+      setNewVendorName("");
+      setNewVendorContact("");
+      setNewVendorLocation("");
+    } catch (err) {
+      setVendorError(errorMessage(err, "Couldn't add that vendor — please try again."));
+    } finally {
+      setAddingVendor(false);
+    }
+  }
+
   return (
     <form onSubmit={handleSubmit}>
+      {vendorsEnabled ? (
+        <>
+          <Label htmlFor="expense-vendor-select">Vendor</Label>
+          <Select
+            id="expense-vendor-select"
+            value={showNewVendor ? NEW_VENDOR_OPTION : form.vendorId ?? CUSTOM_VENDOR_OPTION}
+            onChange={(e) => {
+              const value = e.target.value;
+              if (value === NEW_VENDOR_OPTION) {
+                setShowNewVendor(true);
+                return;
+              }
+              setShowNewVendor(false);
+              if (value === CUSTOM_VENDOR_OPTION) {
+                setForm({ ...form, vendorId: undefined });
+                return;
+              }
+              const vendor = vendors.find((v) => v.id === value);
+              if (vendor) setForm({ ...form, vendor: vendor.name, vendorId: vendor.id });
+            }}
+          >
+            <option value={CUSTOM_VENDOR_OPTION}>Custom title (no directory vendor)</option>
+            {vendors.map((v) => (
+              <option key={v.id} value={v.id}>
+                {v.name} · {v.location}
+              </option>
+            ))}
+            <option value={NEW_VENDOR_OPTION}>+ Add new vendor…</option>
+          </Select>
+
+          {showNewVendor ? (
+            <div className="mt-2 space-y-2 border border-[#eee] bg-bg-warm p-3">
+              <Input placeholder="Vendor name" value={newVendorName} onChange={(e) => setNewVendorName(e.target.value)} autoFocus />
+              <Input placeholder="Contact (phone or email)" value={newVendorContact} onChange={(e) => setNewVendorContact(e.target.value)} />
+              <Input placeholder="Location, e.g. Accra" value={newVendorLocation} onChange={(e) => setNewVendorLocation(e.target.value)} />
+              {vendorError ? <p className="text-xs text-primary">{vendorError}</p> : null}
+              <Button type="button" size="sm" onClick={handleAddVendor} loading={addingVendor}>
+                Add &amp; select vendor
+              </Button>
+            </div>
+          ) : null}
+        </>
+      ) : null}
+
       <Label htmlFor="expense-vendor">Title</Label>
-      <Input id="expense-vendor" value={form.vendor} onChange={(e) => setForm({ ...form, vendor: e.target.value })} autoFocus />
+      <Input
+        id="expense-vendor"
+        value={form.vendor}
+        onChange={(e) => setForm({ ...form, vendor: e.target.value, vendorId: undefined })}
+        disabled={vendorsEnabled && !!form.vendorId}
+        className={vendorsEnabled && form.vendorId ? "bg-bg-warm text-ink/50" : undefined}
+      />
 
       <Label htmlFor="expense-description">Description</Label>
       <Textarea

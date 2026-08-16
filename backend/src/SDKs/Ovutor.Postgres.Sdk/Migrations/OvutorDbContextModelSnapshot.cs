@@ -168,9 +168,14 @@ namespace Ovutor.Postgres.Sdk.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<Guid?>("VendorId")
+                        .HasColumnType("uuid");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CategoryId");
+
+                    b.HasIndex("VendorId");
 
                     b.ToTable("BudgetExpenses");
                 });
@@ -286,6 +291,9 @@ namespace Ovutor.Postgres.Sdk.Migrations
                     b.Property<string>("Currency")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<DateOnly?>("FullPaymentDueDate")
+                        .HasColumnType("date");
 
                     b.Property<int>("GuestCount")
                         .HasColumnType("integer");
@@ -561,6 +569,37 @@ namespace Ovutor.Postgres.Sdk.Migrations
                     b.ToTable("RsvpGuests");
                 });
 
+            modelBuilder.Entity("Ovutor.Postgres.Sdk.Entities.Vendor", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Contact")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Location")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Vendors");
+                });
+
             modelBuilder.Entity("Ovutor.Postgres.Sdk.Entities.WebsiteContent", b =>
                 {
                     b.Property<Guid>("Id")
@@ -687,6 +726,11 @@ namespace Ovutor.Postgres.Sdk.Migrations
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("Ovutor.Postgres.Sdk.Entities.Vendor", null)
+                        .WithMany()
+                        .HasForeignKey("VendorId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("Category");
                 });

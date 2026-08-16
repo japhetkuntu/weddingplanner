@@ -3,6 +3,7 @@ import { Sidebar, type SidebarNavItem } from "@ovutor/ui";
 import { useAuthStore } from "@/store/authStore";
 import { useUiStore } from "@/store/uiStore";
 import { useClientsStore } from "@/store/clientsStore";
+import { vendorsEnabled } from "@/lib/featureFlags";
 
 export function AdminLayout({ children }: { children: ReactNode }) {
   const user = useAuthStore((s) => s.user);
@@ -28,6 +29,7 @@ export function AdminLayout({ children }: { children: ReactNode }) {
     { label: "Website", to: `/clients/${activeClientId}/website` },
     { label: "Documents", to: `/clients/${activeClientId}/documents` },
     { label: "RSVPs", to: `/clients/${activeClientId}/rsvps` },
+    ...(vendorsEnabled ? [{ label: "Vendors", to: "/vendors" }] : []),
     { label: "Team", to: "/team" },
     { label: "Profile & Settings", to: "/settings" },
   ];

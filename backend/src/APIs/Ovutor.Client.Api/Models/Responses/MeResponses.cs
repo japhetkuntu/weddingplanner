@@ -22,7 +22,7 @@ public record BudgetExpenseResponse(Guid Id, Guid CategoryId, string Vendor, str
 
 public record BudgetCategoryResponse(Guid Id, string Name, decimal Estimated, decimal Actual, decimal Paid, List<BudgetExpenseResponse> Expenses);
 
-public record BudgetResponse(decimal TotalBudget, decimal TotalEstimated, decimal TotalActual, decimal TotalPaid, decimal Remaining, string Currency, List<BudgetCategoryResponse> Categories);
+public record BudgetResponse(decimal TotalBudget, decimal TotalEstimated, decimal TotalActual, decimal TotalPaid, decimal Remaining, string Currency, string? FullPaymentDueDate, List<BudgetCategoryResponse> Categories);
 
 public record RsvpGuestResponse(
     Guid Id,

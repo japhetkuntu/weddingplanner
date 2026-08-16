@@ -37,6 +37,10 @@ public class DashboardService(
             var allClients = (await clients.FindManyAsync(_ => true, ct)).Where(c => !c.IsArchived).ToList();
             var clientsById = allClients.ToDictionary(c => c.Id);
 
+            // Lifetime count, not scoped to the active (non-archived) portfolio above — a wedding that
+            // already happened is very often archived afterward, so this must look across everything.
+            var weddingsDone = (await clients.FindManyAsync(c => c.WeddingDate < today, ct)).Count;
+
             var openTasks = await checklistTasks.GetQueryable().Where(t => t.Status != "done").ToListAsync(ct);
             var dueThisWeek = openTasks.Count(t => t.DueDate is not null && t.DueDate >= today && t.DueDate <= weekOut);
             var overdue = openTasks.Count(t => t.DueDate is not null && t.DueDate < today);
@@ -92,7 +96,7 @@ public class DashboardService(
                 .ToList();
 
             var response = new DashboardResponse(
-                new DashboardMetrics(allClients.Count, dueThisWeek, overdue, rsvpDeadlineClients.Count),
+                new DashboardMetrics(allClients.Count, dueThisWeek, overdue, rsvpDeadlineClients.Count, weddingsDone),
                 attentionItems.Take(4).ToList(),
                 upcomingMilestones,
                 recentActivity);

@@ -86,7 +86,9 @@ public class MeService(
             var totalEstimated = categoryResponses.Sum(c => c.Estimated);
             var totalActual = categoryResponses.Sum(c => c.Actual);
             var totalPaid = categoryResponses.Sum(c => c.Paid);
-            var response = new BudgetResponse(client.BudgetTotal, totalEstimated, totalActual, totalPaid, client.BudgetTotal - totalActual, client.Currency, categoryResponses);
+            var response = new BudgetResponse(
+                client.BudgetTotal, totalEstimated, totalActual, totalPaid, client.BudgetTotal - totalActual, client.Currency,
+                client.FullPaymentDueDate?.ToString("yyyy-MM-dd"), categoryResponses);
             return response.ToOkApiResponse();
         }
         catch (OvutorException) { throw; }

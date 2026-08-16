@@ -146,6 +146,23 @@ public class ClientService(
         }
     }
 
+    public async Task<IApiResponse<ClientResponse>> UpdateFullPaymentDueDateAsync(Guid id, UpdateFullPaymentDueDateRequest request, CancellationToken ct = default)
+    {
+        try
+        {
+            var client = await clients.GetByIdAsync(id, ct) ?? throw new NotFoundException("We couldn't find that client.");
+            client.FullPaymentDueDate = string.IsNullOrWhiteSpace(request.FullPaymentDueDate) ? null : DateOnly.Parse(request.FullPaymentDueDate);
+            await clients.UpdateAsync(client, ct);
+            return ToResponse(client).ToOkApiResponse("Due date saved.");
+        }
+        catch (OvutorException) { throw; }
+        catch (Exception e)
+        {
+            logger.LogError(e, "[UpdateFullPaymentDueDateAsync] Failed to update due date for {ClientId}", id);
+            return ApiResponseFactory.InternalError<ClientResponse>("Failed to save due date.");
+        }
+    }
+
     public async Task<IApiResponse<ClientResponse>> UpdatePortalEmailAsync(Guid id, UpdatePortalEmailRequest request, CancellationToken ct = default)
     {
         try
@@ -237,5 +254,5 @@ public class ClientService(
 
     private static ClientResponse ToResponse(Client c) => new(
         c.Id, c.Slug, c.CoupleNames, c.PartnerA, c.PartnerB, c.WeddingDate, c.Venue, c.GuestCount, c.Status,
-        c.PlanningPercent, c.BudgetTotal, c.BudgetPaid, c.Currency, c.NextAttention, c.AvatarInitials, c.PortalEmail, c.IsArchived);
+        c.PlanningPercent, c.BudgetTotal, c.BudgetPaid, c.FullPaymentDueDate, c.Currency, c.NextAttention, c.AvatarInitials, c.PortalEmail, c.IsArchived);
 }

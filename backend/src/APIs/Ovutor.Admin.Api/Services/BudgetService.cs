@@ -13,6 +13,7 @@ public class BudgetService(
     IRepository<BudgetCategory> categories,
     IRepository<BudgetExpense> expenses,
     IRepository<Client> clients,
+    IRepository<Vendor> vendors,
     ILogger<BudgetService> logger) : IBudgetService
 {
     /// <summary>Client.BudgetPaid is a denormalized rollup so the dashboard/overview pages don't
@@ -137,7 +138,20 @@ public class BudgetService(
         try
         {
             var expense = await expenses.GetByIdAsync(expenseId, ct) ?? throw new NotFoundException("We couldn't find that expense.");
-            expense.Vendor = string.IsNullOrWhiteSpace(request.Vendor) ? expense.Vendor : request.Vendor.Trim();
+
+            // When a directory vendor is linked, its name is the source of truth for the display
+            // label — otherwise fall back to whatever free text the planner typed.
+            if (request.VendorId.HasValue)
+            {
+                var linkedVendor = await vendors.GetByIdAsync(request.VendorId.Value, ct);
+                expense.VendorId = linkedVendor?.Id;
+                expense.Vendor = linkedVendor?.Name ?? (string.IsNullOrWhiteSpace(request.Vendor) ? expense.Vendor : request.Vendor.Trim());
+            }
+            else
+            {
+                expense.VendorId = null;
+                expense.Vendor = string.IsNullOrWhiteSpace(request.Vendor) ? expense.Vendor : request.Vendor.Trim();
+            }
             expense.Description = request.Description;
             expense.Estimated = request.Estimated;
             expense.Actual = request.Actual;
@@ -176,5 +190,5 @@ public class BudgetService(
     private static BudgetCategoryResponse ToResponse(BudgetCategory c) => new(c.Id, c.ClientId, c.Name, c.Description);
 
     private static BudgetExpenseResponse ToResponse(BudgetExpense e) => new(
-        e.Id, e.CategoryId, e.Vendor, e.Description, e.Estimated, e.Actual, e.Paid, e.NextDue?.ToString("yyyy-MM-dd"));
+        e.Id, e.CategoryId, e.Vendor, e.VendorId, e.Description, e.Estimated, e.Actual, e.Paid, e.NextDue?.ToString("yyyy-MM-dd"));
 }

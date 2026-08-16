@@ -20,6 +20,7 @@ import type {
   DocumentFile,
   MilestoneItem,
   RsvpGuest,
+  Vendor,
   WebsiteContent,
   WebsiteSection,
 } from "@/types";
@@ -85,6 +86,7 @@ interface ClientResponse {
   planningPercent: number;
   budgetTotal: number;
   budgetPaid: number;
+  fullPaymentDueDate?: string;
   currency: string;
   nextAttention: string;
   avatarInitials: string;
@@ -152,6 +154,10 @@ export async function unarchiveClient(id: string): Promise<Client> {
   return toClient(await api.post<ClientResponse>(`/api/clients/${id}/unarchive`));
 }
 
+export async function updateFullPaymentDueDate(id: string, fullPaymentDueDate: string | null): Promise<Client> {
+  return toClient(await api.put<ClientResponse>(`/api/clients/${id}/full-payment-due-date`, { fullPaymentDueDate }));
+}
+
 // ---------- Dashboard ----------
 
 export interface DashboardMetrics {
@@ -159,6 +165,7 @@ export interface DashboardMetrics {
   dueThisWeek: number;
   overdue: number;
   rsvpDeadlines: number;
+  weddingsDone: number;
 }
 
 export interface AttentionItem {
@@ -276,12 +283,33 @@ export function addBudgetExpense(categoryId: string) {
   return api.post<BudgetExpense>(`/api/budget/categories/${categoryId}/expenses`);
 }
 
-export function updateBudgetExpense(expenseId: string, patch: Pick<BudgetExpense, "vendor" | "description" | "estimated" | "actual" | "paid" | "nextDue">) {
+export function updateBudgetExpense(
+  expenseId: string,
+  patch: Pick<BudgetExpense, "vendor" | "vendorId" | "description" | "estimated" | "actual" | "paid" | "nextDue">,
+) {
   return api.put<BudgetExpense>(`/api/budget/expenses/${expenseId}`, patch);
 }
 
 export function deleteBudgetExpense(expenseId: string) {
   return api.delete(`/api/budget/expenses/${expenseId}`);
+}
+
+// ---------- Vendors ----------
+
+export function getVendors(): Promise<Vendor[]> {
+  return api.get<Vendor[]>("/api/vendors");
+}
+
+export function addVendor(name: string, contact: string | undefined, location: string): Promise<Vendor> {
+  return api.post<Vendor>("/api/vendors", { name, contact, location });
+}
+
+export function updateVendor(vendorId: string, name: string, contact: string | undefined, location: string): Promise<Vendor> {
+  return api.put<Vendor>(`/api/vendors/${vendorId}`, { name, contact, location });
+}
+
+export function deleteVendor(vendorId: string) {
+  return api.delete(`/api/vendors/${vendorId}`);
 }
 
 // ---------- RSVPs ----------

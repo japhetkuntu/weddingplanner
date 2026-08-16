@@ -121,6 +121,7 @@ export interface BudgetData {
   totalPaid: number;
   remaining: number;
   currency: string;
+  fullPaymentDueDate?: string;
   categories: BudgetCategory[];
 }
 

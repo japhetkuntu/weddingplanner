@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Ovutor.Admin.Api")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2fdd0843fd45effc15899aa5637f919c958fa1b6")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+74cad6391fbe2070ada93f90dc9b8569ca3e03b6")]
 [assembly: System.Reflection.AssemblyProductAttribute("Ovutor.Admin.Api")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Ovutor.Admin.Api")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

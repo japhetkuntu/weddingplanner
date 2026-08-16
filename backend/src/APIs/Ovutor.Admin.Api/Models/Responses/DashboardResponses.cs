@@ -1,6 +1,6 @@
 namespace Ovutor.Admin.Api.Models.Responses;
 
-public record DashboardMetrics(int ActiveWeddings, int DueThisWeek, int Overdue, int RsvpDeadlines);
+public record DashboardMetrics(int ActiveWeddings, int DueThisWeek, int Overdue, int RsvpDeadlines, int WeddingsDone);
 
 public record AttentionItemResponse(string Tag, string Title, string Detail, Guid ClientId, string Area);
 

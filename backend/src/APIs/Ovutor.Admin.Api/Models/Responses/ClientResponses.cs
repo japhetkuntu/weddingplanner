@@ -13,6 +13,7 @@ public record ClientResponse(
     int PlanningPercent,
     decimal BudgetTotal,
     decimal BudgetPaid,
+    DateOnly? FullPaymentDueDate,
     string Currency,
     string NextAttention,
     string AvatarInitials,

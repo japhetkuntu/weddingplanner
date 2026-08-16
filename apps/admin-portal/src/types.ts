@@ -21,6 +21,8 @@ export interface Client {
   planningPercent: number;
   budgetTotal: number;
   budgetPaid: number;
+  /** When the couple's full budget is expected to be paid off. */
+  fullPaymentDueDate?: string;
   /** ISO 4217 code (e.g. "USD", "GBP") — set once when the client is added since couples usually
    * think about their budget in their own local currency, not the planner's. */
   currency: string;
@@ -66,11 +68,19 @@ export interface BudgetExpense {
   id: string;
   categoryId: string;
   vendor: string;
+  vendorId?: string;
   description?: string;
   estimated: number;
   actual: number;
   paid: number;
   nextDue?: string;
+}
+
+export interface Vendor {
+  id: string;
+  name: string;
+  contact?: string;
+  location: string;
 }
 
 export interface BudgetCategory {

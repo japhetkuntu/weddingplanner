@@ -6,6 +6,7 @@ public record BudgetExpenseResponse(
     Guid Id,
     Guid CategoryId,
     string Vendor,
+    Guid? VendorId,
     string? Description,
     decimal Estimated,
     decimal Actual,
