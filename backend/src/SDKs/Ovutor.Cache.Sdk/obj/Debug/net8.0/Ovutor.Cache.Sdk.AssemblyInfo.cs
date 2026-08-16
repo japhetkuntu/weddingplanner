@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Ovutor.Cache.Sdk")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+38f5b38478bc9c33d52bebc77a3d8e16cfc6f081")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2fdd0843fd45effc15899aa5637f919c958fa1b6")]
 [assembly: System.Reflection.AssemblyProductAttribute("Ovutor.Cache.Sdk")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Ovutor.Cache.Sdk")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

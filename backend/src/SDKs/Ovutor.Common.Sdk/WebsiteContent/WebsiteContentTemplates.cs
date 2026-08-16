@@ -16,7 +16,7 @@ public static class WebsiteContentTemplates {
         ("details", "Details", "Ceremony, reception, attire and parking cards."),
         ("schedule", "Schedule", "The full run of show for the day."),
         ("travel", "Travel & Stay", "Hotel blocks, transport and local tips."),
-        ("gallery", "Guest Photo Sharing", "Gallery guests can browse and contribute to."),
+        ("gallery", "Photo Gallery", "Photos the couple wants to share with their guests."),
         ("rsvp", "RSVP", "Deadline, plus-one and dietary options."),
     ];
 

@@ -94,7 +94,7 @@ export default function App() {
       {isPublished("hero") ? (
         <section id="home" className="relative flex min-h-[75vh] items-end bg-ink sm:min-h-[85vh]">
           <div className="absolute inset-0">
-            <PlaceholderImage image={c.hero.image} className="opacity-60" />
+            <PlaceholderImage image={c.hero.image} fit="contain" className="opacity-60" />
             <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/50 to-ink/10" />
           </div>
           <div className="relative z-10 w-full px-6 pb-16 pt-32 text-white sm:px-10 sm:pb-24">
