@@ -4,4 +4,4 @@ public record CreateCategoryRequest(string Name);
 
 public record UpdateCategoryRequest(string Name, string? Description);
 
-public record UpdateExpenseRequest(string Vendor, string? Description, decimal Planned, decimal Agreed, decimal Paid, string? NextDue);
+public record UpdateExpenseRequest(string Vendor, string? Description, decimal Estimated, decimal Actual, decimal Paid, string? NextDue);

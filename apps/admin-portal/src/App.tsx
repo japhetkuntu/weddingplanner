@@ -15,6 +15,7 @@ const DashboardPage = lazy(() => import("@/pages/DashboardPage"));
 const ClientsListPage = lazy(() => import("@/pages/ClientsListPage"));
 const AddClientPage = lazy(() => import("@/pages/AddClientPage"));
 const SettingsPage = lazy(() => import("@/pages/SettingsPage"));
+const TeamPage = lazy(() => import("@/pages/TeamPage"));
 
 const ClientOverviewPage = lazy(() => import("@/pages/client/ClientOverviewPage"));
 const ClientChecklistPage = lazy(() => import("@/pages/client/ClientChecklistPage"));
@@ -60,6 +61,7 @@ export default function App() {
         <Route path="/clients" element={<RequireAuth><ClientsListPage /></RequireAuth>} />
         <Route path="/clients/new" element={<RequireAuth><AddClientPage /></RequireAuth>} />
         <Route path="/settings" element={<RequireAuth><SettingsPage /></RequireAuth>} />
+        <Route path="/team" element={<RequireAuth><TeamPage /></RequireAuth>} />
 
         <Route path="/clients/:clientId" element={<Navigate to="overview" replace />} />
         <Route path="/clients/:clientId/overview" element={<ClientRoute><ClientOverviewPage /></ClientRoute>} />

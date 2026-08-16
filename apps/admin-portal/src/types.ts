@@ -67,8 +67,8 @@ export interface BudgetExpense {
   categoryId: string;
   vendor: string;
   description?: string;
-  planned: number;
-  agreed: number;
+  estimated: number;
+  actual: number;
   paid: number;
   nextDue?: string;
 }
@@ -92,6 +92,10 @@ export interface RsvpGuest {
   dietary?: string;
   plannerNote?: string;
   respondedAt?: string;
+  email?: string;
+  mobile?: string;
+  needsAccommodation?: boolean;
+  needsTransportation?: boolean;
 }
 
 export type DocumentVisibility = "client" | "planner-only";
@@ -132,10 +136,14 @@ export interface WebsiteSection {
   description: string;
 }
 
+export type FocalPoint = "top" | "center" | "bottom";
+
 export interface WebsiteImage {
   /** Real photo URL once the couple/planner uploads one; label renders as a placeholder until then. */
   url?: string;
   label: string;
+  /** Where the image should anchor when cropped to fill its section — keeps the subject in frame. */
+  focalPoint?: FocalPoint;
 }
 
 export interface WebsiteHero {
@@ -186,6 +194,10 @@ export interface WebsiteRsvpConfig {
   confirmationMessage: string;
   collectDietary: boolean;
   collectPlusOne: boolean;
+  collectEmail: boolean;
+  collectMobile: boolean;
+  collectAccommodation: boolean;
+  collectTransportation: boolean;
 }
 
 export interface WebsiteContent {

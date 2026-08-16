@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Button, Input, Label } from "@ovutor/ui";
+import { Button, Checkbox, Input, Label } from "@ovutor/ui";
 import { getSite, submitRsvp, ApiError } from "@/lib/api";
 import { PlaceholderImage } from "@/components/PlaceholderImage";
 import { WeddingLoader } from "@/components/WeddingLoader";
@@ -92,7 +92,7 @@ export default function App() {
       </header>
 
       {isPublished("hero") ? (
-        <section id="home" className="relative flex min-h-[560px] items-end bg-ink sm:min-h-[670px]">
+        <section id="home" className="relative flex min-h-[75vh] items-end bg-ink sm:min-h-[85vh]">
           <div className="absolute inset-0">
             <PlaceholderImage image={c.hero.image} className="opacity-60" />
             <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/50 to-ink/10" />
@@ -272,7 +272,7 @@ function Gallery({ site }: { site: SiteConfig }) {
   return (
     <section id="gallery" className="border-t border-[#e6e2dc] py-16 sm:py-24">
       <SectionEyebrow>A few favorites</SectionEyebrow>
-      <h2 className="my-3 font-display text-4xl sm:text-5xl">The places that made us.</h2>
+      <h2 className="my-3 font-display text-4xl sm:text-5xl">Love Story In Pictures</h2>
       <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3">
         {gallery.map((photo) => (
           <figure key={photo.caption} className="group relative aspect-square overflow-hidden bg-ink/10">
@@ -291,6 +291,10 @@ interface StoredRsvp {
   fullName: string;
   attendanceCount?: number;
   dietary?: string;
+  email?: string;
+  mobile?: string;
+  needsAccommodation?: boolean;
+  needsTransportation?: boolean;
   submittedAt: string;
 }
 
@@ -336,12 +340,25 @@ function RsvpBlock({ site, slug }: { site: SiteConfig; slug: string }) {
       fullName,
       attendanceCount: Number(form.get("guest-count")) || 1,
       dietary: String(form.get("dietary") ?? "") || undefined,
+      email: String(form.get("email") ?? "") || undefined,
+      mobile: String(form.get("mobile") ?? "") || undefined,
+      needsAccommodation: form.get("needs-accommodation") === "on",
+      needsTransportation: form.get("needs-transportation") === "on",
       submittedAt: new Date().toISOString(),
     };
 
     setSubmitting(true);
     try {
-      await submitRsvp(slug, { fullName: record.fullName, attending: true, attendanceCount: record.attendanceCount, dietary: record.dietary });
+      await submitRsvp(slug, {
+        fullName: record.fullName,
+        attending: true,
+        attendanceCount: record.attendanceCount,
+        dietary: record.dietary,
+        email: record.email,
+        mobile: record.mobile,
+        needsAccommodation: record.needsAccommodation,
+        needsTransportation: record.needsTransportation,
+      });
       storeRsvp(slug, record);
       setStored(record);
       setEditing(false);
@@ -392,6 +409,31 @@ function RsvpBlock({ site, slug }: { site: SiteConfig; slug: string }) {
                 <Label htmlFor="dietary">Dietary requirements</Label>
                 <Input id="dietary" name="dietary" placeholder="Optional" defaultValue={stored?.dietary} />
               </>
+            ) : null}
+
+            {rsvp.collectEmail ? (
+              <>
+                <Label htmlFor="email">Email</Label>
+                <Input id="email" name="email" type="email" placeholder="Optional" defaultValue={stored?.email} />
+              </>
+            ) : null}
+
+            {rsvp.collectMobile ? (
+              <>
+                <Label htmlFor="mobile">Mobile number</Label>
+                <Input id="mobile" name="mobile" placeholder="Optional" defaultValue={stored?.mobile} />
+              </>
+            ) : null}
+
+            {rsvp.collectAccommodation || rsvp.collectTransportation ? (
+              <div className="mt-3 space-y-2.5">
+                {rsvp.collectAccommodation ? (
+                  <Checkbox id="needs-accommodation" name="needs-accommodation" label="I'll need accommodation" defaultChecked={stored?.needsAccommodation} />
+                ) : null}
+                {rsvp.collectTransportation ? (
+                  <Checkbox id="needs-transportation" name="needs-transportation" label="I'll need transportation" defaultChecked={stored?.needsTransportation} />
+                ) : null}
+              </div>
             ) : null}
 
             {error ? <p className="mt-2 border-l-[3px] border-primary bg-[#fff2f0] p-2.5 text-sm text-[#5d2924]">{error}</p> : null}

@@ -69,8 +69,8 @@ public class OvutorDbContext(DbContextOptions<OvutorDbContext> options) : DbCont
         modelBuilder.Entity<BudgetExpense>(e =>
         {
             e.HasOne(x => x.Category).WithMany(c => c.Expenses).HasForeignKey(x => x.CategoryId).OnDelete(DeleteBehavior.Cascade);
-            e.Property(x => x.Planned).HasColumnType("numeric(14,2)");
-            e.Property(x => x.Agreed).HasColumnType("numeric(14,2)");
+            e.Property(x => x.Estimated).HasColumnType("numeric(14,2)");
+            e.Property(x => x.Actual).HasColumnType("numeric(14,2)");
             e.Property(x => x.Paid).HasColumnType("numeric(14,2)");
         });
 

@@ -35,6 +35,10 @@ public class RsvpService(IRepository<RsvpGuest> rsvps, ILogger<RsvpService> logg
             rsvp.AttendanceCount = request.AttendanceCount;
             rsvp.Dietary = request.Dietary;
             rsvp.PlannerNote = request.PlannerNote;
+            rsvp.Email = request.Email;
+            rsvp.Mobile = request.Mobile;
+            rsvp.NeedsAccommodation = request.NeedsAccommodation;
+            rsvp.NeedsTransportation = request.NeedsTransportation;
             if (wasAwaiting && request.Status != "awaiting") rsvp.RespondedAtUtc = DateTime.UtcNow;
             await rsvps.UpdateAsync(rsvp, ct);
             return ToResponse(rsvp).ToOkApiResponse("Saved.");
@@ -47,7 +51,38 @@ public class RsvpService(IRepository<RsvpGuest> rsvps, ILogger<RsvpService> logg
         }
     }
 
+    public async Task<IApiResponse<List<RsvpGuestResponse>>> AddGuestsAsync(Guid clientId, AddGuestsRequest request, CancellationToken ct = default)
+    {
+        try
+        {
+            var entries = request.Guests.Where(g => !string.IsNullOrWhiteSpace(g.Household)).ToList();
+            if (entries.Count == 0) return ApiResponseFactory.BadRequest<List<RsvpGuestResponse>>("Add at least one guest with a name.");
+
+            var created = new List<RsvpGuest>();
+            foreach (var entry in entries)
+            {
+                var guest = new RsvpGuest
+                {
+                    ClientId = clientId,
+                    Household = entry.Household.Trim(),
+                    Status = "awaiting",
+                    Email = entry.Email,
+                    Mobile = entry.Mobile,
+                };
+                await rsvps.AddAsync(guest, ct);
+                created.Add(guest);
+            }
+
+            return created.Select(ToResponse).ToList().ToCreatedApiResponse("Guests added.");
+        }
+        catch (Exception e)
+        {
+            logger.LogError(e, "[AddGuestsAsync] Failed to add guests for {ClientId}", clientId);
+            return ApiResponseFactory.InternalError<List<RsvpGuestResponse>>("Failed to add guests.");
+        }
+    }
+
     private static RsvpGuestResponse ToResponse(RsvpGuest r) => new(
         r.Id, r.ClientId, r.Household, r.Status, r.AttendanceCount, r.Dietary, r.PlannerNote,
-        r.RespondedAtUtc?.ToString("yyyy-MM-dd"));
+        r.RespondedAtUtc?.ToString("yyyy-MM-dd"), r.Email, r.Mobile, r.NeedsAccommodation, r.NeedsTransportation);
 }

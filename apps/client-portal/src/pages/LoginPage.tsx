@@ -50,7 +50,7 @@ export default function LoginPage() {
 
       <main className="grid place-items-center px-6 py-10 sm:px-10">
         <section className="w-full max-w-[420px]">
-          <p className="text-[11px] font-bold uppercase tracking-[.13em] text-primary">Client portal</p>
+          <p className="text-[11px] font-bold uppercase tracking-[.13em] text-primary">Couple portal</p>
           <h2 className="my-2 font-display text-4xl">Welcome back.</h2>
           <p className="mb-6 text-ink/60">Sign in to your wedding workspace.</p>
           <form onSubmit={handleSubmit}>

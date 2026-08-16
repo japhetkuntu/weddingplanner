@@ -13,4 +13,9 @@ public class RsvpGuest : BaseEntity
     public string? Dietary { get; set; }
     public string? PlannerNote { get; set; }
     public DateTime? RespondedAtUtc { get; set; }
+
+    public string? Email { get; set; }
+    public string? Mobile { get; set; }
+    public bool? NeedsAccommodation { get; set; }
+    public bool? NeedsTransportation { get; set; }
 }

@@ -22,4 +22,11 @@ public class RsvpsController(IRsvpService rsvpService) : ControllerBase
         var response = await rsvpService.UpdateAsync(rsvpId, request, ct);
         return StatusCode(response.Code, response);
     }
+
+    [HttpPost("api/clients/{clientId:guid}/rsvps")]
+    public async Task<IActionResult> AddGuests(Guid clientId, AddGuestsRequest request, CancellationToken ct)
+    {
+        var response = await rsvpService.AddGuestsAsync(clientId, request, ct);
+        return StatusCode(response.Code, response);
+    }
 }

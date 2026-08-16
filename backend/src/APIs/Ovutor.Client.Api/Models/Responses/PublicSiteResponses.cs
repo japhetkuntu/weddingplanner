@@ -1,6 +1,6 @@
 namespace Ovutor.Client.Api.Models.Responses;
 
-public record PublicSiteImage(string? Src, string Label);
+public record PublicSiteImage(string? Src, string Label, string FocalPoint = "center");
 
 public record PublicHero(string Eyebrow, string CoupleNames, string Date, string Venue, PublicSiteImage Image);
 
@@ -16,7 +16,18 @@ public record PublicTravelItem(string Heading, string Body);
 
 public record PublicGalleryPhoto(string? Src, string Label, string Caption);
 
-public record PublicRsvpBlock(string Eyebrow, string Title, string Body, string Deadline, string ConfirmationMessage, bool CollectDietary, bool CollectPlusOne);
+public record PublicRsvpBlock(
+    string Eyebrow,
+    string Title,
+    string Body,
+    string Deadline,
+    string ConfirmationMessage,
+    bool CollectDietary,
+    bool CollectPlusOne,
+    bool CollectEmail,
+    bool CollectMobile,
+    bool CollectAccommodation,
+    bool CollectTransportation);
 
 /// <summary>Full parsed content plus which section keys the admin has published — the wedding-website
 /// frontend only renders a section if its key appears in <see cref="PublishedSections"/>.</summary>

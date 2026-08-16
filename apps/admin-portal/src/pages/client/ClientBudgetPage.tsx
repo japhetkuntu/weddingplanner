@@ -78,7 +78,7 @@ export default function ClientBudgetPage() {
     window.setTimeout(() => setError(null), 3200);
   }
 
-  function updateExpenseAmount(categoryId: string, expenseId: string, field: "planned" | "agreed" | "paid", value: string) {
+  function updateExpenseAmount(categoryId: string, expenseId: string, field: "estimated" | "actual" | "paid", value: string) {
     const num = Number(value.replace(/[^0-9.]/g, "")) || 0;
     setCategories((prev) =>
       prev.map((c) =>
@@ -95,8 +95,8 @@ export default function ClientBudgetPage() {
       await updateBudgetExpense(expenseId, {
         vendor: expense.vendor,
         description: expense.description,
-        planned: expense.planned,
-        agreed: expense.agreed,
+        estimated: expense.estimated,
+        actual: expense.actual,
         paid: expense.paid,
         nextDue: expense.nextDue,
       });
@@ -121,8 +121,8 @@ export default function ClientBudgetPage() {
       const saved = await updateBudgetExpense(updated.id, {
         vendor: updated.vendor.trim() || updated.vendor,
         description: updated.description,
-        planned: updated.planned,
-        agreed: updated.agreed,
+        estimated: updated.estimated,
+        actual: updated.actual,
         paid: updated.paid,
         nextDue: updated.nextDue,
       });
@@ -197,31 +197,31 @@ export default function ClientBudgetPage() {
   }
 
   const totals = useMemo(() => {
-    let planned = 0;
-    let agreed = 0;
+    let estimated = 0;
+    let actual = 0;
     let paid = 0;
     for (const c of categories) {
       for (const e of c.expenses) {
-        planned += e.planned;
-        agreed += e.agreed;
+        estimated += e.estimated;
+        actual += e.actual;
         paid += e.paid;
       }
     }
-    return { planned, agreed, paid, stillToPay: agreed - paid };
+    return { estimated, actual, paid, stillToPay: actual - paid };
   }, [categories]);
 
   if (!client) return null;
   if (loading) return <BudgetSkeleton />;
 
   const money = (n: number) => formatMoney(n, client.currency);
-  const remaining = client.budgetTotal - totals.agreed;
+  const remaining = client.budgetTotal - totals.actual;
 
   return (
     <div className="ovutor-fade-in">
       <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
         <div>
           <h1 className="font-display text-3xl">Budget</h1>
-          <p className="text-ink/60">Track what's planned, agreed and paid against the overall target.</p>
+          <p className="text-ink/60">Track what's estimated, actual and paid against the overall target.</p>
         </div>
         <Button variant="outline" size="sm" onClick={() => setShowAddCategory((v) => !v)}>
           + Add category
@@ -246,13 +246,13 @@ export default function ClientBudgetPage() {
 
       <section className="mb-6 grid grid-cols-2 gap-3 lg:grid-cols-5">
         <StatCard label="Total target" value={money(client.budgetTotal)} />
-        <StatCard label="Planned" value={money(totals.planned)} />
+        <StatCard label="Estimated" value={money(totals.estimated)} />
         <StatCard label="Paid so far" value={money(totals.paid)} />
         <StatCard label="Still to pay" value={money(totals.stillToPay)} />
         <StatCard label="Remaining" value={money(remaining)} valueClassName={remaining < 0 ? "text-primary" : undefined} />
       </section>
 
-      <p className="mb-4 text-sm text-ink/50">Your figures update as you type. Planned is what you expect; paid is what has already left your account.</p>
+      <p className="mb-4 text-sm text-ink/50">Your figures update as you type. Estimated is what you expect to spend; actual is what you've agreed with the vendor; paid is what has already left your account.</p>
 
       {categories.length === 0 ? (
         <EmptyState
@@ -267,8 +267,8 @@ export default function ClientBudgetPage() {
       ) : (
       <div className="space-y-3">
         {categories.map((cat) => {
-          const catPlanned = cat.expenses.reduce((s, e) => s + e.planned, 0);
-          const catAgreed = cat.expenses.reduce((s, e) => s + e.agreed, 0);
+          const catEstimated = cat.expenses.reduce((s, e) => s + e.estimated, 0);
+          const catActual = cat.expenses.reduce((s, e) => s + e.actual, 0);
           const catPaid = cat.expenses.reduce((s, e) => s + e.paid, 0);
           const isCollapsed = collapsed[cat.id];
 
@@ -287,11 +287,11 @@ export default function ClientBudgetPage() {
                   aria-label={isCollapsed ? "Expand category" : "Collapse category"}
                   className="col-span-4 grid grid-cols-4 items-center gap-2"
                 >
-                  <span className="hidden text-right sm:block">{money(catPlanned)}</span>
-                  <span className="hidden text-right sm:block">{money(catAgreed)}</span>
+                  <span className="hidden text-right sm:block">{money(catEstimated)}</span>
+                  <span className="hidden text-right sm:block">{money(catActual)}</span>
                   <span className="hidden text-right sm:block">{money(catPaid)}</span>
                   <span className="text-right font-bold">
-                    {money(catAgreed - catPaid)} <span className="ml-1 text-primary">{isCollapsed ? "›" : "⌄"}</span>
+                    {money(catActual - catPaid)} <span className="ml-1 text-primary">{isCollapsed ? "›" : "⌄"}</span>
                   </span>
                 </button>
               </div>
@@ -300,8 +300,8 @@ export default function ClientBudgetPage() {
                 <div>
                   <div className="hidden grid-cols-[1fr_repeat(4,minmax(70px,1fr))] gap-2 px-4 pt-3 text-[10px] font-bold uppercase tracking-[.06em] text-ink/50 sm:grid">
                     <span>Expense</span>
-                    <span className="text-right">Planned</span>
-                    <span className="text-right">Agreed</span>
+                    <span className="text-right">Estimated</span>
+                    <span className="text-right">Actual</span>
                     <span className="text-right">Paid</span>
                     <span className="text-right">Still to pay</span>
                   </div>
@@ -316,14 +316,14 @@ export default function ClientBudgetPage() {
                         {e.nextDue ? <p className="text-xs text-ink/50">Next due {new Date(e.nextDue).toLocaleDateString(undefined, { month: "short", day: "numeric" })}</p> : null}
                       </button>
                       <Input
-                        value={money(e.planned)}
-                        onChange={(ev) => updateExpenseAmount(cat.id, e.id, "planned", ev.target.value)}
+                        value={money(e.estimated)}
+                        onChange={(ev) => updateExpenseAmount(cat.id, e.id, "estimated", ev.target.value)}
                         onBlur={() => persistExpenseAmount(cat.id, e.id)}
                         className="h-9 text-right text-sm"
                       />
                       <Input
-                        value={money(e.agreed)}
-                        onChange={(ev) => updateExpenseAmount(cat.id, e.id, "agreed", ev.target.value)}
+                        value={money(e.actual)}
+                        onChange={(ev) => updateExpenseAmount(cat.id, e.id, "actual", ev.target.value)}
                         onBlur={() => persistExpenseAmount(cat.id, e.id)}
                         className="h-9 text-right text-sm"
                       />
@@ -333,7 +333,7 @@ export default function ClientBudgetPage() {
                         onBlur={() => persistExpenseAmount(cat.id, e.id)}
                         className="h-9 text-right text-sm"
                       />
-                      <p className="text-right text-sm font-bold">{money(e.agreed - e.paid)}</p>
+                      <p className="text-right text-sm font-bold">{money(e.actual - e.paid)}</p>
                     </div>
                   ))}
                   <button

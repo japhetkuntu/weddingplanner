@@ -1,7 +1,11 @@
+export type FocalPoint = "top" | "center" | "bottom";
+
 export interface SiteImage {
   /** Real photo URL once the couple/planner uploads one; label renders as a placeholder until then. */
   src?: string;
   label: string;
+  /** Where the image should anchor when cropped to fill its section — keeps the subject in frame. */
+  focalPoint?: FocalPoint;
 }
 
 export interface HeroContent {
@@ -56,6 +60,10 @@ export interface RsvpBlockContent {
   confirmationMessage: string;
   collectDietary: boolean;
   collectPlusOne: boolean;
+  collectEmail: boolean;
+  collectMobile: boolean;
+  collectAccommodation: boolean;
+  collectTransportation: boolean;
 }
 
 export interface SiteConfig {

@@ -123,6 +123,22 @@ export default function RsvpsPage() {
                 <dt className="text-xs font-bold uppercase tracking-[.06em] text-ink/40">Party size</dt>
                 <dd className="text-ink">{selected.status === "attending" ? `${selected.attendanceCount ?? 1} guest(s)` : "—"}</dd>
               </div>
+              <div className="flex items-center justify-between border-b border-[#eee] pb-3">
+                <dt className="text-xs font-bold uppercase tracking-[.06em] text-ink/40">Email</dt>
+                <dd className="text-ink/70">{selected.email || "Not on file"}</dd>
+              </div>
+              <div className="flex items-center justify-between border-b border-[#eee] pb-3">
+                <dt className="text-xs font-bold uppercase tracking-[.06em] text-ink/40">Mobile</dt>
+                <dd className="text-ink/70">{selected.mobile || "Not on file"}</dd>
+              </div>
+              <div className="flex items-center justify-between border-b border-[#eee] pb-3">
+                <dt className="text-xs font-bold uppercase tracking-[.06em] text-ink/40">Accommodation</dt>
+                <dd className="text-ink/70">{selected.needsAccommodation ? "Needed" : "Not needed"}</dd>
+              </div>
+              <div className="flex items-center justify-between border-b border-[#eee] pb-3">
+                <dt className="text-xs font-bold uppercase tracking-[.06em] text-ink/40">Transportation</dt>
+                <dd className="text-ink/70">{selected.needsTransportation ? "Needed" : "Not needed"}</dd>
+              </div>
               <div className="border-b border-[#eee] pb-3">
                 <dt className="mb-1 text-xs font-bold uppercase tracking-[.06em] text-ink/40">Dietary notes</dt>
                 <dd className="text-ink/70">{selected.dietary || "No dietary notes on file"}</dd>

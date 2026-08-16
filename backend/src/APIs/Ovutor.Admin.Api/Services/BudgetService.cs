@@ -120,7 +120,7 @@ public class BudgetService(
         try
         {
             _ = await categories.GetByIdAsync(categoryId, ct) ?? throw new NotFoundException("We couldn't find that category.");
-            var expense = new BudgetExpense { CategoryId = categoryId, Vendor = "New expense", Planned = 0, Agreed = 0, Paid = 0 };
+            var expense = new BudgetExpense { CategoryId = categoryId, Vendor = "New expense", Estimated = 0, Actual = 0, Paid = 0 };
             await expenses.AddAsync(expense, ct);
             return ToResponse(expense).ToCreatedApiResponse("Expense added.");
         }
@@ -139,8 +139,8 @@ public class BudgetService(
             var expense = await expenses.GetByIdAsync(expenseId, ct) ?? throw new NotFoundException("We couldn't find that expense.");
             expense.Vendor = string.IsNullOrWhiteSpace(request.Vendor) ? expense.Vendor : request.Vendor.Trim();
             expense.Description = request.Description;
-            expense.Planned = request.Planned;
-            expense.Agreed = request.Agreed;
+            expense.Estimated = request.Estimated;
+            expense.Actual = request.Actual;
             expense.Paid = request.Paid;
             expense.NextDue = string.IsNullOrWhiteSpace(request.NextDue) ? null : DateOnly.Parse(request.NextDue);
             await expenses.UpdateAsync(expense, ct);
@@ -176,5 +176,5 @@ public class BudgetService(
     private static BudgetCategoryResponse ToResponse(BudgetCategory c) => new(c.Id, c.ClientId, c.Name, c.Description);
 
     private static BudgetExpenseResponse ToResponse(BudgetExpense e) => new(
-        e.Id, e.CategoryId, e.Vendor, e.Description, e.Planned, e.Agreed, e.Paid, e.NextDue?.ToString("yyyy-MM-dd"));
+        e.Id, e.CategoryId, e.Vendor, e.Description, e.Estimated, e.Actual, e.Paid, e.NextDue?.ToString("yyyy-MM-dd"));
 }

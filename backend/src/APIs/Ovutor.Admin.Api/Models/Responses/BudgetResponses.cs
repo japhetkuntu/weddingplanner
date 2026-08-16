@@ -7,8 +7,8 @@ public record BudgetExpenseResponse(
     Guid CategoryId,
     string Vendor,
     string? Description,
-    decimal Planned,
-    decimal Agreed,
+    decimal Estimated,
+    decimal Actual,
     decimal Paid,
     string? NextDue);
 

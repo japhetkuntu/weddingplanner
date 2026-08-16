@@ -64,8 +64,8 @@ public class DashboardService(
             foreach (var category in categoriesWithExpenses)
             {
                 if (!clientsById.TryGetValue(category.ClientId, out var client)) continue;
-                var planned = category.Expenses.Sum(e => e.Planned);
-                var agreed = category.Expenses.Sum(e => e.Agreed);
+                var planned = category.Expenses.Sum(e => e.Estimated);
+                var agreed = category.Expenses.Sum(e => e.Actual);
                 if (agreed > planned && planned > 0)
                 {
                     attentionItems.Add(new AttentionItemResponse(

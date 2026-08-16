@@ -131,7 +131,7 @@ export default function ClientSettingsPage() {
   return (
     <div>
       <h1 className="mb-1.5 font-display text-3xl">Client settings</h1>
-      <p className="mb-6 text-ink/60">Update {client.coupleNames}'s details and manage their Client Portal access.</p>
+      <p className="mb-6 text-ink/60">Update {client.coupleNames}'s details and manage their Couple Portal access.</p>
 
       <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-2">
         <Card>
@@ -200,7 +200,7 @@ export default function ClientSettingsPage() {
         </Card>
 
         <Card>
-          <h2 className="mb-1 font-display text-xl">Client Portal access</h2>
+          <h2 className="mb-1 font-display text-xl">Couple Portal access</h2>
           <p className="mb-4 text-sm text-ink/60">
             Invitations aren't sent automatically. The password is only ever shown once, right after you generate it — reset it any time you
             need to share it again.

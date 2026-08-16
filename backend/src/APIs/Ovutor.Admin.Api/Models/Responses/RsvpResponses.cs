@@ -8,4 +8,8 @@ public record RsvpGuestResponse(
     int? AttendanceCount,
     string? Dietary,
     string? PlannerNote,
-    string? RespondedAt);
+    string? RespondedAt,
+    string? Email,
+    string? Mobile,
+    bool? NeedsAccommodation,
+    bool? NeedsTransportation);

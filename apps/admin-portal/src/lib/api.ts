@@ -276,7 +276,7 @@ export function addBudgetExpense(categoryId: string) {
   return api.post<BudgetExpense>(`/api/budget/categories/${categoryId}/expenses`);
 }
 
-export function updateBudgetExpense(expenseId: string, patch: Pick<BudgetExpense, "vendor" | "description" | "planned" | "agreed" | "paid" | "nextDue">) {
+export function updateBudgetExpense(expenseId: string, patch: Pick<BudgetExpense, "vendor" | "description" | "estimated" | "actual" | "paid" | "nextDue">) {
   return api.put<BudgetExpense>(`/api/budget/expenses/${expenseId}`, patch);
 }
 
@@ -290,8 +290,21 @@ export function getRsvps(clientId: string): Promise<RsvpGuest[]> {
   return api.get<RsvpGuest[]>(`/api/clients/${clientId}/rsvps`);
 }
 
-export function updateRsvp(rsvpId: string, patch: Pick<RsvpGuest, "status" | "attendanceCount" | "dietary" | "plannerNote">) {
+export function updateRsvp(
+  rsvpId: string,
+  patch: Pick<RsvpGuest, "status" | "attendanceCount" | "dietary" | "plannerNote" | "email" | "mobile" | "needsAccommodation" | "needsTransportation">,
+) {
   return api.put<RsvpGuest>(`/api/rsvps/${rsvpId}`, patch);
+}
+
+export interface GuestEntry {
+  household: string;
+  email?: string;
+  mobile?: string;
+}
+
+export function addGuests(clientId: string, guests: GuestEntry[]) {
+  return api.post<RsvpGuest[]>(`/api/clients/${clientId}/rsvps`, { guests });
 }
 
 // ---------- Documents ----------
@@ -365,6 +378,25 @@ export async function uploadWebsiteImage(clientId: string, file: File): Promise<
   form.append("file", file);
   const result = await api.post<{ url: string }>(`/api/clients/${clientId}/website/images`, form, { isFormData: true });
   return result.url;
+}
+
+// ---------- Team ----------
+
+export function getTeam(): Promise<AdminUser[]> {
+  return api.get<AdminUser[]>("/api/admin-users");
+}
+
+export interface NewTeamMember {
+  user: AdminUser;
+  temporaryPassword: string;
+}
+
+export function addTeamMember(name: string, email: string, role: string): Promise<NewTeamMember> {
+  return api.post<NewTeamMember>("/api/admin-users", { name, email, role });
+}
+
+export function removeTeamMember(id: string) {
+  return api.delete(`/api/admin-users/${id}`);
 }
 
 // ---------- Activity / milestones (portfolio-wide, from the dashboard payload) ----------

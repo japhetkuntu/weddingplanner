@@ -1,3 +1,11 @@
 namespace Ovutor.Client.Api.Models.Requests;
 
-public record SubmitRsvpRequest(string FullName, bool Attending, int? AttendanceCount, string? Dietary);
+public record SubmitRsvpRequest(
+    string FullName,
+    bool Attending,
+    int? AttendanceCount,
+    string? Dietary,
+    string? Email,
+    string? Mobile,
+    bool? NeedsAccommodation,
+    bool? NeedsTransportation);

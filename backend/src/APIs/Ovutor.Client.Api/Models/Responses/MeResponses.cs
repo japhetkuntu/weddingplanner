@@ -18,13 +18,24 @@ public record ChecklistTaskResponse(Guid Id, Guid PhaseId, string Title, string 
 
 public record ChecklistResponse(List<ChecklistPhaseResponse> Phases, List<ChecklistTaskResponse> Tasks);
 
-public record BudgetExpenseResponse(Guid Id, Guid CategoryId, string Vendor, string? Description, decimal Budgeted, decimal Paid, string? NextDue);
+public record BudgetExpenseResponse(Guid Id, Guid CategoryId, string Vendor, string? Description, decimal Estimated, decimal Actual, decimal Paid, string? NextDue);
 
-public record BudgetCategoryResponse(Guid Id, string Name, decimal Committed, string Trend, List<BudgetExpenseResponse> Expenses);
+public record BudgetCategoryResponse(Guid Id, string Name, decimal Estimated, decimal Actual, decimal Paid, List<BudgetExpenseResponse> Expenses);
 
-public record BudgetResponse(decimal TotalBudget, decimal Committed, decimal Remaining, string Currency, List<BudgetCategoryResponse> Categories);
+public record BudgetResponse(decimal TotalBudget, decimal TotalEstimated, decimal TotalActual, decimal TotalPaid, decimal Remaining, string Currency, List<BudgetCategoryResponse> Categories);
 
-public record RsvpGuestResponse(Guid Id, string Household, string Status, int? AttendanceCount, string? Dietary, string? Note, string? RespondedAt);
+public record RsvpGuestResponse(
+    Guid Id,
+    string Household,
+    string Status,
+    int? AttendanceCount,
+    string? Dietary,
+    string? Note,
+    string? RespondedAt,
+    string? Email,
+    string? Mobile,
+    bool? NeedsAccommodation,
+    bool? NeedsTransportation);
 
 public record DocumentFileResponse(Guid Id, string Name, string Category, string Uploader, string SizeLabel, string UploadedAt, string? Url, string? ContentType);
 

@@ -29,9 +29,11 @@ export interface ChecklistTask {
 
 export interface BudgetExpense {
   id: string;
+  categoryId: string;
   vendor: string;
-  note?: string;
-  budgeted: number;
+  description?: string;
+  estimated: number;
+  actual: number;
   paid: number;
   nextDue?: string;
 }
@@ -39,8 +41,9 @@ export interface BudgetExpense {
 export interface BudgetCategory {
   id: string;
   name: string;
-  committed: number;
-  trend: "up" | "down";
+  estimated: number;
+  actual: number;
+  paid: number;
   expenses: BudgetExpense[];
 }
 
@@ -54,6 +57,10 @@ export interface RsvpGuest {
   dietary?: string;
   note?: string;
   respondedAt?: string;
+  email?: string;
+  mobile?: string;
+  needsAccommodation?: boolean;
+  needsTransportation?: boolean;
 }
 
 export interface DocumentFile {

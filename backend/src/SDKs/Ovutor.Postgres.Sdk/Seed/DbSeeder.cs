@@ -143,12 +143,12 @@ public static class DbSeeder
         db.BudgetCategories.AddRange(venueCat, cateringCat, photoCat, floralCat);
 
         db.BudgetExpenses.AddRange(
-            new BudgetExpense { CategoryId = venueCat.Id, Vendor = "The Foundry venue hire", Description = "Deposit paid, balance due before the day.", Planned = 12000, Agreed = 11800, Paid = 6000, NextDue = DateOnly.Parse("2026-08-20") },
-            new BudgetExpense { CategoryId = venueCat.Id, Vendor = "Ceremony setup & furniture", Planned = 1800, Agreed = 1800, Paid = 1800 },
-            new BudgetExpense { CategoryId = cateringCat.Id, Vendor = "Plated dinner, 96 guests", Planned = 14400, Agreed = 13920, Paid = 6960, NextDue = DateOnly.Parse("2026-08-25") },
-            new BudgetExpense { CategoryId = cateringCat.Id, Vendor = "Open bar package", Planned = 5200, Agreed = 5200, Paid = 2600, NextDue = DateOnly.Parse("2026-08-25") },
-            new BudgetExpense { CategoryId = photoCat.Id, Vendor = "Studio North — full day", Planned = 6200, Agreed = 6200, Paid = 1550, NextDue = DateOnly.Parse("2026-08-13") },
-            new BudgetExpense { CategoryId = floralCat.Id, Vendor = "Bloom & Bramble", Planned = 4800, Agreed = 4600, Paid = 2300 }
+            new BudgetExpense { CategoryId = venueCat.Id, Vendor = "The Foundry venue hire", Description = "Deposit paid, balance due before the day.", Estimated = 12000, Actual = 11800, Paid = 6000, NextDue = DateOnly.Parse("2026-08-20") },
+            new BudgetExpense { CategoryId = venueCat.Id, Vendor = "Ceremony setup & furniture", Estimated = 1800, Actual = 1800, Paid = 1800 },
+            new BudgetExpense { CategoryId = cateringCat.Id, Vendor = "Plated dinner, 96 guests", Estimated = 14400, Actual = 13920, Paid = 6960, NextDue = DateOnly.Parse("2026-08-25") },
+            new BudgetExpense { CategoryId = cateringCat.Id, Vendor = "Open bar package", Estimated = 5200, Actual = 5200, Paid = 2600, NextDue = DateOnly.Parse("2026-08-25") },
+            new BudgetExpense { CategoryId = photoCat.Id, Vendor = "Studio North — full day", Estimated = 6200, Actual = 6200, Paid = 1550, NextDue = DateOnly.Parse("2026-08-13") },
+            new BudgetExpense { CategoryId = floralCat.Id, Vendor = "Bloom & Bramble", Estimated = 4800, Actual = 4600, Paid = 2300 }
         );
 
         db.RsvpGuests.AddRange(
@@ -204,8 +204,8 @@ public static class DbSeeder
         var floralCat = new BudgetCategory { ClientId = client.Id, Name = "Florals & decor" };
         db.BudgetCategories.AddRange(venueCat, floralCat);
         db.BudgetExpenses.AddRange(
-            new BudgetExpense { CategoryId = venueCat.Id, Vendor = "The Glasshouse venue hire", Planned = 18000, Agreed = 18000, Paid = 9000, NextDue = DateOnly.Parse("2026-09-01") },
-            new BudgetExpense { CategoryId = floralCat.Id, Vendor = "Wild Bloom Studio", Planned = 7200, Agreed = 7000, Paid = 3500 }
+            new BudgetExpense { CategoryId = venueCat.Id, Vendor = "The Glasshouse venue hire", Estimated = 18000, Actual = 18000, Paid = 9000, NextDue = DateOnly.Parse("2026-09-01") },
+            new BudgetExpense { CategoryId = floralCat.Id, Vendor = "Wild Bloom Studio", Estimated = 7200, Actual = 7000, Paid = 3500 }
         );
 
         db.RsvpGuests.AddRange(
@@ -256,8 +256,8 @@ public static class DbSeeder
         var cat = new BudgetCategory { ClientId = client.Id, Name = "Florals & entertainment", Description = "Over target — reconcile with the couple before the next payment." };
         db.BudgetCategories.Add(cat);
         db.BudgetExpenses.AddRange(
-            new BudgetExpense { CategoryId = cat.Id, Vendor = "Wildflower Estate florals", Planned = 8000, Agreed = 9200, Paid = 4600, NextDue = DateOnly.Parse("2026-08-30") },
-            new BudgetExpense { CategoryId = cat.Id, Vendor = "Live band — 5 piece", Planned = 4200, Agreed = 4940, Paid = 2470 }
+            new BudgetExpense { CategoryId = cat.Id, Vendor = "Wildflower Estate florals", Estimated = 8000, Actual = 9200, Paid = 4600, NextDue = DateOnly.Parse("2026-08-30") },
+            new BudgetExpense { CategoryId = cat.Id, Vendor = "Live band — 5 piece", Estimated = 4200, Actual = 4940, Paid = 2470 }
         );
 
         db.ActivityEvents.Add(new ActivityEvent { ClientId = client.Id, Message = "Budget category Florals & entertainment exceeded target.", TimestampUtc = Utc("2026-08-11T17:05:00Z") });
@@ -394,7 +394,7 @@ public static class DbSeeder
                 new WebsiteGalleryPhoto(null, "A golden afternoon", "A golden afternoon"),
                 new WebsiteGalleryPhoto(null, "Our favorite people", "Our favorite people"),
             ];
-            rsvp = new WebsiteRsvpConfig("2026-08-20", "We can't wait to celebrate with you. Your response has been received.", true, false);
+            rsvp = new WebsiteRsvpConfig("2026-08-20", "We can't wait to celebrate with you. Your response has been received.", true, false, false, false, false, false);
         }
         else if (heroFilledIn)
         {
@@ -467,7 +467,7 @@ public static class DbSeeder
             new WebsiteGalleryPhoto(null, "Add another photo", "Add a short caption"),
         ];
 
-        var rsvp = new WebsiteRsvpConfig("", "We can't wait to celebrate with you. Your response has been received.", true, false);
+        var rsvp = new WebsiteRsvpConfig("", "We can't wait to celebrate with you. Your response has been received.", true, false, false, false, false, false);
 
         return (ourStory, details, schedule, travel, gallery, rsvp);
     }

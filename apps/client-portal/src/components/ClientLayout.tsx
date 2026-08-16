@@ -32,7 +32,7 @@ export function ClientLayout({ children }: { children: ReactNode }) {
   return (
     <div className="flex min-h-screen w-full flex-col lg:flex-row">
       <Sidebar
-        portalLabel="Client Portal"
+        portalLabel="Couple Portal"
         items={items}
         topContent={
           <div className="mt-4 border-t border-[#eee] pt-3 text-sm">

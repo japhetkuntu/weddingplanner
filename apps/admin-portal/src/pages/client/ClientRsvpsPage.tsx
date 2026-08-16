@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
-import { Badge, DataGrid, Drawer, Input, Label, Select, Skeleton, StatCard, Textarea, Button, Toast, type DataGridColumn } from "@ovutor/ui";
+import { Badge, Checkbox, DataGrid, Drawer, Input, Label, Modal, Select, Skeleton, StatCard, Textarea, Button, Toast, type DataGridColumn } from "@ovutor/ui";
 import { useCurrentClient } from "@/hooks/useCurrentClient";
-import { getRsvps, updateRsvp, errorMessage } from "@/lib/api";
+import { getRsvps, updateRsvp, addGuests, errorMessage, type GuestEntry } from "@/lib/api";
 import type { RsvpGuest, RsvpStatus } from "@/types";
 
 const STATUS_LABEL: Record<RsvpStatus, string> = { attending: "Attending", declined: "Declined", awaiting: "Awaiting" };
@@ -40,6 +40,7 @@ export default function ClientRsvpsPage() {
   const [selected, setSelected] = useState<RsvpGuest | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [addingGuests, setAddingGuests] = useState(false);
 
   const filtered = useMemo(
     () =>
@@ -73,6 +74,10 @@ export default function ClientRsvpsPage() {
         attendanceCount: updated.attendanceCount,
         dietary: updated.dietary,
         plannerNote: updated.plannerNote,
+        email: updated.email,
+        mobile: updated.mobile,
+        needsAccommodation: updated.needsAccommodation,
+        needsTransportation: updated.needsTransportation,
       });
       setGuests((prev) => prev.map((g) => (g.id === saved.id ? saved : g)));
       setSelected(null);
@@ -115,8 +120,15 @@ export default function ClientRsvpsPage() {
 
   return (
     <div className="ovutor-fade-in">
-      <h1 className="mb-1.5 font-display text-3xl">RSVPs</h1>
-      <p className="mb-6 text-ink/60">{client.coupleNames}'s guest responses.</p>
+      <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h1 className="mb-1.5 font-display text-3xl">RSVPs</h1>
+          <p className="text-ink/60">{client.coupleNames}'s guest responses.</p>
+        </div>
+        <Button variant="outline" size="sm" onClick={() => setAddingGuests(true)}>
+          + Add guests
+        </Button>
+      </div>
 
       <section className="mb-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
         <StatCard label="Invited" value={guests.length} />
@@ -141,9 +153,108 @@ export default function ClientRsvpsPage() {
         {selected ? <RsvpDetailForm guest={selected} onSave={saveSelected} /> : null}
       </Drawer>
 
+      <Modal open={addingGuests} onClose={() => setAddingGuests(false)}>
+        <AddGuestsModal
+          clientId={client.id}
+          onClose={() => setAddingGuests(false)}
+          onAdded={(added) => {
+            setGuests((prev) => [...added, ...prev]);
+            setAddingGuests(false);
+            setToast(`${added.length} guest${added.length === 1 ? "" : "s"} added`);
+            window.setTimeout(() => setToast(null), 2000);
+          }}
+        />
+      </Modal>
+
       <Toast open={!!toast}>{toast}</Toast>
       <Toast open={!!error} tone="error">{error}</Toast>
     </div>
+  );
+}
+
+function AddGuestsModal({ clientId, onClose, onAdded }: { clientId: string; onClose: () => void; onAdded: (guests: RsvpGuest[]) => void }) {
+  const [rows, setRows] = useState<GuestEntry[]>([{ household: "", email: "", mobile: "" }]);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  function updateRow(i: number, patch: Partial<GuestEntry>) {
+    setRows((prev) => prev.map((r, idx) => (idx === i ? { ...r, ...patch } : r)));
+  }
+  function addRow() {
+    setRows((prev) => [...prev, { household: "", email: "", mobile: "" }]);
+  }
+  function removeRow(i: number) {
+    setRows((prev) => prev.filter((_, idx) => idx !== i));
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    const entries = rows.filter((r) => r.household.trim());
+    if (entries.length === 0) {
+      setError("Add at least one guest with a name.");
+      return;
+    }
+    setSaving(true);
+    setError(null);
+    try {
+      const added = await addGuests(clientId, entries);
+      onAdded(added);
+    } catch (err) {
+      setError(errorMessage(err, "Couldn't add those guests — please try again."));
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <p className="text-[10px] font-bold uppercase tracking-[.12em] text-primary">Guest list</p>
+      <h2 className="my-1.5 font-display text-2xl">Add guests</h2>
+      <p className="mb-5 text-ink/60">Pre-load your invite list so it's ready to compare against RSVP responses.</p>
+
+      <div className="space-y-3">
+        {rows.map((row, i) => (
+          <div key={i} className="border border-[#eee] p-3">
+            <div className="flex items-start gap-2">
+              <div className="flex-1">
+                <Label htmlFor={`guest-${i}-name`}>Name</Label>
+                <Input id={`guest-${i}-name`} value={row.household} onChange={(e) => updateRow(i, { household: e.target.value })} placeholder="Guest or household name" autoFocus={i === 0} />
+              </div>
+              {rows.length > 1 ? (
+                <button type="button" onClick={() => removeRow(i)} className="mt-6 text-xs font-bold text-primary" aria-label="Remove guest">
+                  &times;
+                </button>
+              ) : null}
+            </div>
+            <div className="mt-2 grid grid-cols-2 gap-2">
+              <div>
+                <Label htmlFor={`guest-${i}-email`}>Email</Label>
+                <Input id={`guest-${i}-email`} type="email" value={row.email ?? ""} onChange={(e) => updateRow(i, { email: e.target.value })} placeholder="Optional" />
+              </div>
+              <div>
+                <Label htmlFor={`guest-${i}-mobile`}>Mobile</Label>
+                <Input id={`guest-${i}-mobile`} value={row.mobile ?? ""} onChange={(e) => updateRow(i, { mobile: e.target.value })} placeholder="Optional" />
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <button type="button" onClick={addRow} className="mt-2 text-xs font-bold uppercase tracking-[.06em] text-primary">
+        + Add another guest
+      </button>
+
+      {error ? <p className="mt-3 border-l-[3px] border-primary bg-[#fff2f0] p-2.5 text-sm text-[#5d2924]">{error}</p> : null}
+
+      <div className="mt-6 flex gap-2 border-t border-[#eee] pt-4">
+        <Button type="submit" className="flex-1" loading={saving} loadingText="Adding…">
+          Add to guest list
+        </Button>
+        <Button type="button" variant="outline" onClick={onClose} disabled={saving}>
+          Cancel
+        </Button>
+      </div>
+    </form>
   );
 }
 
@@ -204,6 +315,35 @@ function RsvpDetailForm({ guest, onSave }: { guest: RsvpGuest; onSave: (g: RsvpG
             className="disabled:bg-bg-warm disabled:text-ink/30"
           />
         </div>
+      </div>
+
+      <div className="my-5 h-px bg-[#eee]" />
+
+      <p className="mb-2 text-[10px] font-bold uppercase tracking-[.1em] text-ink/40">Contact</p>
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label htmlFor="email">Email</Label>
+          <Input id="email" type="email" value={form.email ?? ""} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="Not on file" />
+        </div>
+        <div>
+          <Label htmlFor="mobile">Mobile</Label>
+          <Input id="mobile" value={form.mobile ?? ""} onChange={(e) => setForm({ ...form, mobile: e.target.value })} placeholder="Not on file" />
+        </div>
+      </div>
+
+      <div className="mt-3 space-y-2.5">
+        <Checkbox
+          id="needs-accommodation"
+          label="Needs accommodation"
+          checked={!!form.needsAccommodation}
+          onChange={(e) => setForm({ ...form, needsAccommodation: e.target.checked })}
+        />
+        <Checkbox
+          id="needs-transportation"
+          label="Needs transportation"
+          checked={!!form.needsTransportation}
+          onChange={(e) => setForm({ ...form, needsTransportation: e.target.checked })}
+        />
       </div>
 
       <div className="my-5 h-px bg-[#eee]" />

@@ -40,5 +40,5 @@ public static class WebsiteContentTemplates {
     public static List<WebsiteGalleryPhoto> GalleryTemplate() => [];
 
     public static WebsiteRsvpConfig RsvpTemplate() =>
-        new("", "We can't wait to celebrate with you. Your response has been received.", true, false);
+        new("", "We can't wait to celebrate with you. Your response has been received.", true, false, false, false, false, false);
 }

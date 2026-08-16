@@ -45,7 +45,7 @@ public class PublicSiteService(
                 client.CoupleNames,
                 client.WeddingDate.ToString("yyyy-MM-dd"),
                 publishedKeys,
-                new PublicHero(hero.Eyebrow, hero.CoupleNames, hero.DateLabel, hero.VenueLabel, new PublicSiteImage(hero.Image.Url, hero.Image.Label)),
+                new PublicHero(hero.Eyebrow, hero.CoupleNames, hero.DateLabel, hero.VenueLabel, new PublicSiteImage(hero.Image.Url, hero.Image.Label, hero.Image.FocalPoint)),
                 new PublicOurStory(
                     ourStory.Eyebrow, ourStory.Title, ourStory.Paragraphs,
                     ourStory.Moments.Select(m => new PublicStoryMoment(m.Label, m.Year)).ToList(),
@@ -61,7 +61,11 @@ public class PublicSiteService(
                     rsvp.Deadline,
                     rsvp.ConfirmationMessage,
                     rsvp.CollectDietary,
-                    rsvp.CollectPlusOne));
+                    rsvp.CollectPlusOne,
+                    rsvp.CollectEmail,
+                    rsvp.CollectMobile,
+                    rsvp.CollectAccommodation,
+                    rsvp.CollectTransportation));
 
             return response.ToOkApiResponse();
         }
@@ -98,6 +102,10 @@ public class PublicSiteService(
                     Status = status,
                     AttendanceCount = request.Attending ? request.AttendanceCount : null,
                     Dietary = request.Attending ? request.Dietary : null,
+                    Email = request.Email,
+                    Mobile = request.Mobile,
+                    NeedsAccommodation = request.Attending ? request.NeedsAccommodation : null,
+                    NeedsTransportation = request.Attending ? request.NeedsTransportation : null,
                     RespondedAtUtc = DateTime.UtcNow,
                 };
                 await rsvpGuests.AddAsync(guest, ct);
@@ -107,6 +115,10 @@ public class PublicSiteService(
                 guest.Status = status;
                 guest.AttendanceCount = request.Attending ? request.AttendanceCount : null;
                 guest.Dietary = request.Attending ? request.Dietary : null;
+                if (request.Email is not null) guest.Email = request.Email;
+                if (request.Mobile is not null) guest.Mobile = request.Mobile;
+                guest.NeedsAccommodation = request.Attending ? request.NeedsAccommodation : null;
+                guest.NeedsTransportation = request.Attending ? request.NeedsTransportation : null;
                 guest.RespondedAtUtc = DateTime.UtcNow;
                 await rsvpGuests.UpdateAsync(guest, ct);
             }

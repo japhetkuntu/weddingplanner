@@ -16,8 +16,8 @@ public class BudgetExpense : BaseEntity
     public BudgetCategory? Category { get; set; }
     public required string Vendor { get; set; }
     public string? Description { get; set; }
-    public decimal Planned { get; set; }
-    public decimal Agreed { get; set; }
+    public decimal Estimated { get; set; }
+    public decimal Actual { get; set; }
     public decimal Paid { get; set; }
     public DateOnly? NextDue { get; set; }
 }

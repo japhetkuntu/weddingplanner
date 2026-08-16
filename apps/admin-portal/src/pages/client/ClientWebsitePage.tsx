@@ -332,6 +332,22 @@ function HeroForm({ clientId, hero, onSave, saving }: { clientId: string; hero: 
       <Input id="hero-venue" placeholder="e.g. Brooklyn, New York" value={form.venueLabel} onChange={(e) => setForm({ ...form, venueLabel: e.target.value })} />
       <Label>Hero photo</Label>
       <ImageField clientId={clientId} idPrefix="hero" image={form.image} onChange={(image) => setForm({ ...form, image })} />
+      <Label>Photo focus</Label>
+      <div className="flex gap-2">
+        {(["top", "center", "bottom"] as const).map((point) => (
+          <button
+            key={point}
+            type="button"
+            onClick={() => setForm({ ...form, image: { ...form.image, focalPoint: point } })}
+            className={clsx(
+              "flex-1 border px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-[.06em]",
+              (form.image.focalPoint ?? "center") === point ? "border-primary text-primary" : "border-[#8e8985] text-ink/70 hover:border-ink",
+            )}
+          >
+            {point}
+          </button>
+        ))}
+      </div>
       <Button type="submit" className="mt-5 w-full" loading={saving}>
         Save hero section
       </Button>
@@ -657,6 +673,10 @@ function RsvpForm({ rsvp, onSave, saving }: { rsvp: WebsiteRsvpConfig; onSave: (
       <div className="mt-4 space-y-2.5">
         <Checkbox id="rsvp-dietary" label="Collect dietary requirements" checked={form.collectDietary} onChange={(e) => setForm({ ...form, collectDietary: e.target.checked })} />
         <Checkbox id="rsvp-plusone" label="Allow plus-one requests" checked={form.collectPlusOne} onChange={(e) => setForm({ ...form, collectPlusOne: e.target.checked })} />
+        <Checkbox id="rsvp-email" label="Collect email address" checked={form.collectEmail} onChange={(e) => setForm({ ...form, collectEmail: e.target.checked })} />
+        <Checkbox id="rsvp-mobile" label="Collect mobile number" checked={form.collectMobile} onChange={(e) => setForm({ ...form, collectMobile: e.target.checked })} />
+        <Checkbox id="rsvp-accommodation" label="Ask about accommodation" checked={form.collectAccommodation} onChange={(e) => setForm({ ...form, collectAccommodation: e.target.checked })} />
+        <Checkbox id="rsvp-transportation" label="Ask about transportation" checked={form.collectTransportation} onChange={(e) => setForm({ ...form, collectTransportation: e.target.checked })} />
       </div>
       <Button type="submit" className="mt-5 w-full" loading={saving}>
         Save RSVP settings

@@ -28,6 +28,10 @@ export interface SubmitRsvpPayload {
   attending: boolean;
   attendanceCount?: number;
   dietary?: string;
+  email?: string;
+  mobile?: string;
+  needsAccommodation?: boolean;
+  needsTransportation?: boolean;
 }
 
 export async function submitRsvp(slug: string, payload: SubmitRsvpPayload): Promise<void> {

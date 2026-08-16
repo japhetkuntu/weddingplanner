@@ -116,7 +116,9 @@ export function getChecklist(): Promise<ChecklistData> {
 
 export interface BudgetData {
   totalBudget: number;
-  committed: number;
+  totalEstimated: number;
+  totalActual: number;
+  totalPaid: number;
   remaining: number;
   currency: string;
   categories: BudgetCategory[];

@@ -77,15 +77,16 @@ public class MeService(
             var categoryResponses = categories.Select(c =>
             {
                 var catExpenses = expenses.Where(e => e.CategoryId == c.Id).ToList();
-                var committed = catExpenses.Sum(e => e.Agreed);
-                var trend = catExpenses.Sum(e => e.Agreed) > catExpenses.Sum(e => e.Planned) ? "up" : "down";
                 return new BudgetCategoryResponse(
-                    c.Id, c.Name, committed, trend,
-                    catExpenses.Select(e => new BudgetExpenseResponse(e.Id, e.CategoryId, e.Vendor, e.Description, e.Agreed, e.Paid, e.NextDue?.ToString("yyyy-MM-dd"))).ToList());
+                    c.Id, c.Name,
+                    catExpenses.Sum(e => e.Estimated), catExpenses.Sum(e => e.Actual), catExpenses.Sum(e => e.Paid),
+                    catExpenses.Select(e => new BudgetExpenseResponse(e.Id, e.CategoryId, e.Vendor, e.Description, e.Estimated, e.Actual, e.Paid, e.NextDue?.ToString("yyyy-MM-dd"))).ToList());
             }).ToList();
 
-            var totalCommitted = categoryResponses.Sum(c => c.Committed);
-            var response = new BudgetResponse(client.BudgetTotal, totalCommitted, client.BudgetTotal - totalCommitted, client.Currency, categoryResponses);
+            var totalEstimated = categoryResponses.Sum(c => c.Estimated);
+            var totalActual = categoryResponses.Sum(c => c.Actual);
+            var totalPaid = categoryResponses.Sum(c => c.Paid);
+            var response = new BudgetResponse(client.BudgetTotal, totalEstimated, totalActual, totalPaid, client.BudgetTotal - totalActual, client.Currency, categoryResponses);
             return response.ToOkApiResponse();
         }
         catch (OvutorException) { throw; }
@@ -102,7 +103,9 @@ public class MeService(
         {
             var guests = await rsvpGuests.GetQueryable().Where(g => g.ClientId == clientId).ToListAsync(ct);
             var response = guests
-                .Select(g => new RsvpGuestResponse(g.Id, g.Household, g.Status, g.AttendanceCount, g.Dietary, g.PlannerNote, g.RespondedAtUtc?.ToString("yyyy-MM-dd")))
+                .Select(g => new RsvpGuestResponse(
+                    g.Id, g.Household, g.Status, g.AttendanceCount, g.Dietary, g.PlannerNote, g.RespondedAtUtc?.ToString("yyyy-MM-dd"),
+                    g.Email, g.Mobile, g.NeedsAccommodation, g.NeedsTransportation))
                 .ToList();
             return response.ToOkApiResponse();
         }
@@ -163,7 +166,7 @@ public class MeService(
             var categories = await budgetCategories.GetQueryable().Where(c => c.ClientId == clientId).ToListAsync(ct);
             var categoryIds = categories.Select(c => c.Id).ToList();
             var expenses = await budgetExpenses.GetQueryable().Where(e => categoryIds.Contains(e.CategoryId)).ToListAsync(ct);
-            var committed = expenses.Sum(e => e.Agreed);
+            var committed = expenses.Sum(e => e.Actual);
 
             var guests = await rsvpGuests.GetQueryable().Where(g => g.ClientId == clientId).ToListAsync(ct);
             var rsvpAttending = guests.Count(g => g.Status != "awaiting");

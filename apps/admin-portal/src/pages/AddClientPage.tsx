@@ -289,7 +289,7 @@ export default function AddClientPage() {
 
       <Modal open={!!credentials} onClose={() => {}}>
         <p className="text-[10px] font-bold uppercase tracking-[.12em] text-primary">Workspace created</p>
-        <h2 className="my-1.5 font-display text-2xl">Save the Client Portal password now</h2>
+        <h2 className="my-1.5 font-display text-2xl">Save the Couple Portal password now</h2>
         <p className="mb-5 text-ink/60">
           This is the only time the password is shown. Copy it and share it with the couple — you can always generate a new one later from
           their Settings page.

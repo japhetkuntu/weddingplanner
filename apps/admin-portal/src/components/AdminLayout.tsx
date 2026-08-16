@@ -28,6 +28,7 @@ export function AdminLayout({ children }: { children: ReactNode }) {
     { label: "Website", to: `/clients/${activeClientId}/website` },
     { label: "Documents", to: `/clients/${activeClientId}/documents` },
     { label: "RSVPs", to: `/clients/${activeClientId}/rsvps` },
+    { label: "Team", to: "/team" },
     { label: "Profile & Settings", to: "/settings" },
   ];
 

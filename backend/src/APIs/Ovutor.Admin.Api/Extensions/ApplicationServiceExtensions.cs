@@ -38,6 +38,7 @@ public static class ApplicationServiceExtensions
         services.AddScoped<IRsvpService, RsvpService>();
         services.AddScoped<IDocumentService, DocumentService>();
         services.AddScoped<IWebsiteService, WebsiteService>();
+        services.AddScoped<IAdminUserService, AdminUserService>();
         return services;
     }
 
