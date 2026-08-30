@@ -82,6 +82,7 @@ interface ClientResponse {
   weddingDate: string;
   venue: string;
   guestCount: number;
+  weddingType?: string;
   status: ClientStatus;
   planningPercent: number;
   budgetTotal: number;
@@ -92,6 +93,8 @@ interface ClientResponse {
   avatarInitials: string;
   portalEmail: string;
   isArchived: boolean;
+  assignedPlannerId?: string;
+  assignedPlannerName?: string;
 }
 
 function toClient(r: ClientResponse): Client {
@@ -114,6 +117,7 @@ export interface CreateClientPayload {
   weddingDate: string;
   venue: string;
   guestCount: number;
+  weddingType?: string;
   currency: string;
   budgetTarget: number;
 }
@@ -152,6 +156,14 @@ export async function archiveClient(id: string): Promise<Client> {
 
 export async function unarchiveClient(id: string): Promise<Client> {
   return toClient(await api.post<ClientResponse>(`/api/clients/${id}/unarchive`));
+}
+
+export function deleteClient(id: string) {
+  return api.delete(`/api/clients/${id}`);
+}
+
+export function notifyCouple(id: string, message: string) {
+  return api.post(`/api/clients/${id}/notify`, { message });
 }
 
 export async function updateFullPaymentDueDate(id: string, fullPaymentDueDate: string | null): Promise<Client> {
@@ -300,16 +312,36 @@ export function getVendors(): Promise<Vendor[]> {
   return api.get<Vendor[]>("/api/vendors");
 }
 
-export function addVendor(name: string, contact: string | undefined, location: string): Promise<Vendor> {
-  return api.post<Vendor>("/api/vendors", { name, contact, location });
+export interface VendorFields {
+  name: string;
+  contact?: string;
+  location: string;
+  category?: string;
+  summary?: string;
 }
 
-export function updateVendor(vendorId: string, name: string, contact: string | undefined, location: string): Promise<Vendor> {
-  return api.put<Vendor>(`/api/vendors/${vendorId}`, { name, contact, location });
+export function addVendor(fields: VendorFields): Promise<Vendor> {
+  return api.post<Vendor>("/api/vendors", fields);
+}
+
+export function updateVendor(vendorId: string, fields: VendorFields): Promise<Vendor> {
+  return api.put<Vendor>(`/api/vendors/${vendorId}`, fields);
 }
 
 export function deleteVendor(vendorId: string) {
   return api.delete(`/api/vendors/${vendorId}`);
+}
+
+export function uploadVendorPhoto(vendorId: string, file: File): Promise<Vendor> {
+  const form = new FormData();
+  form.append("file", file);
+  return api.post<Vendor>(`/api/vendors/${vendorId}/photo`, form, { isFormData: true });
+}
+
+export function uploadVendorContract(vendorId: string, file: File): Promise<Vendor> {
+  const form = new FormData();
+  form.append("file", file);
+  return api.post<Vendor>(`/api/vendors/${vendorId}/contract`, form, { isFormData: true });
 }
 
 // ---------- RSVPs ----------
@@ -419,8 +451,8 @@ export interface NewTeamMember {
   temporaryPassword: string;
 }
 
-export function addTeamMember(name: string, email: string, role: string): Promise<NewTeamMember> {
-  return api.post<NewTeamMember>("/api/admin-users", { name, email, role });
+export function addTeamMember(name: string, email: string, role: string, isSuperAdmin: boolean): Promise<NewTeamMember> {
+  return api.post<NewTeamMember>("/api/admin-users", { name, email, role, isSuperAdmin });
 }
 
 export function removeTeamMember(id: string) {

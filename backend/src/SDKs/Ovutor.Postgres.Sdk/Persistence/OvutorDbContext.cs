@@ -49,6 +49,8 @@ public class OvutorDbContext(DbContextOptions<OvutorDbContext> options) : DbCont
             e.HasIndex(x => x.PortalEmail).IsUnique();
             e.Property(x => x.BudgetTotal).HasColumnType("numeric(14,2)");
             e.Property(x => x.BudgetPaid).HasColumnType("numeric(14,2)");
+            // No navigation property back to AdminUser — a plain lookup FK resolved by the service layer.
+            e.HasOne<AdminUser>().WithMany().HasForeignKey(x => x.AssignedPlannerId).OnDelete(DeleteBehavior.SetNull);
         });
 
         modelBuilder.Entity<ChecklistPhase>(e =>

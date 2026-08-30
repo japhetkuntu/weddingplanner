@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import clsx from "clsx";
-import { Badge, DataGrid, Input, LinkButton, Select, Skeleton, Toast, type DataGridColumn } from "@ovutor/ui";
+import { Badge, Button, DataGrid, Input, LinkButton, Modal, Select, Skeleton, Toast, type DataGridColumn } from "@ovutor/ui";
 import { useClientsStore } from "@/store/clientsStore";
-import { archiveClient, unarchiveClient, errorMessage } from "@/lib/api";
+import { useAuthStore } from "@/store/authStore";
+import { archiveClient, unarchiveClient, deleteClient, errorMessage } from "@/lib/api";
 import type { Client, ClientStatus } from "@/types";
 
 function ClientsListSkeleton() {
@@ -57,12 +58,16 @@ export default function ClientsListPage() {
   const loaded = useClientsStore((s) => s.loaded);
   const fetch = useClientsStore((s) => s.fetch);
   const upsertClient = useClientsStore((s) => s.upsert);
+  const removeClient = useClientsStore((s) => s.remove);
+  const currentUser = useAuthStore((s) => s.user);
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState<ClientStatus | "all">("all");
   const [tab, setTab] = useState<"active" | "archived">("active");
   const [toast, setToast] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [workingId, setWorkingId] = useState<string | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<Client | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     fetch();
@@ -117,6 +122,21 @@ export default function ClientsListPage() {
     }
   }
 
+  async function handleDelete() {
+    if (!confirmDelete) return;
+    setDeleting(true);
+    try {
+      await deleteClient(confirmDelete.id);
+      removeClient(confirmDelete.id);
+      flashToast(`${confirmDelete.coupleNames} permanently deleted`);
+      setConfirmDelete(null);
+    } catch (e) {
+      flashError(errorMessage(e, "Couldn't delete that client — please try again."));
+    } finally {
+      setDeleting(false);
+    }
+  }
+
   const columns: DataGridColumn<Client>[] = [
     {
       key: "couple",
@@ -163,19 +183,33 @@ export default function ClientsListPage() {
             Archive
           </button>
         ) : (
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleUnarchive(c);
-            }}
-            disabled={workingId === c.id}
-            className="text-xs font-bold uppercase tracking-[.06em] text-primary hover:text-ink disabled:opacity-40"
-          >
-            Unarchive
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleUnarchive(c);
+              }}
+              disabled={workingId === c.id}
+              className="text-xs font-bold uppercase tracking-[.06em] text-primary hover:text-ink disabled:opacity-40"
+            >
+              Unarchive
+            </button>
+            {currentUser?.isSuperAdmin ? (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setConfirmDelete(c);
+                }}
+                className="text-xs font-bold uppercase tracking-[.06em] text-ink/50 hover:text-primary"
+              >
+                Delete
+              </button>
+            ) : null}
+          </div>
         ),
-      width: "w-[100px]",
+      width: "w-[160px]",
     },
   ];
 
@@ -232,6 +266,26 @@ export default function ClientsListPage() {
         onRowClick={(c) => navigate(`/clients/${c.id}/overview`)}
         emptyMessage={tab === "active" ? "No clients match your search." : "No archived clients."}
       />
+
+      <Modal open={!!confirmDelete} onClose={() => setConfirmDelete(null)}>
+        {confirmDelete ? (
+          <div>
+            <h3 className="mb-2 font-display text-2xl">Permanently delete {confirmDelete.coupleNames}?</h3>
+            <p className="mb-6 text-ink/60">
+              This removes everything — checklist, budget, RSVPs, documents, and their wedding website — for good. Archived clients can only
+              be deleted once they've been archived for 90 days.
+            </p>
+            <div className="flex gap-2">
+              <Button onClick={handleDelete} className="flex-1" loading={deleting} loadingText="Deleting…">
+                Delete permanently
+              </Button>
+              <Button variant="outline" onClick={() => setConfirmDelete(null)} className="flex-1" disabled={deleting}>
+                Cancel
+              </Button>
+            </div>
+          </div>
+        ) : null}
+      </Modal>
 
       <Toast open={!!toast}>{toast}</Toast>
       <Toast open={!!error} tone="error">{error}</Toast>

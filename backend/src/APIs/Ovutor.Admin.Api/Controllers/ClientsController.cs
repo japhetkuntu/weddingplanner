@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Ovutor.Admin.Api.Common;
 using Ovutor.Admin.Api.Interfaces;
 using Ovutor.Admin.Api.Models.Requests;
 
@@ -13,21 +14,35 @@ public class ClientsController(IClientService clientService) : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetAll(CancellationToken ct)
     {
-        var response = await clientService.GetAllAsync(ct);
+        var response = await clientService.GetAllAsync(ClaimsReader.GetAdminId(User), ct);
         return StatusCode(response.Code, response);
     }
 
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetById(Guid id, CancellationToken ct)
     {
-        var response = await clientService.GetByIdAsync(id, ct);
+        var response = await clientService.GetByIdAsync(id, ClaimsReader.GetAdminId(User), ct);
         return StatusCode(response.Code, response);
     }
 
     [HttpPost]
     public async Task<IActionResult> Create(CreateClientRequest request, CancellationToken ct)
     {
-        var response = await clientService.CreateAsync(request, ct);
+        var response = await clientService.CreateAsync(request, ClaimsReader.GetAdminId(User), ct);
+        return StatusCode(response.Code, response);
+    }
+
+    [HttpDelete("{id:guid}")]
+    public async Task<IActionResult> Delete(Guid id, CancellationToken ct)
+    {
+        var response = await clientService.DeleteAsync(id, ClaimsReader.GetAdminId(User), ct);
+        return StatusCode(response.Code, response);
+    }
+
+    [HttpPost("{id:guid}/notify")]
+    public async Task<IActionResult> NotifyCouple(Guid id, NotifyCoupleRequest request, CancellationToken ct)
+    {
+        var response = await clientService.NotifyCoupleAsync(id, ClaimsReader.GetAdminId(User), request, ct);
         return StatusCode(response.Code, response);
     }
 

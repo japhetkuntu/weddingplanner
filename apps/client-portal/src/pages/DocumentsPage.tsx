@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
-import { cn, Drawer, EmptyState, Skeleton } from "@ovutor/ui";
-import { getDocuments } from "@/lib/api";
+import { Button, cn, Drawer, EmptyState, Label, Modal, Select, Skeleton, Toast } from "@ovutor/ui";
+import { getDocuments, uploadDocument, errorMessage } from "@/lib/api";
 import type { DocumentFile } from "@/types";
 
 const ALL_FILES = "All files";
+const UPLOAD_CATEGORIES = ["Contract", "Checklist", "Photo", "Other"];
 
 function DocumentsSkeleton() {
   return (
@@ -53,11 +54,110 @@ function DocumentPreview({ doc }: { doc: DocumentFile }) {
   );
 }
 
+function formatFileSize(bytes: number) {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+function UploadForm({ onClose, onUploaded }: { onClose: () => void; onUploaded: (doc: DocumentFile) => void }) {
+  const [file, setFile] = useState<File | null>(null);
+  const [category, setCategory] = useState(UPLOAD_CATEGORIES[0]);
+  const [dragActive, setDragActive] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+
+  function handleFiles(files: FileList | null) {
+    const picked = files?.[0];
+    if (picked) {
+      setFile(picked);
+      setError(null);
+    }
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!file) {
+      setError("Choose a file to upload.");
+      return;
+    }
+    setUploading(true);
+    try {
+      const doc = await uploadDocument(file, category);
+      onUploaded(doc);
+    } catch (err) {
+      setError(errorMessage(err, "Couldn't upload that file — please try again."));
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <p className="text-[10px] font-bold uppercase tracking-[.12em] text-primary">Share a file</p>
+      <h2 className="my-1.5 font-display text-2xl">Upload a file</h2>
+      <p className="mb-4 text-ink/60">Your planner will see this right away — contracts, checklists, or photos for your wedding website.</p>
+
+      <label
+        htmlFor="couple-file-upload"
+        onDragOver={(e) => {
+          e.preventDefault();
+          setDragActive(true);
+        }}
+        onDragLeave={() => setDragActive(false)}
+        onDrop={(e) => {
+          e.preventDefault();
+          setDragActive(false);
+          handleFiles(e.dataTransfer.files);
+        }}
+        className={cn(
+          "block cursor-pointer border border-dashed px-4 py-8 text-center transition-colors",
+          dragActive ? "border-primary bg-bg-warm" : "border-[#ccc] hover:border-ink/40",
+        )}
+      >
+        {file ? (
+          <div>
+            <p className="font-medium">{file.name}</p>
+            <p className="text-xs text-ink/50">{formatFileSize(file.size)}</p>
+          </div>
+        ) : (
+          <div>
+            <p className="font-medium">Drag a file here, or click to browse</p>
+            <p className="mt-1 text-xs text-ink/50">PDF, DOCX, JPG or PNG up to 25 MB</p>
+          </div>
+        )}
+        <input id="couple-file-upload" type="file" className="sr-only" onChange={(e) => handleFiles(e.target.files)} />
+      </label>
+      {error ? <p className="mt-2 border-l-[3px] border-primary bg-[#fff2f0] p-2.5 text-sm text-[#5d2924]">{error}</p> : null}
+
+      <Label htmlFor="couple-file-category">Category</Label>
+      <Select id="couple-file-category" value={category} onChange={(e) => setCategory(e.target.value)}>
+        {UPLOAD_CATEGORIES.map((c) => (
+          <option key={c} value={c}>
+            {c}
+          </option>
+        ))}
+      </Select>
+
+      <div className="mt-6 flex gap-2">
+        <Button type="submit" className="flex-1" loading={uploading} loadingText="Uploading…">
+          Upload
+        </Button>
+        <Button type="button" variant="outline" onClick={onClose} disabled={uploading}>
+          Cancel
+        </Button>
+      </div>
+    </form>
+  );
+}
+
 export default function DocumentsPage() {
   const [documents, setDocuments] = useState<DocumentFile[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState(ALL_FILES);
   const [selected, setSelected] = useState<DocumentFile | null>(null);
+  const [uploadOpen, setUploadOpen] = useState(false);
+  const [toast, setToast] = useState<string | null>(null);
 
   useEffect(() => {
     getDocuments()
@@ -73,16 +173,29 @@ export default function DocumentsPage() {
 
   const filtered = filter === ALL_FILES ? documents : documents.filter((d) => d.category === filter);
 
+  function handleUploaded(doc: DocumentFile) {
+    setDocuments((prev) => [doc, ...prev]);
+    setUploadOpen(false);
+    setToast("File uploaded");
+    window.setTimeout(() => setToast(null), 2200);
+  }
+
   return (
     <div className="ovutor-fade-in">
-      <p className="text-[10px] font-bold uppercase tracking-[.12em] text-primary">Managed by your Ovutor planner</p>
-      <h1 className="my-1.5 font-display text-4xl">Shared documents</h1>
-      <p className="mb-6 text-ink/60">Your current contracts, plans, and wedding records—always ready to revisit.</p>
+      <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="text-[10px] font-bold uppercase tracking-[.12em] text-primary">Managed with your Ovutor planner</p>
+          <h1 className="my-1.5 font-display text-4xl">Your wedding files</h1>
+          <p className="text-ink/60">Contracts, checklists, and photos — shared both ways, always in one place.</p>
+        </div>
+        <Button onClick={() => setUploadOpen(true)}>+ Upload file</Button>
+      </div>
 
       {documents.length === 0 ? (
         <EmptyState
-          title="No documents shared yet"
-          message="Once your planner uploads contracts, timelines, or vendor paperwork, they'll show up here."
+          title="No files yet"
+          message="Upload a contract, checklist, or photo for your planner — or wait for them to share something with you."
+          action={<Button onClick={() => setUploadOpen(true)}>+ Upload file</Button>}
         />
       ) : (
         <>
@@ -120,6 +233,10 @@ export default function DocumentsPage() {
         </>
       )}
 
+      <Modal open={uploadOpen} onClose={() => setUploadOpen(false)}>
+        <UploadForm onClose={() => setUploadOpen(false)} onUploaded={handleUploaded} />
+      </Modal>
+
       <Drawer open={!!selected} onClose={() => setSelected(null)} title={selected?.name ?? ""}>
         {selected ? (
           <div>
@@ -138,6 +255,8 @@ export default function DocumentsPage() {
           </div>
         ) : null}
       </Drawer>
+
+      <Toast open={!!toast}>{toast}</Toast>
     </div>
   );
 }

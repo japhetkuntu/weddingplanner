@@ -55,10 +55,12 @@ interface RequestOptions {
   method?: string;
   body?: unknown;
   skipAuth?: boolean;
+  isFormData?: boolean;
 }
 
 async function request<T>(path: string, options: RequestOptions = {}, isRetry = false): Promise<T> {
-  const headers: Record<string, string> = { "Content-Type": "application/json" };
+  const headers: Record<string, string> = {};
+  if (!options.isFormData) headers["Content-Type"] = "application/json";
 
   const accessToken = tokenStore.getAccessToken();
   if (accessToken && !options.skipAuth) headers.Authorization = `Bearer ${accessToken}`;
@@ -66,7 +68,7 @@ async function request<T>(path: string, options: RequestOptions = {}, isRetry = 
   const res = await fetch(`${BASE_URL}${path}`, {
     method: options.method ?? "GET",
     headers,
-    body: options.body ? JSON.stringify(options.body) : undefined,
+    body: options.isFormData ? (options.body as FormData) : options.body ? JSON.stringify(options.body) : undefined,
   });
 
   if (res.status === 401 && !options.skipAuth && !isRetry) {

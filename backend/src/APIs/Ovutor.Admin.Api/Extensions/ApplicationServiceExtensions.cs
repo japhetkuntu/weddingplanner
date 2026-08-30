@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Ovutor.Admin.Api.Interfaces;
 using Ovutor.Admin.Api.Services;
 using Ovutor.Cache.Sdk.Extensions;
+using Ovutor.Email.Sdk.Extensions;
 using Ovutor.Postgres.Sdk.Entities;
 using Ovutor.Postgres.Sdk.Persistence;
 using Ovutor.Postgres.Sdk.Repositories;
@@ -24,6 +25,7 @@ public static class ApplicationServiceExtensions
     {
         services.AddStorageSdk(configuration);
         services.AddCacheSdk(configuration);
+        services.AddEmailSdk(configuration);
         return services;
     }
 

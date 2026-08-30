@@ -1,6 +1,6 @@
 namespace Ovutor.Admin.Api.Models.Responses;
 
-public record AdminUserResponse(Guid Id, string Name, string Email, string Role);
+public record AdminUserResponse(Guid Id, string Name, string Email, string Role, bool IsSuperAdmin);
 
 /// <summary>The temporary password is only present in the response to the create call itself — same
 /// one-time-reveal shape as the Client Portal credential flow in AddClientPage.tsx.</summary>

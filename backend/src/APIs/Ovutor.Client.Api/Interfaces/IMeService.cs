@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Http;
 using Ovutor.Client.Api.Models.Responses;
 using Ovutor.Common.Sdk.Responses;
 
@@ -10,6 +11,7 @@ public interface IMeService
     Task<IApiResponse<BudgetResponse>> GetBudgetAsync(Guid clientId, CancellationToken ct = default);
     Task<IApiResponse<List<RsvpGuestResponse>>> GetRsvpsAsync(Guid clientId, CancellationToken ct = default);
     Task<IApiResponse<List<DocumentFileResponse>>> GetDocumentsAsync(Guid clientId, CancellationToken ct = default);
+    Task<IApiResponse<DocumentFileResponse>> UploadDocumentAsync(Guid clientId, IFormFile file, string category, CancellationToken ct = default);
     Task<IApiResponse<WebsiteStatusResponse>> GetWebsiteStatusAsync(Guid clientId, CancellationToken ct = default);
     Task<IApiResponse<DashboardResponse>> GetDashboardAsync(Guid clientId, CancellationToken ct = default);
 }

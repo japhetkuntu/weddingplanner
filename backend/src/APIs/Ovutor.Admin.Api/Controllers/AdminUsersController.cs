@@ -21,7 +21,7 @@ public class AdminUsersController(IAdminUserService adminUserService) : Controll
     [HttpPost]
     public async Task<IActionResult> AddTeamMember(AddAdminUserRequest request, CancellationToken ct)
     {
-        var response = await adminUserService.AddTeamMemberAsync(request, ct);
+        var response = await adminUserService.AddTeamMemberAsync(ClaimsReader.GetAdminId(User), request, ct);
         return StatusCode(response.Code, response);
     }
 

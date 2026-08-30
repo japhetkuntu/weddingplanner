@@ -59,9 +59,6 @@ export interface RsvpBlockContent {
   deadline: string;
   confirmationMessage: string;
   collectDietary: boolean;
-  collectPlusOne: boolean;
-  collectEmail: boolean;
-  collectMobile: boolean;
   collectAccommodation: boolean;
   collectTransportation: boolean;
 }

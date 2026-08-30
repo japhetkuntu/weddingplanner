@@ -130,14 +130,14 @@ export default function ClientDocumentsPage() {
     <div className="ovutor-fade-in">
       <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="font-display text-3xl">Documents</h1>
-          <p className="text-ink/60">Files shared with {client.coupleNames} and internal planning notes.</p>
+          <h1 className="font-display text-3xl">Files</h1>
+          <p className="text-ink/60">Files shared with {client.coupleNames}, files they've shared back, and internal planning notes.</p>
         </div>
-        <Button onClick={() => setUploadOpen(true)}>Upload document</Button>
+        <Button onClick={() => setUploadOpen(true)}>Upload file</Button>
       </div>
 
       <div className="mb-4 flex flex-wrap gap-2">
-        <Input placeholder="Search documents" value={search} onChange={(e) => setSearch(e.target.value)} className="min-w-[220px] flex-1" />
+        <Input placeholder="Search files" value={search} onChange={(e) => setSearch(e.target.value)} className="min-w-[220px] flex-1" />
         <Select value={visibility} onChange={(e) => setVisibility(e.target.value as DocumentVisibility | "all")} className="w-auto">
           <option value="all">All visibility</option>
           <option value="client">Visible to client</option>
@@ -147,9 +147,9 @@ export default function ClientDocumentsPage() {
 
       {filtered.length === 0 ? (
         <EmptyState
-          title="No documents yet"
-          message="Uploaded contracts, proposals and planning files will appear here."
-          action={<Button onClick={() => setUploadOpen(true)}>Upload document</Button>}
+          title="No files yet"
+          message="Contracts, proposals, planning files — and anything the couple shares back — will appear here."
+          action={<Button onClick={() => setUploadOpen(true)}>Upload file</Button>}
         />
       ) : (
         <div className="divide-y divide-[#eee] border border-[#ddd] bg-white">

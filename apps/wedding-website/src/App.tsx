@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Button, Checkbox, Input, Label } from "@ovutor/ui";
+import { Button, Checkbox, cn, Input, Label } from "@ovutor/ui";
 import { getSite, submitRsvp, ApiError } from "@/lib/api";
 import { PlaceholderImage } from "@/components/PlaceholderImage";
 import { WeddingLoader } from "@/components/WeddingLoader";
@@ -94,17 +94,17 @@ export default function App() {
       {isPublished("hero") ? (
         <section id="home" className="relative flex min-h-[75vh] items-end bg-ink sm:min-h-[85vh]">
           <div className="absolute inset-0">
-            <PlaceholderImage image={c.hero.image} fit="contain" className="opacity-60" />
-            <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/50 to-ink/10" />
+            <PlaceholderImage image={c.hero.image} fit="contain" />
+            <div className="absolute inset-0 bg-gradient-to-t from-ink/85 via-ink/10 to-transparent" />
           </div>
-          <div className="relative z-10 w-full px-6 pb-16 pt-32 text-white sm:px-10 sm:pb-24">
-            <p className="text-[11px] font-bold uppercase tracking-[.16em] text-white/80">{c.hero.eyebrow}</p>
-            <h1 className="my-4 font-display text-6xl leading-[0.95] sm:text-[70px]">
+          <div className="relative z-10 w-full px-6 pb-14 pt-32 text-white sm:px-10 sm:pb-20">
+            <p className="text-[10px] font-medium uppercase tracking-[.16em] text-white/70">{c.hero.eyebrow}</p>
+            <h1 className="my-3 font-display text-5xl font-normal leading-[0.95] [text-shadow:0_2px_20px_rgba(0,0,0,0.45)] sm:text-6xl">
               {c.hero.coupleNames.split(" & ")[0]}
               <br />
               &amp; {c.hero.coupleNames.split(" & ")[1]}
             </h1>
-            <p className="max-w-md leading-relaxed text-white/90">
+            <p className="max-w-md text-sm leading-relaxed text-white/70">
               {c.hero.date}
               <br />
               {c.hero.venue}
@@ -289,10 +289,8 @@ function Gallery({ site }: { site: SiteConfig }) {
 
 interface StoredRsvp {
   fullName: string;
-  attendanceCount?: number;
+  attending: boolean;
   dietary?: string;
-  email?: string;
-  mobile?: string;
   needsAccommodation?: boolean;
   needsTransportation?: boolean;
   submittedAt: string;
@@ -324,26 +322,30 @@ function RsvpBlock({ site, slug }: { site: SiteConfig; slug: string }) {
   const { rsvp } = site;
   const [stored, setStored] = useState<StoredRsvp | null>(() => getStoredRsvp(slug));
   const [editing, setEditing] = useState(false);
+  const [attending, setAttending] = useState<boolean | null>(() => stored?.attending ?? null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const showForm = !stored || editing;
+  const showOutOfTownSection = attending === true && (rsvp.collectAccommodation || rsvp.collectTransportation);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError(null);
+    if (attending === null) {
+      setError("Please let us know whether you'll be attending.");
+      return;
+    }
     const form = new FormData(e.currentTarget);
     const fullName = String(form.get("guest-name") ?? "").trim();
     if (!fullName) return;
 
     const record: StoredRsvp = {
       fullName,
-      attendanceCount: Number(form.get("guest-count")) || 1,
-      dietary: String(form.get("dietary") ?? "") || undefined,
-      email: String(form.get("email") ?? "") || undefined,
-      mobile: String(form.get("mobile") ?? "") || undefined,
-      needsAccommodation: form.get("needs-accommodation") === "on",
-      needsTransportation: form.get("needs-transportation") === "on",
+      attending,
+      dietary: attending ? String(form.get("dietary") ?? "") || undefined : undefined,
+      needsAccommodation: attending ? form.get("needs-accommodation") === "on" : undefined,
+      needsTransportation: attending ? form.get("needs-transportation") === "on" : undefined,
       submittedAt: new Date().toISOString(),
     };
 
@@ -351,11 +353,8 @@ function RsvpBlock({ site, slug }: { site: SiteConfig; slug: string }) {
     try {
       await submitRsvp(slug, {
         fullName: record.fullName,
-        attending: true,
-        attendanceCount: record.attendanceCount,
+        attending: record.attending,
         dietary: record.dietary,
-        email: record.email,
-        mobile: record.mobile,
         needsAccommodation: record.needsAccommodation,
         needsTransportation: record.needsTransportation,
       });
@@ -381,12 +380,14 @@ function RsvpBlock({ site, slug }: { site: SiteConfig; slug: string }) {
             <p className="font-display text-2xl">Thank you!</p>
             <p className="mt-2 text-ink/60">{rsvp.confirmationMessage}</p>
             <p className="mt-4 border-t border-[#eee] pt-4 text-sm text-ink/50">
-              You RSVP'd as <b className="text-ink">{stored.fullName}</b>
-              {stored.attendanceCount ? `, ${stored.attendanceCount} attending` : ""}.
+              You RSVP'd as <b className="text-ink">{stored.fullName}</b> — {stored.attending ? "Attending" : "Not attending"}.
             </p>
             <button
               type="button"
-              onClick={() => setEditing(true)}
+              onClick={() => {
+                setAttending(stored.attending);
+                setEditing(true);
+              }}
               className="mt-2 text-xs font-bold uppercase tracking-[.06em] text-primary hover:underline"
             >
               Need to make a change?
@@ -397,42 +398,51 @@ function RsvpBlock({ site, slug }: { site: SiteConfig; slug: string }) {
             <Label htmlFor="guest-name">Full name</Label>
             <Input id="guest-name" name="guest-name" placeholder="As it appears on your invitation" defaultValue={stored?.fullName} required />
 
-            {rsvp.collectPlusOne ? (
-              <>
-                <Label htmlFor="guest-count">Number attending</Label>
-                <Input id="guest-count" name="guest-count" type="number" min={1} defaultValue={stored?.attendanceCount ?? 1} />
-              </>
-            ) : null}
+            <Label htmlFor="attending-yes">Will you be attending?</Label>
+            <div className="mt-1 flex gap-2">
+              <button
+                id="attending-yes"
+                type="button"
+                onClick={() => setAttending(true)}
+                aria-pressed={attending === true}
+                className={cn(
+                  "flex flex-1 items-center justify-center gap-2 border py-3 text-sm font-bold uppercase tracking-[.04em]",
+                  attending === true ? "border-primary bg-primary text-white" : "border-[#aaa29d] text-ink hover:border-ink",
+                )}
+              >
+                👍 Yes
+              </button>
+              <button
+                type="button"
+                onClick={() => setAttending(false)}
+                aria-pressed={attending === false}
+                className={cn(
+                  "flex flex-1 items-center justify-center gap-2 border py-3 text-sm font-bold uppercase tracking-[.04em]",
+                  attending === false ? "border-ink bg-ink text-white" : "border-[#aaa29d] text-ink hover:border-ink",
+                )}
+              >
+                👎 No
+              </button>
+            </div>
 
-            {rsvp.collectDietary ? (
+            {attending === true && rsvp.collectDietary ? (
               <>
                 <Label htmlFor="dietary">Dietary requirements</Label>
                 <Input id="dietary" name="dietary" placeholder="Optional" defaultValue={stored?.dietary} />
               </>
             ) : null}
 
-            {rsvp.collectEmail ? (
-              <>
-                <Label htmlFor="email">Email</Label>
-                <Input id="email" name="email" type="email" placeholder="Optional" defaultValue={stored?.email} />
-              </>
-            ) : null}
-
-            {rsvp.collectMobile ? (
-              <>
-                <Label htmlFor="mobile">Mobile number</Label>
-                <Input id="mobile" name="mobile" placeholder="Optional" defaultValue={stored?.mobile} />
-              </>
-            ) : null}
-
-            {rsvp.collectAccommodation || rsvp.collectTransportation ? (
-              <div className="mt-3 space-y-2.5">
-                {rsvp.collectAccommodation ? (
-                  <Checkbox id="needs-accommodation" name="needs-accommodation" label="I'll need accommodation" defaultChecked={stored?.needsAccommodation} />
-                ) : null}
-                {rsvp.collectTransportation ? (
-                  <Checkbox id="needs-transportation" name="needs-transportation" label="I'll need transportation" defaultChecked={stored?.needsTransportation} />
-                ) : null}
+            {showOutOfTownSection ? (
+              <div className="mt-4">
+                <p className="mb-2 text-xs font-bold uppercase tracking-[.08em] text-ink/60">Out-of-town Guest:</p>
+                <div className="space-y-2.5">
+                  {rsvp.collectAccommodation ? (
+                    <Checkbox id="needs-accommodation" name="needs-accommodation" label="I'll need accommodation" defaultChecked={stored?.needsAccommodation} />
+                  ) : null}
+                  {rsvp.collectTransportation ? (
+                    <Checkbox id="needs-transportation" name="needs-transportation" label="I'll need transportation" defaultChecked={stored?.needsTransportation} />
+                  ) : null}
+                </div>
               </div>
             ) : null}
 

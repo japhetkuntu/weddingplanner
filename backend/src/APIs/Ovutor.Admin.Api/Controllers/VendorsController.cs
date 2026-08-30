@@ -37,4 +37,18 @@ public class VendorsController(IVendorService vendorService) : ControllerBase
         var response = await vendorService.DeleteAsync(vendorId, ct);
         return StatusCode(response.Code, response);
     }
+
+    [HttpPost("{vendorId:guid}/photo")]
+    public async Task<IActionResult> UploadPhoto(Guid vendorId, [FromForm] UploadVendorFileForm form, CancellationToken ct)
+    {
+        var response = await vendorService.UploadPhotoAsync(vendorId, form.File, ct);
+        return StatusCode(response.Code, response);
+    }
+
+    [HttpPost("{vendorId:guid}/contract")]
+    public async Task<IActionResult> UploadContract(Guid vendorId, [FromForm] UploadVendorFileForm form, CancellationToken ct)
+    {
+        var response = await vendorService.UploadContractAsync(vendorId, form.File, ct);
+        return StatusCode(response.Code, response);
+    }
 }

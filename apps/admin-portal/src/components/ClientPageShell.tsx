@@ -10,7 +10,7 @@ const SECTION_LABEL: Record<string, string> = {
   budget: "budget",
   rsvps: "RSVPs",
   website: "wedding website",
-  documents: "documents",
+  documents: "files",
   settings: "settings",
 };
 

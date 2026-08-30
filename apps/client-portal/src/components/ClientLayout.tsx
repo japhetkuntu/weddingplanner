@@ -24,7 +24,7 @@ export function ClientLayout({ children }: { children: ReactNode }) {
     { label: "My Website", to: "/website" },
     { label: `My Checklist${openTasks ? ` (${openTasks})` : ""}`, to: "/checklist" },
     { label: "My Budget", to: "/budget" },
-    { label: "My Documents", to: "/documents" },
+    { label: "My Files", to: "/documents" },
     { label: "My RSVPs", to: "/rsvps" },
     { label: "Profile & Settings", to: "/profile" },
   ];

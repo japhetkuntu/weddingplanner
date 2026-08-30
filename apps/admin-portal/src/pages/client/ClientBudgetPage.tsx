@@ -16,7 +16,6 @@ import {
   errorMessage,
 } from "@/lib/api";
 import { formatMoney } from "@/lib/currency";
-import { vendorsEnabled } from "@/lib/featureFlags";
 import type { BudgetCategory, BudgetExpense, Vendor } from "@/types";
 
 interface DeleteCandidate {
@@ -236,7 +235,6 @@ export default function ClientBudgetPage() {
   if (loading) return <BudgetSkeleton />;
 
   const money = (n: number) => formatMoney(n, client.currency);
-  const remaining = client.budgetTotal - totals.actual;
 
   return (
     <div className="ovutor-fade-in">
@@ -280,14 +278,14 @@ export default function ClientBudgetPage() {
       ) : null}
 
       <section className="mb-6 grid grid-cols-2 gap-3 lg:grid-cols-5">
-        <StatCard label="Total target" value={money(client.budgetTotal)} />
-        <StatCard label="Estimated" value={money(totals.estimated)} />
-        <StatCard label="Paid so far" value={money(totals.paid)} />
-        <StatCard label="Still to pay" value={money(totals.stillToPay)} />
-        <StatCard label="Remaining" value={money(remaining)} valueClassName={remaining < 0 ? "text-primary" : undefined} />
+        <StatCard label="Budget" value={money(client.budgetTotal)} />
+        <StatCard label="Estimates" value={money(totals.estimated)} />
+        <StatCard label="Actual Cost" value={money(totals.actual)} />
+        <StatCard label="Paid" value={money(totals.paid)} />
+        <StatCard label="Pending" value={money(totals.stillToPay)} valueClassName={totals.stillToPay > 0 ? "text-primary" : undefined} />
       </section>
 
-      <p className="mb-4 text-sm text-ink/50">Your figures update as you type. Estimated is what you expect to spend; actual is what you've agreed with the vendor; paid is what has already left your account.</p>
+      <p className="mb-4 text-sm text-ink/50">Your figures update as you type. Estimates is what you expect to spend; actual cost is what you've agreed with the vendor; paid is what has already left your account; pending is what's still owed.</p>
 
       {categories.length === 0 ? (
         <EmptyState
@@ -335,10 +333,10 @@ export default function ClientBudgetPage() {
                 <div>
                   <div className="hidden grid-cols-[1fr_repeat(4,minmax(70px,1fr))] gap-2 px-4 pt-3 text-[10px] font-bold uppercase tracking-[.06em] text-ink/50 sm:grid">
                     <span>Expense</span>
-                    <span className="text-right">Estimated</span>
-                    <span className="text-right">Actual</span>
+                    <span className="text-right">Estimates</span>
+                    <span className="text-right">Actual Cost</span>
                     <span className="text-right">Paid</span>
-                    <span className="text-right">Still to pay</span>
+                    <span className="text-right">Pending</span>
                   </div>
                   {cat.expenses.length === 0 ? (
                     <p className="border-t border-[#eee] px-4 py-3.5 text-sm text-ink/50">No expenses yet — add one below.</p>
@@ -505,7 +503,6 @@ function ExpenseEditForm({
   const [vendorError, setVendorError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!vendorsEnabled) return;
     getVendors().then(setVendors);
   }, []);
 
@@ -527,7 +524,7 @@ function ExpenseEditForm({
     setAddingVendor(true);
     setVendorError(null);
     try {
-      const vendor = await addVendor(newVendorName.trim(), newVendorContact.trim() || undefined, newVendorLocation.trim());
+      const vendor = await addVendor({ name: newVendorName.trim(), contact: newVendorContact.trim() || undefined, location: newVendorLocation.trim() });
       setVendors((prev) => [...prev, vendor]);
       setForm({ ...form, vendor: vendor.name, vendorId: vendor.id });
       setShowNewVendor(false);
@@ -543,48 +540,44 @@ function ExpenseEditForm({
 
   return (
     <form onSubmit={handleSubmit}>
-      {vendorsEnabled ? (
-        <>
-          <Label htmlFor="expense-vendor-select">Vendor</Label>
-          <Select
-            id="expense-vendor-select"
-            value={showNewVendor ? NEW_VENDOR_OPTION : form.vendorId ?? CUSTOM_VENDOR_OPTION}
-            onChange={(e) => {
-              const value = e.target.value;
-              if (value === NEW_VENDOR_OPTION) {
-                setShowNewVendor(true);
-                return;
-              }
-              setShowNewVendor(false);
-              if (value === CUSTOM_VENDOR_OPTION) {
-                setForm({ ...form, vendorId: undefined });
-                return;
-              }
-              const vendor = vendors.find((v) => v.id === value);
-              if (vendor) setForm({ ...form, vendor: vendor.name, vendorId: vendor.id });
-            }}
-          >
-            <option value={CUSTOM_VENDOR_OPTION}>Custom title (no directory vendor)</option>
-            {vendors.map((v) => (
-              <option key={v.id} value={v.id}>
-                {v.name} · {v.location}
-              </option>
-            ))}
-            <option value={NEW_VENDOR_OPTION}>+ Add new vendor…</option>
-          </Select>
+      <Label htmlFor="expense-vendor-select">Vendor</Label>
+      <Select
+        id="expense-vendor-select"
+        value={showNewVendor ? NEW_VENDOR_OPTION : form.vendorId ?? CUSTOM_VENDOR_OPTION}
+        onChange={(e) => {
+          const value = e.target.value;
+          if (value === NEW_VENDOR_OPTION) {
+            setShowNewVendor(true);
+            return;
+          }
+          setShowNewVendor(false);
+          if (value === CUSTOM_VENDOR_OPTION) {
+            setForm({ ...form, vendorId: undefined });
+            return;
+          }
+          const vendor = vendors.find((v) => v.id === value);
+          if (vendor) setForm({ ...form, vendor: vendor.name, vendorId: vendor.id });
+        }}
+      >
+        <option value={CUSTOM_VENDOR_OPTION}>Custom title (no directory vendor)</option>
+        {vendors.map((v) => (
+          <option key={v.id} value={v.id}>
+            {v.name} · {v.location}
+          </option>
+        ))}
+        <option value={NEW_VENDOR_OPTION}>+ Add new vendor…</option>
+      </Select>
 
-          {showNewVendor ? (
-            <div className="mt-2 space-y-2 border border-[#eee] bg-bg-warm p-3">
-              <Input placeholder="Vendor name" value={newVendorName} onChange={(e) => setNewVendorName(e.target.value)} autoFocus />
-              <Input placeholder="Contact (phone or email)" value={newVendorContact} onChange={(e) => setNewVendorContact(e.target.value)} />
-              <Input placeholder="Location, e.g. Accra" value={newVendorLocation} onChange={(e) => setNewVendorLocation(e.target.value)} />
-              {vendorError ? <p className="text-xs text-primary">{vendorError}</p> : null}
-              <Button type="button" size="sm" onClick={handleAddVendor} loading={addingVendor}>
-                Add &amp; select vendor
-              </Button>
-            </div>
-          ) : null}
-        </>
+      {showNewVendor ? (
+        <div className="mt-2 space-y-2 border border-[#eee] bg-bg-warm p-3">
+          <Input placeholder="Vendor name" value={newVendorName} onChange={(e) => setNewVendorName(e.target.value)} autoFocus />
+          <Input placeholder="Contact (phone or email)" value={newVendorContact} onChange={(e) => setNewVendorContact(e.target.value)} />
+          <Input placeholder="Location, e.g. Accra" value={newVendorLocation} onChange={(e) => setNewVendorLocation(e.target.value)} />
+          {vendorError ? <p className="text-xs text-primary">{vendorError}</p> : null}
+          <Button type="button" size="sm" onClick={handleAddVendor} loading={addingVendor}>
+            Add &amp; select vendor
+          </Button>
+        </div>
       ) : null}
 
       <Label htmlFor="expense-vendor">Title</Label>
@@ -592,8 +585,8 @@ function ExpenseEditForm({
         id="expense-vendor"
         value={form.vendor}
         onChange={(e) => setForm({ ...form, vendor: e.target.value, vendorId: undefined })}
-        disabled={vendorsEnabled && !!form.vendorId}
-        className={vendorsEnabled && form.vendorId ? "bg-bg-warm text-ink/50" : undefined}
+        disabled={!!form.vendorId}
+        className={form.vendorId ? "bg-bg-warm text-ink/50" : undefined}
       />
 
       <Label htmlFor="expense-description">Description</Label>

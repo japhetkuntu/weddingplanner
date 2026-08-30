@@ -4,6 +4,7 @@ import clsx from "clsx";
 import { Button, Card, ErrorModal, Input, Label, Modal, Select } from "@ovutor/ui";
 import { createClient, errorMessage } from "@/lib/api";
 import { useClientsStore } from "@/store/clientsStore";
+import { useAuthStore } from "@/store/authStore";
 import { CURRENCIES } from "@/lib/currency";
 import { CredentialsPanel } from "@/components/CredentialsPanel";
 import type { ClientCredentials } from "@/types";
@@ -18,6 +19,7 @@ interface FormState {
   guestCount: string;
   region: string;
   stage: string;
+  weddingType: string;
   ceremonyVenue: string;
   receptionVenue: string;
   packageType: string;
@@ -52,9 +54,10 @@ const INITIAL: FormState = {
   guestCount: "",
   region: "",
   stage: "Discovery",
+  weddingType: "",
   ceremonyVenue: "",
   receptionVenue: "",
-  packageType: "Full planning",
+  packageType: "Full Service Package",
   portalAccess: "Invite after setup",
   currency: "USD",
   budgetTarget: "",
@@ -63,6 +66,7 @@ const INITIAL: FormState = {
 export default function AddClientPage() {
   const navigate = useNavigate();
   const upsertClient = useClientsStore((s) => s.upsert);
+  const currentUser = useAuthStore((s) => s.user);
   const [step, setStep] = useState(0);
   const [form, setForm] = useState<FormState>(INITIAL);
   const [saving, setSaving] = useState(false);
@@ -112,6 +116,7 @@ export default function AddClientPage() {
         weddingDate: form.weddingDate,
         venue: form.ceremonyVenue,
         guestCount: Number(form.guestCount) || 0,
+        weddingType: form.weddingType || undefined,
         currency: form.currency,
         budgetTarget: Number(form.budgetTarget) || 0,
       });
@@ -188,7 +193,18 @@ export default function AddClientPage() {
                   <Select id="stage" value={form.stage} onChange={(e) => update("stage", e.target.value)}>
                     <option>Discovery</option>
                     <option>Design</option>
-                    <option>Bookings</option>
+                    <option>Planning</option>
+                    <option>Execution</option>
+                  </Select>
+                </div>
+                <div>
+                  <Label htmlFor="weddingType">Type of wedding</Label>
+                  <Select id="weddingType" value={form.weddingType} onChange={(e) => update("weddingType", e.target.value)}>
+                    <option value="">Not set</option>
+                    <option>Home Wedding</option>
+                    <option>Unconventional Venue</option>
+                    <option>Vacation Wedding</option>
+                    <option>Vow Renewal</option>
                   </Select>
                 </div>
                 <div className="sm:col-span-2">
@@ -207,9 +223,10 @@ export default function AddClientPage() {
                 <div>
                   <Label htmlFor="packageType">Planning package</Label>
                   <Select id="packageType" value={form.packageType} onChange={(e) => update("packageType", e.target.value)}>
-                    <option>Full planning</option>
-                    <option>Partial planning</option>
-                    <option>Month-of coordination</option>
+                    <option>Full Service Package</option>
+                    <option>Planning &amp; Coordination</option>
+                    <option>Coordination</option>
+                    <option>Consultation</option>
                   </Select>
                 </div>
                 <div>
@@ -269,7 +286,7 @@ export default function AddClientPage() {
           <div className="space-y-3 border-t border-[#ddd] pt-3 text-sm">
             <div>
               <b className="block">Lead planner</b>
-              <small className="text-ink/60">Maya</small>
+              <small className="text-ink/60">{currentUser?.name ?? "You"}</small>
             </div>
             <div>
               <b className="block">Preferred contact</b>

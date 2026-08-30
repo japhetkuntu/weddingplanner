@@ -144,3 +144,9 @@
 /Users/joe/Work/Others/Ovutor/backend/src/APIs/Ovutor.Admin.Api/bin/Debug/net8.0/Ovutor.Storage.Sdk.pdb
 /Users/joe/Work/Others/Ovutor/backend/src/APIs/Ovutor.Admin.Api/bin/Debug/net8.0/Ovutor.Cache.Sdk.pdb
 /Users/joe/Work/Others/Ovutor/backend/src/APIs/Ovutor.Admin.Api/obj/Debug/net8.0/Ovutor.Admin.Api.sourcelink.json
+/Users/joe/Work/Others/Ovutor/backend/src/APIs/Ovutor.Admin.Api/bin/Debug/net8.0/Templates/couple-update.html
+/Users/joe/Work/Others/Ovutor/backend/src/APIs/Ovutor.Admin.Api/bin/Debug/net8.0/Microsoft.Extensions.Diagnostics.dll
+/Users/joe/Work/Others/Ovutor/backend/src/APIs/Ovutor.Admin.Api/bin/Debug/net8.0/Microsoft.Extensions.Diagnostics.Abstractions.dll
+/Users/joe/Work/Others/Ovutor/backend/src/APIs/Ovutor.Admin.Api/bin/Debug/net8.0/Microsoft.Extensions.Http.dll
+/Users/joe/Work/Others/Ovutor/backend/src/APIs/Ovutor.Admin.Api/bin/Debug/net8.0/Ovutor.Email.Sdk.dll
+/Users/joe/Work/Others/Ovutor/backend/src/APIs/Ovutor.Admin.Api/bin/Debug/net8.0/Ovutor.Email.Sdk.pdb

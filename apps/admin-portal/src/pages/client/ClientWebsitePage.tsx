@@ -672,9 +672,6 @@ function RsvpForm({ rsvp, onSave, saving }: { rsvp: WebsiteRsvpConfig; onSave: (
       <Textarea id="rsvp-confirmation" value={form.confirmationMessage} onChange={(e) => setForm({ ...form, confirmationMessage: e.target.value })} />
       <div className="mt-4 space-y-2.5">
         <Checkbox id="rsvp-dietary" label="Collect dietary requirements" checked={form.collectDietary} onChange={(e) => setForm({ ...form, collectDietary: e.target.checked })} />
-        <Checkbox id="rsvp-plusone" label="Allow plus-one requests" checked={form.collectPlusOne} onChange={(e) => setForm({ ...form, collectPlusOne: e.target.checked })} />
-        <Checkbox id="rsvp-email" label="Collect email address" checked={form.collectEmail} onChange={(e) => setForm({ ...form, collectEmail: e.target.checked })} />
-        <Checkbox id="rsvp-mobile" label="Collect mobile number" checked={form.collectMobile} onChange={(e) => setForm({ ...form, collectMobile: e.target.checked })} />
         <Checkbox id="rsvp-accommodation" label="Ask about accommodation" checked={form.collectAccommodation} onChange={(e) => setForm({ ...form, collectAccommodation: e.target.checked })} />
         <Checkbox id="rsvp-transportation" label="Ask about transportation" checked={form.collectTransportation} onChange={(e) => setForm({ ...form, collectTransportation: e.target.checked })} />
       </div>

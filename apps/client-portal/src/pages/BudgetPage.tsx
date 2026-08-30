@@ -49,7 +49,7 @@ export default function BudgetPage() {
         {profile.partnerA.split(" ")[0]} &amp; {profile.partnerB.split(" ")[0]}'s plan
       </p>
       <h1 className="my-1.5 font-display text-4xl">Your wedding budget</h1>
-      <p className="mb-6 text-ink/60">The same figures your planner sees — estimated, actual, paid, and what's still owed.</p>
+      <p className="mb-6 text-ink/60">The same figures your planner sees — estimates, actual cost, paid, and what's still owed.</p>
 
       {budget.fullPaymentDueDate ? (
         <p className="mb-4 text-sm text-ink/60">
@@ -59,14 +59,14 @@ export default function BudgetPage() {
       ) : null}
 
       <section className="mb-6 grid grid-cols-2 gap-3 lg:grid-cols-5">
-        <StatCard label="Total target" value={money(budget.totalBudget)} />
-        <StatCard label="Estimated" value={money(budget.totalEstimated)} />
-        <StatCard label="Paid so far" value={money(budget.totalPaid)} />
-        <StatCard label="Still to pay" value={money(budget.totalActual - budget.totalPaid)} />
-        <StatCard label="Remaining" value={money(budget.remaining)} valueClassName={budget.remaining < 0 ? "text-primary" : undefined} />
+        <StatCard label="Budget" value={money(budget.totalBudget)} />
+        <StatCard label="Estimates" value={money(budget.totalEstimated)} />
+        <StatCard label="Actual Cost" value={money(budget.totalActual)} />
+        <StatCard label="Paid" value={money(budget.totalPaid)} />
+        <StatCard label="Pending" value={money(budget.totalActual - budget.totalPaid)} valueClassName={budget.totalActual - budget.totalPaid > 0 ? "text-primary" : undefined} />
       </section>
 
-      <p className="mb-4 text-sm text-ink/50">Estimated is what your planner expects to spend; actual is what's been agreed with each vendor; paid is what's already left your account.</p>
+      <p className="mb-4 text-sm text-ink/50">Estimates is what your planner expects to spend; actual cost is what's been agreed with each vendor; paid is what's already left your account; pending is what's still owed.</p>
 
       <h2 className="mb-3 font-display text-2xl">Budget categories</h2>
       {budget.categories.length === 0 ? (
@@ -84,7 +84,7 @@ export default function BudgetPage() {
               >
                 <span className="font-bold">{cat.name}</span>
                 <span className="text-sm text-ink/50">
-                  {money(cat.estimated)} estimated · {money(cat.actual)} actual · {money(cat.paid)} paid
+                  {money(cat.estimated)} estimates · {money(cat.actual)} actual cost · {money(cat.paid)} paid
                 </span>
               </button>
               {isOpen ? (
@@ -96,11 +96,11 @@ export default function BudgetPage() {
                         <small className="mt-0.5 block text-ink/50">{e.description}</small>
                       </div>
                       <div className="text-sm">
-                        <span className="block text-ink/50">Estimated</span>
+                        <span className="block text-ink/50">Estimates</span>
                         <b>{money(e.estimated)}</b>
                       </div>
                       <div className="text-sm">
-                        <span className="block text-ink/50">Actual</span>
+                        <span className="block text-ink/50">Actual Cost</span>
                         <b>{money(e.actual)}</b>
                       </div>
                       <div className="text-sm">
@@ -108,7 +108,7 @@ export default function BudgetPage() {
                         <b>{e.paid > 0 ? money(e.paid) : "—"}</b>
                       </div>
                       <div className="text-sm">
-                        <span className="block text-ink/50">{e.nextDue ? "Next due" : "Still to pay"}</span>
+                        <span className="block text-ink/50">{e.nextDue ? "Next due" : "Pending"}</span>
                         <b>{e.nextDue ? new Date(e.nextDue).toLocaleDateString(undefined, { month: "short", day: "numeric" }) : money(e.actual - e.paid)}</b>
                       </div>
                     </div>

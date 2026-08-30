@@ -7,6 +7,7 @@ public record CreateClientRequest(
     string WeddingDate,
     string Venue,
     int GuestCount,
+    string? WeddingType,
     string Currency,
     decimal BudgetTarget);
 
@@ -23,3 +24,5 @@ public record UpdateClientRequest(
 public record UpdatePortalEmailRequest(string PortalEmail);
 
 public record UpdateFullPaymentDueDateRequest(string? FullPaymentDueDate);
+
+public record NotifyCoupleRequest(string Message);

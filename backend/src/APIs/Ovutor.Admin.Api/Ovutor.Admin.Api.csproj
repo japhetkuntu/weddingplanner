@@ -22,6 +22,7 @@
     <ProjectReference Include="..\..\SDKs\Ovutor.Postgres.Sdk\Ovutor.Postgres.Sdk.csproj" />
     <ProjectReference Include="..\..\SDKs\Ovutor.Storage.Sdk\Ovutor.Storage.Sdk.csproj" />
     <ProjectReference Include="..\..\SDKs\Ovutor.Cache.Sdk\Ovutor.Cache.Sdk.csproj" />
+    <ProjectReference Include="..\..\SDKs\Ovutor.Email.Sdk\Ovutor.Email.Sdk.csproj" />
   </ItemGroup>
 
 </Project>

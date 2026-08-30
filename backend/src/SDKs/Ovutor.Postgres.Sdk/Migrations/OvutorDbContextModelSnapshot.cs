@@ -70,6 +70,9 @@ namespace Ovutor.Postgres.Sdk.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<bool>("IsSuperAdmin")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
@@ -271,6 +274,9 @@ namespace Ovutor.Postgres.Sdk.Migrations
                     b.Property<DateTime?>("ArchivedAtUtc")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<Guid?>("AssignedPlannerId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("AvatarInitials")
                         .IsRequired()
                         .HasColumnType("text");
@@ -345,7 +351,12 @@ namespace Ovutor.Postgres.Sdk.Migrations
                     b.Property<DateOnly>("WeddingDate")
                         .HasColumnType("date");
 
+                    b.Property<string>("WeddingType")
+                        .HasColumnType("text");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("AssignedPlannerId");
 
                     b.HasIndex("PortalEmail")
                         .IsUnique();
@@ -575,7 +586,19 @@ namespace Ovutor.Postgres.Sdk.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("Category")
+                        .HasColumnType("text");
+
                     b.Property<string>("Contact")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ContractContentType")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ContractFileName")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ContractStoragePath")
                         .HasColumnType("text");
 
                     b.Property<DateTime>("CreatedAtUtc")
@@ -590,6 +613,12 @@ namespace Ovutor.Postgres.Sdk.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("PhotoStoragePath")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Summary")
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("UpdatedAtUtc")
@@ -763,6 +792,14 @@ namespace Ovutor.Postgres.Sdk.Migrations
                     b.Navigation("Client");
 
                     b.Navigation("Phase");
+                });
+
+            modelBuilder.Entity("Ovutor.Postgres.Sdk.Entities.Client", b =>
+                {
+                    b.HasOne("Ovutor.Postgres.Sdk.Entities.AdminUser", null)
+                        .WithMany()
+                        .HasForeignKey("AssignedPlannerId")
+                        .OnDelete(DeleteBehavior.SetNull);
                 });
 
             modelBuilder.Entity("Ovutor.Postgres.Sdk.Entities.DocumentFile", b =>

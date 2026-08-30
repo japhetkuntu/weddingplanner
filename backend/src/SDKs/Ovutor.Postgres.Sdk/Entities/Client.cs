@@ -15,6 +15,9 @@ public class Client : BaseEntity
     public DateOnly WeddingDate { get; set; }
     public required string Venue { get; set; }
     public int GuestCount { get; set; }
+    /// <summary>"Home Wedding" | "Unconventional Venue" | "Vacation Wedding" | "Vow Renewal" — optional,
+    /// set at creation time.</summary>
+    public string? WeddingType { get; set; }
 
     /// <summary>"on-track" | "attention" | "early-planning" — kept as the literal frontend string so no
     /// enum/string translation layer is needed on either side.</summary>
@@ -32,6 +35,10 @@ public class Client : BaseEntity
 
     public required string PortalEmail { get; set; }
     public required string PortalPasswordHash { get; set; }
+
+    /// <summary>The planner this couple works with — a non-Super-Admin planner only sees clients
+    /// assigned to them. Nullable so a legacy/orphaned client never blocks the whole portfolio view.</summary>
+    public Guid? AssignedPlannerId { get; set; }
 
     /// <summary>Archiving hides a client from the active portfolio without deleting anything — every
     /// record stays intact and reachable, and it can be unarchived at any time. Distinct from

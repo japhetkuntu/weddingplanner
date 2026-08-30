@@ -9,6 +9,7 @@ interface ClientsState {
   fetch: () => Promise<void>;
   refresh: () => Promise<void>;
   upsert: (client: Client) => void;
+  remove: (clientId: string) => void;
 }
 
 export const useClientsStore = create<ClientsState>((set, get) => ({
@@ -36,4 +37,5 @@ export const useClientsStore = create<ClientsState>((set, get) => ({
       next[index] = client;
       return { clients: next };
     }),
+  remove: (clientId) => set((s) => ({ clients: s.clients.filter((c) => c.id !== clientId) })),
 }));

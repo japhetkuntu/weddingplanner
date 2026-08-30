@@ -6,9 +6,11 @@ namespace Ovutor.Admin.Api.Interfaces;
 
 public interface IClientService
 {
-    Task<IApiResponse<List<ClientResponse>>> GetAllAsync(CancellationToken ct = default);
-    Task<IApiResponse<ClientResponse>> GetByIdAsync(Guid id, CancellationToken ct = default);
-    Task<IApiResponse<ClientWithCredentialsResponse>> CreateAsync(CreateClientRequest request, CancellationToken ct = default);
+    Task<IApiResponse<List<ClientResponse>>> GetAllAsync(Guid requestingAdminId, CancellationToken ct = default);
+    Task<IApiResponse<ClientResponse>> GetByIdAsync(Guid id, Guid requestingAdminId, CancellationToken ct = default);
+    Task<IApiResponse<ClientWithCredentialsResponse>> CreateAsync(CreateClientRequest request, Guid requestingAdminId, CancellationToken ct = default);
+    Task<IApiResponse<object>> DeleteAsync(Guid id, Guid requestingAdminId, CancellationToken ct = default);
+    Task<IApiResponse<object>> NotifyCoupleAsync(Guid id, Guid requestingAdminId, NotifyCoupleRequest request, CancellationToken ct = default);
     Task<IApiResponse<ClientResponse>> UpdateAsync(Guid id, UpdateClientRequest request, CancellationToken ct = default);
     Task<IApiResponse<ClientResponse>> UpdatePortalEmailAsync(Guid id, UpdatePortalEmailRequest request, CancellationToken ct = default);
     Task<IApiResponse<ClientResponse>> UpdateFullPaymentDueDateAsync(Guid id, UpdateFullPaymentDueDateRequest request, CancellationToken ct = default);

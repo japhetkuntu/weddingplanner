@@ -158,7 +158,7 @@ public class AuthService(
             ExpiresAtUtc = jwtTokenService.RefreshExpiry(),
         }, ct);
 
-        var userResponse = new AdminUserResponse(user.Id, user.Name, user.Email, user.Role);
+        var userResponse = new AdminUserResponse(user.Id, user.Name, user.Email, user.Role, user.IsSuperAdmin);
         return new LoginResponse(accessToken, refreshToken, userResponse);
     }
 }

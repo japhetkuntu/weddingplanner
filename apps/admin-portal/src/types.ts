@@ -3,6 +3,8 @@ export interface AdminUser {
   name: string;
   email: string;
   role: string;
+  /** Only a Super Admin can add/remove team members and see every client in the portfolio. */
+  isSuperAdmin: boolean;
 }
 
 export type ClientStatus = "on-track" | "attention" | "early-planning";
@@ -17,6 +19,8 @@ export interface Client {
   weddingDate: string;
   venue: string;
   guestCount: number;
+  /** "Home Wedding" | "Unconventional Venue" | "Vacation Wedding" | "Vow Renewal" */
+  weddingType?: string;
   status: ClientStatus;
   planningPercent: number;
   budgetTotal: number;
@@ -33,6 +37,8 @@ export interface Client {
   /** Archived clients are hidden from the active portfolio but never deleted — everything stays
    * intact and can be unarchived at any time. */
   isArchived: boolean;
+  assignedPlannerId?: string;
+  assignedPlannerName?: string;
 }
 
 /** Only returned right after creating a client or resetting their portal password — the plaintext
@@ -81,6 +87,11 @@ export interface Vendor {
   name: string;
   contact?: string;
   location: string;
+  category?: string;
+  summary?: string;
+  photoUrl?: string;
+  contractUrl?: string;
+  contractFileName?: string;
 }
 
 export interface BudgetCategory {
@@ -203,9 +214,6 @@ export interface WebsiteRsvpConfig {
   deadline: string;
   confirmationMessage: string;
   collectDietary: boolean;
-  collectPlusOne: boolean;
-  collectEmail: boolean;
-  collectMobile: boolean;
   collectAccommodation: boolean;
   collectTransportation: boolean;
 }

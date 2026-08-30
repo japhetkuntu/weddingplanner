@@ -61,9 +61,6 @@ public class PublicSiteService(
                     rsvp.Deadline,
                     rsvp.ConfirmationMessage,
                     rsvp.CollectDietary,
-                    rsvp.CollectPlusOne,
-                    rsvp.CollectEmail,
-                    rsvp.CollectMobile,
                     rsvp.CollectAccommodation,
                     rsvp.CollectTransportation));
 
@@ -93,6 +90,8 @@ public class PublicSiteService(
             var guest = await rsvpGuests.FindAsync(g => g.ClientId == client.Id && g.Household.ToLower() == fullName.ToLower(), ct);
             var status = request.Attending ? "attending" : "declined";
 
+            // Party size, email, and mobile are set by the admin when the guest list is built — the
+            // public form no longer asks for them, so submitting an RSVP never touches those fields.
             if (guest is null)
             {
                 guest = new Ovutor.Postgres.Sdk.Entities.RsvpGuest
@@ -100,10 +99,7 @@ public class PublicSiteService(
                     ClientId = client.Id,
                     Household = fullName,
                     Status = status,
-                    AttendanceCount = request.Attending ? request.AttendanceCount : null,
                     Dietary = request.Attending ? request.Dietary : null,
-                    Email = request.Email,
-                    Mobile = request.Mobile,
                     NeedsAccommodation = request.Attending ? request.NeedsAccommodation : null,
                     NeedsTransportation = request.Attending ? request.NeedsTransportation : null,
                     RespondedAtUtc = DateTime.UtcNow,
@@ -113,10 +109,7 @@ public class PublicSiteService(
             else
             {
                 guest.Status = status;
-                guest.AttendanceCount = request.Attending ? request.AttendanceCount : null;
                 guest.Dietary = request.Attending ? request.Dietary : null;
-                if (request.Email is not null) guest.Email = request.Email;
-                if (request.Mobile is not null) guest.Mobile = request.Mobile;
                 guest.NeedsAccommodation = request.Attending ? request.NeedsAccommodation : null;
                 guest.NeedsTransportation = request.Attending ? request.NeedsTransportation : null;
                 guest.RespondedAtUtc = DateTime.UtcNow;

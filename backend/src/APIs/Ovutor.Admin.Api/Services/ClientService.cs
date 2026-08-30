@@ -8,6 +8,8 @@ using Ovutor.Common.Sdk.Exceptions;
 using Ovutor.Common.Sdk.Responses;
 using Ovutor.Common.Sdk.Security;
 using Ovutor.Common.Sdk.WebsiteContent;
+using Ovutor.Email.Sdk.Models;
+using Ovutor.Email.Sdk.Services;
 using Ovutor.Postgres.Sdk.Entities;
 using Ovutor.Postgres.Sdk.Repositories;
 
@@ -15,19 +17,38 @@ namespace Ovutor.Admin.Api.Services;
 
 public class ClientService(
     IRepository<Client> clients,
+    IRepository<AdminUser> adminUsers,
+    IRepository<ChecklistTask> checklistTasks,
     IRepository<WebsiteSection> websiteSections,
     IRepository<WebsiteContent> websiteContents,
+    IRepository<ActivityEvent> activityEvents,
+    IEmailService emailService,
     IConfiguration configuration,
     ILogger<ClientService> logger) : IClientService
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
 
-    public async Task<IApiResponse<List<ClientResponse>>> GetAllAsync(CancellationToken ct = default)
+    /// <summary>An archived client stops showing up in the active portfolio, but a Super Admin still
+    /// needs a real deletion window in case a wedding is ever undone — this is how long a client stays
+    /// recoverable before it becomes eligible for a permanent delete.</summary>
+    private static readonly TimeSpan DeletionEligibleAfter = TimeSpan.FromDays(90);
+
+    private async Task<AdminUser> RequireAdminAsync(Guid requestingAdminId, CancellationToken ct) =>
+        await adminUsers.GetByIdAsync(requestingAdminId, ct) ?? throw new UnauthorizedException();
+
+    public async Task<IApiResponse<List<ClientResponse>>> GetAllAsync(Guid requestingAdminId, CancellationToken ct = default)
     {
         try
         {
-            var all = await clients.FindManyAsync(_ => true, ct);
-            var result = all.OrderBy(c => c.WeddingDate).Select(ToResponse).ToList();
+            var requester = await RequireAdminAsync(requestingAdminId, ct);
+            var all = await clients.FindManyAsync(
+                c => requester.IsSuperAdmin || c.AssignedPlannerId == requestingAdminId, ct);
+
+            var planners = await PlannerNamesByIdAsync(ct);
+            var percentByClient = await PlanningPercentByClientAsync(all.Select(c => c.Id).ToList(), ct);
+            var result = all.OrderBy(c => c.WeddingDate)
+                .Select(c => ToResponse(c, percentByClient.GetValueOrDefault(c.Id), PlannerName(c.AssignedPlannerId, planners)))
+                .ToList();
             return result.ToOkApiResponse();
         }
         catch (Exception e)
@@ -37,13 +58,17 @@ public class ClientService(
         }
     }
 
-    public async Task<IApiResponse<ClientResponse>> GetByIdAsync(Guid id, CancellationToken ct = default)
+    public async Task<IApiResponse<ClientResponse>> GetByIdAsync(Guid id, Guid requestingAdminId, CancellationToken ct = default)
     {
+        var requester = await RequireAdminAsync(requestingAdminId, ct);
         var client = await clients.GetByIdAsync(id, ct) ?? throw new NotFoundException("We couldn't find that client.");
-        return ToResponse(client).ToOkApiResponse();
+        if (!requester.IsSuperAdmin && client.AssignedPlannerId != requestingAdminId)
+            throw new ForbiddenException("This client isn't assigned to you.");
+
+        return (await BuildResponseAsync(client, ct)).ToOkApiResponse();
     }
 
-    public async Task<IApiResponse<ClientWithCredentialsResponse>> CreateAsync(CreateClientRequest request, CancellationToken ct = default)
+    public async Task<IApiResponse<ClientWithCredentialsResponse>> CreateAsync(CreateClientRequest request, Guid requestingAdminId, CancellationToken ct = default)
     {
         try
         {
@@ -70,8 +95,9 @@ public class ClientService(
                     WeddingDate = DateOnly.Parse(request.WeddingDate),
                     Venue = request.Venue,
                     GuestCount = request.GuestCount,
+                    WeddingType = string.IsNullOrWhiteSpace(request.WeddingType) ? null : request.WeddingType,
                     Status = "early-planning",
-                    PlanningPercent = 2,
+                    PlanningPercent = 0,
                     BudgetTotal = request.BudgetTarget,
                     BudgetPaid = 0,
                     Currency = request.Currency,
@@ -79,6 +105,7 @@ public class ClientService(
                     AvatarInitials = $"{request.PartnerA.FirstOrDefault()}{request.PartnerB.FirstOrDefault()}".ToUpperInvariant(),
                     PortalEmail = request.ContactEmail.Trim().ToLowerInvariant(),
                     PortalPasswordHash = PasswordHasher.Hash(password),
+                    AssignedPlannerId = requestingAdminId,
                 };
 
                 try
@@ -112,7 +139,7 @@ public class ClientService(
 
             var portalUrl = $"{configuration["Frontend:ClientPortalUrl"] ?? "https://client.ovutor.com"}/{client.Slug}";
             var credentials = new ClientCredentialsResponse(portalUrl, client.PortalEmail, password);
-            return new ClientWithCredentialsResponse(ToResponse(client), credentials).ToCreatedApiResponse("Client workspace created.");
+            return new ClientWithCredentialsResponse(await BuildResponseAsync(client, ct), credentials).ToCreatedApiResponse("Client workspace created.");
         }
         catch (Exception e)
         {
@@ -136,7 +163,7 @@ public class ClientService(
             client.Currency = request.Currency;
             client.BudgetTotal = request.BudgetTarget;
             await clients.UpdateAsync(client, ct);
-            return ToResponse(client).ToOkApiResponse("Client details saved.");
+            return (await BuildResponseAsync(client, ct)).ToOkApiResponse("Client details saved.");
         }
         catch (OvutorException) { throw; }
         catch (Exception e)
@@ -153,7 +180,7 @@ public class ClientService(
             var client = await clients.GetByIdAsync(id, ct) ?? throw new NotFoundException("We couldn't find that client.");
             client.FullPaymentDueDate = string.IsNullOrWhiteSpace(request.FullPaymentDueDate) ? null : DateOnly.Parse(request.FullPaymentDueDate);
             await clients.UpdateAsync(client, ct);
-            return ToResponse(client).ToOkApiResponse("Due date saved.");
+            return (await BuildResponseAsync(client, ct)).ToOkApiResponse("Due date saved.");
         }
         catch (OvutorException) { throw; }
         catch (Exception e)
@@ -170,7 +197,7 @@ public class ClientService(
             var client = await clients.GetByIdAsync(id, ct) ?? throw new NotFoundException("We couldn't find that client.");
             client.PortalEmail = request.PortalEmail.Trim().ToLowerInvariant();
             await clients.UpdateAsync(client, ct);
-            return ToResponse(client).ToOkApiResponse("Portal email saved.");
+            return (await BuildResponseAsync(client, ct)).ToOkApiResponse("Portal email saved.");
         }
         catch (OvutorException) { throw; }
         catch (Exception e)
@@ -208,7 +235,7 @@ public class ClientService(
             client.IsArchived = true;
             client.ArchivedAtUtc = DateTime.UtcNow;
             await clients.UpdateAsync(client, ct);
-            return ToResponse(client).ToOkApiResponse("Client archived.");
+            return (await BuildResponseAsync(client, ct)).ToOkApiResponse("Client archived.");
         }
         catch (OvutorException) { throw; }
         catch (Exception e)
@@ -226,13 +253,91 @@ public class ClientService(
             client.IsArchived = false;
             client.ArchivedAtUtc = null;
             await clients.UpdateAsync(client, ct);
-            return ToResponse(client).ToOkApiResponse("Client unarchived.");
+            return (await BuildResponseAsync(client, ct)).ToOkApiResponse("Client unarchived.");
         }
         catch (OvutorException) { throw; }
         catch (Exception e)
         {
             logger.LogError(e, "[UnarchiveAsync] Failed to unarchive client {ClientId}", id);
             return ApiResponseFactory.InternalError<ClientResponse>("Failed to unarchive this client.");
+        }
+    }
+
+    /// <summary>Hard-deletes an archived client — Super Admin only, and only once the client has sat
+    /// archived for at least <see cref="DeletionEligibleAfter"/>, so this is never the first line of
+    /// defense against a mistaken archive.</summary>
+    public async Task<IApiResponse<object>> DeleteAsync(Guid id, Guid requestingAdminId, CancellationToken ct = default)
+    {
+        try
+        {
+            var requester = await RequireAdminAsync(requestingAdminId, ct);
+            if (!requester.IsSuperAdmin) return ApiResponseFactory.Forbidden<object>("Only a Super Admin can permanently delete a client.");
+
+            var client = await clients.GetByIdAsync(id, ct) ?? throw new NotFoundException("We couldn't find that client.");
+            if (!client.IsArchived || client.ArchivedAtUtc is null)
+                return ApiResponseFactory.BadRequest<object>("Archive this client first — only archived clients can be deleted.");
+
+            var archivedFor = DateTime.UtcNow - client.ArchivedAtUtc.Value;
+            if (archivedFor < DeletionEligibleAfter)
+            {
+                var daysLeft = (int)Math.Ceiling((DeletionEligibleAfter - archivedFor).TotalDays);
+                return ApiResponseFactory.BadRequest<object>($"This client can be permanently deleted in {daysLeft} more day(s) — archived clients are kept for {DeletionEligibleAfter.Days} days first.");
+            }
+
+            await clients.RemoveAsync(client, ct);
+            return new object().ToOkApiResponse("Client permanently deleted.");
+        }
+        catch (OvutorException) { throw; }
+        catch (Exception e)
+        {
+            logger.LogError(e, "[DeleteAsync] Failed to delete client {ClientId}", id);
+            return ApiResponseFactory.InternalError<object>("Failed to delete this client.");
+        }
+    }
+
+    /// <summary>No email provider is wired up yet (see backend scope note on AdminUser's password
+    /// reset) — this logs what would have been emailed and drops the message into the couple's
+    /// activity feed, so they still see it in their portal the moment they next open it. Swapping in
+    /// a real provider later only means adding an actual send call here.</summary>
+    public async Task<IApiResponse<object>> NotifyCoupleAsync(Guid id, Guid requestingAdminId, NotifyCoupleRequest request, CancellationToken ct = default)
+    {
+        try
+        {
+            var message = request.Message.Trim();
+            if (string.IsNullOrEmpty(message)) return ApiResponseFactory.BadRequest<object>("Enter what changed before sending.");
+
+            var client = await clients.GetByIdAsync(id, ct) ?? throw new NotFoundException("We couldn't find that client.");
+            var planner = await adminUsers.GetByIdAsync(requestingAdminId, ct);
+
+            await activityEvents.AddAsync(new ActivityEvent { ClientId = client.Id, Message = message, TimestampUtc = DateTime.UtcNow }, ct);
+
+            var portalUrl = $"{configuration["Frontend:ClientPortalUrl"] ?? "https://client.ovutor.com"}/dashboard";
+            var emailResult = await emailService.SendAsync(
+                to: [new EmailContact(client.PortalEmail, client.CoupleNames)],
+                subject: $"An update on your wedding — {client.CoupleNames}",
+                templateId: "couple-update",
+                variables: new Dictionary<string, string>
+                {
+                    ["couple_names"] = client.CoupleNames,
+                    ["planner_name"] = planner?.Name ?? "Your Ovutor planner",
+                    ["message"] = message,
+                    ["portal_url"] = portalUrl,
+                },
+                ct: ct);
+
+            // A skipped send (no Mailtrap key configured yet) is expected in Development — the update
+            // still lands in the couple's portal via the activity event above, so it's never lost,
+            // just not also emailed until a provider is wired up.
+            if (!emailResult.Sent && !emailResult.Skipped)
+                logger.LogWarning("[NotifyCoupleAsync] Email send failed for {ClientId}, but the portal update was still saved: {Error}", id, emailResult.Error);
+
+            return new object().ToOkApiResponse(emailResult.Sent ? "Update emailed and saved to the couple's portal." : "Update sent to the couple's portal.");
+        }
+        catch (OvutorException) { throw; }
+        catch (Exception e)
+        {
+            logger.LogError(e, "[NotifyCoupleAsync] Failed to notify couple for {ClientId}", id);
+            return ApiResponseFactory.InternalError<object>("Failed to send that update.");
         }
     }
 
@@ -252,7 +357,36 @@ public class ClientService(
         return slug;
     }
 
-    private static ClientResponse ToResponse(Client c) => new(
-        c.Id, c.Slug, c.CoupleNames, c.PartnerA, c.PartnerB, c.WeddingDate, c.Venue, c.GuestCount, c.Status,
-        c.PlanningPercent, c.BudgetTotal, c.BudgetPaid, c.FullPaymentDueDate, c.Currency, c.NextAttention, c.AvatarInitials, c.PortalEmail, c.IsArchived);
+    private async Task<int> PlanningPercentAsync(Guid clientId, CancellationToken ct)
+    {
+        var tasks = await checklistTasks.GetQueryable().Where(t => t.ClientId == clientId).ToListAsync(ct);
+        return tasks.Count == 0 ? 0 : (int)Math.Round(tasks.Count(t => t.Status == "done") * 100.0 / tasks.Count);
+    }
+
+    /// <summary>Batched for the portfolio list so it's one query for every client instead of one per row.</summary>
+    private async Task<Dictionary<Guid, int>> PlanningPercentByClientAsync(List<Guid> clientIds, CancellationToken ct)
+    {
+        var tasks = await checklistTasks.GetQueryable().Where(t => clientIds.Contains(t.ClientId)).ToListAsync(ct);
+        return tasks.GroupBy(t => t.ClientId).ToDictionary(
+            g => g.Key,
+            g => (int)Math.Round(g.Count(t => t.Status == "done") * 100.0 / g.Count()));
+    }
+
+    private async Task<Dictionary<Guid, string>> PlannerNamesByIdAsync(CancellationToken ct) =>
+        (await adminUsers.GetQueryable().ToListAsync(ct)).ToDictionary(a => a.Id, a => a.Name);
+
+    private static string? PlannerName(Guid? plannerId, Dictionary<Guid, string> planners) =>
+        plannerId.HasValue && planners.TryGetValue(plannerId.Value, out var name) ? name : null;
+
+    private async Task<ClientResponse> BuildResponseAsync(Client c, CancellationToken ct)
+    {
+        var percent = await PlanningPercentAsync(c.Id, ct);
+        var plannerName = c.AssignedPlannerId.HasValue ? (await adminUsers.GetByIdAsync(c.AssignedPlannerId.Value, ct))?.Name : null;
+        return ToResponse(c, percent, plannerName);
+    }
+
+    private static ClientResponse ToResponse(Client c, int planningPercent, string? assignedPlannerName) => new(
+        c.Id, c.Slug, c.CoupleNames, c.PartnerA, c.PartnerB, c.WeddingDate, c.Venue, c.GuestCount, c.WeddingType, c.Status,
+        planningPercent, c.BudgetTotal, c.BudgetPaid, c.FullPaymentDueDate, c.Currency, c.NextAttention, c.AvatarInitials, c.PortalEmail, c.IsArchived,
+        c.AssignedPlannerId, assignedPlannerName);
 }

@@ -26,10 +26,14 @@ public class AdminUserService(IRepository<AdminUser> adminUsers, ILogger<AdminUs
         }
     }
 
-    public async Task<IApiResponse<CreateAdminUserResponse>> AddTeamMemberAsync(AddAdminUserRequest request, CancellationToken ct = default)
+    public async Task<IApiResponse<CreateAdminUserResponse>> AddTeamMemberAsync(Guid requestingAdminId, AddAdminUserRequest request, CancellationToken ct = default)
     {
         try
         {
+            var requester = await adminUsers.GetByIdAsync(requestingAdminId, ct);
+            if (requester is null || !requester.IsSuperAdmin)
+                return ApiResponseFactory.Forbidden<CreateAdminUserResponse>("Only a Super Admin can add team members.");
+
             var name = request.Name.Trim();
             var email = request.Email.Trim().ToLowerInvariant();
             var role = string.IsNullOrWhiteSpace(request.Role) ? "Planner" : request.Role.Trim();
@@ -40,7 +44,7 @@ public class AdminUserService(IRepository<AdminUser> adminUsers, ILogger<AdminUs
                 return ApiResponseFactory.Conflict<CreateAdminUserResponse>("Someone on the team already uses that email.");
 
             var temporaryPassword = CredentialGenerator.GeneratePassword();
-            var user = new AdminUser { Name = name, Email = email, PasswordHash = PasswordHasher.Hash(temporaryPassword), Role = role };
+            var user = new AdminUser { Name = name, Email = email, PasswordHash = PasswordHasher.Hash(temporaryPassword), Role = role, IsSuperAdmin = request.IsSuperAdmin };
             await adminUsers.AddAsync(user, ct);
 
             return new CreateAdminUserResponse(ToResponse(user), temporaryPassword).ToCreatedApiResponse("Team member added.");
@@ -56,6 +60,10 @@ public class AdminUserService(IRepository<AdminUser> adminUsers, ILogger<AdminUs
     {
         try
         {
+            var requester = await adminUsers.GetByIdAsync(requestingAdminId, ct);
+            if (requester is null || !requester.IsSuperAdmin)
+                return ApiResponseFactory.Forbidden<object>("Only a Super Admin can remove team members.");
+
             if (id == requestingAdminId) return ApiResponseFactory.BadRequest<object>("You can't remove your own account.");
 
             var user = await adminUsers.GetByIdAsync(id, ct) ?? throw new NotFoundException("We couldn't find that team member.");
@@ -74,5 +82,5 @@ public class AdminUserService(IRepository<AdminUser> adminUsers, ILogger<AdminUs
         }
     }
 
-    private static AdminUserResponse ToResponse(AdminUser u) => new(u.Id, u.Name, u.Email, u.Role);
+    private static AdminUserResponse ToResponse(AdminUser u) => new(u.Id, u.Name, u.Email, u.Role, u.IsSuperAdmin);
 }

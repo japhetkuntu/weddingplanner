@@ -1,4 +1,12 @@
-import { api, tokenStore } from "@/lib/httpClient";
+import { api, tokenStore, ApiError } from "@/lib/httpClient";
+
+export { ApiError };
+
+/** Best-effort user-facing message for a caught error — the backend's own validation/error
+ * message when available, a generic fallback otherwise. */
+export function errorMessage(e: unknown, fallback = "Something went wrong. Please try again."): string {
+  return e instanceof ApiError ? e.message : fallback;
+}
 import type {
   BudgetCategory,
   ChecklistPhase,
@@ -151,6 +159,14 @@ interface DocumentFileResponse {
 export async function getDocuments(): Promise<DocumentFile[]> {
   const list = await api.get<DocumentFileResponse[]>("/api/me/documents");
   return list.map((d) => ({ ...d, url: d.url ?? undefined, fileType: d.contentType ?? undefined }));
+}
+
+export async function uploadDocument(file: File, category: string): Promise<DocumentFile> {
+  const form = new FormData();
+  form.append("file", file);
+  form.append("category", category);
+  const d = await api.post<DocumentFileResponse>("/api/me/documents", form, { isFormData: true });
+  return { ...d, url: d.url ?? undefined, fileType: d.contentType ?? undefined };
 }
 
 // ---------- Website ----------

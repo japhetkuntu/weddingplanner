@@ -72,7 +72,7 @@ export default function SettingsPage() {
             </div>
             <div>
               <b className="block">{fullName}</b>
-              <small className="text-ink/50">Lead planner · Ovutor</small>
+              <small className="text-ink/50">{user?.role ?? "Planner"} · Ovutor</small>
             </div>
           </div>
           <div className="grid grid-cols-1 gap-x-4 sm:grid-cols-2">

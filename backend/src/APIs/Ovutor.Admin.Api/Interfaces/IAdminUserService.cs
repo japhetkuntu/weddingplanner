@@ -7,6 +7,6 @@ namespace Ovutor.Admin.Api.Interfaces;
 public interface IAdminUserService
 {
     Task<IApiResponse<List<AdminUserResponse>>> GetTeamAsync(CancellationToken ct = default);
-    Task<IApiResponse<CreateAdminUserResponse>> AddTeamMemberAsync(AddAdminUserRequest request, CancellationToken ct = default);
+    Task<IApiResponse<CreateAdminUserResponse>> AddTeamMemberAsync(Guid requestingAdminId, AddAdminUserRequest request, CancellationToken ct = default);
     Task<IApiResponse<object>> RemoveTeamMemberAsync(Guid id, Guid requestingAdminId, CancellationToken ct = default);
 }

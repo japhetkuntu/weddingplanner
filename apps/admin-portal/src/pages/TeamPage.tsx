@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Button, Card, Input, Label, Modal, Skeleton, Toast } from "@ovutor/ui";
+import { Button, Card, Checkbox, Input, Label, Modal, Skeleton, Toast } from "@ovutor/ui";
 import { getTeam, addTeamMember, removeTeamMember, errorMessage } from "@/lib/api";
 import { CredentialsPanel } from "@/components/CredentialsPanel";
 import { useAuthStore } from "@/store/authStore";
@@ -63,6 +63,8 @@ export default function TeamPage() {
 
   if (loading) return <TeamSkeleton />;
 
+  const canManageTeam = !!currentUser?.isSuperAdmin;
+
   return (
     <div className="ovutor-fade-in">
       <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
@@ -70,9 +72,11 @@ export default function TeamPage() {
           <h1 className="font-display text-3xl">Team</h1>
           <p className="text-ink/60">Everyone with access to the Ovutor admin portal.</p>
         </div>
-        <Button size="sm" onClick={() => setShowAdd(true)}>
-          + Add team member
-        </Button>
+        {canManageTeam ? (
+          <Button size="sm" onClick={() => setShowAdd(true)}>
+            + Add team member
+          </Button>
+        ) : null}
       </div>
 
       <div className="space-y-2">
@@ -84,10 +88,15 @@ export default function TeamPage() {
               </div>
               <div>
                 <b className="block">{member.name}</b>
-                <small className="text-ink/50">{member.email} · {member.role}</small>
+                <small className="text-ink/50">
+                  {member.email} · {member.role}
+                  {member.isSuperAdmin ? " · Super Admin" : ""}
+                </small>
               </div>
             </div>
-            {member.id !== currentUser?.id ? (
+            {member.id === currentUser?.id ? (
+              <span className="text-xs text-ink/40">You</span>
+            ) : canManageTeam ? (
               <button
                 type="button"
                 onClick={() => setConfirmRemove(member)}
@@ -95,9 +104,7 @@ export default function TeamPage() {
               >
                 Remove
               </button>
-            ) : (
-              <span className="text-xs text-ink/40">You</span>
-            )}
+            ) : null}
           </Card>
         ))}
       </div>
@@ -158,6 +165,7 @@ function AddTeamMemberForm({ onClose, onAdded }: { onClose: () => void; onAdded:
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [role, setRole] = useState("Planner");
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -170,7 +178,7 @@ function AddTeamMemberForm({ onClose, onAdded }: { onClose: () => void; onAdded:
     setSaving(true);
     setError(null);
     try {
-      const result = await addTeamMember(name.trim(), email.trim(), role.trim() || "Planner");
+      const result = await addTeamMember(name.trim(), email.trim(), role.trim() || "Planner", isSuperAdmin);
       onAdded(result.user, result.temporaryPassword);
     } catch (err) {
       setError(errorMessage(err, "Couldn't add that team member — please try again."));
@@ -193,6 +201,15 @@ function AddTeamMemberForm({ onClose, onAdded }: { onClose: () => void; onAdded:
 
       <Label htmlFor="member-role">Role</Label>
       <Input id="member-role" value={role} onChange={(e) => setRole(e.target.value)} placeholder="e.g. Lead Planner, Coordinator" />
+
+      <div className="mt-3">
+        <Checkbox
+          id="member-super-admin"
+          label="Super Admin — can see every client and manage the team"
+          checked={isSuperAdmin}
+          onChange={(e) => setIsSuperAdmin(e.target.checked)}
+        />
+      </div>
 
       {error ? <p className="mt-3 border-l-[3px] border-primary bg-[#fff2f0] p-2.5 text-sm text-[#5d2924]">{error}</p> : null}
 

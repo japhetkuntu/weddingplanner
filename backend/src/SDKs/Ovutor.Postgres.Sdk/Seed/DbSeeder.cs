@@ -22,13 +22,15 @@ public static class DbSeeder
     {
         if (await db.Clients.AnyAsync()) return;
 
-        db.AdminUsers.Add(new AdminUser
+        var maya = new AdminUser
         {
             Name = "Maya",
             Email = "maya@northstarplanning.com",
             PasswordHash = PasswordHasher.Hash("Password123!"),
             Role = "Lead Planner",
-        });
+            IsSuperAdmin = true,
+        };
+        db.AdminUsers.Add(maya);
 
         var categories = new[] { "Contracts", "Vendor", "Timeline", "Venue", "Internal" };
         foreach (var name in categories) db.DocumentCategories.Add(new DocumentCategory { Name = name });
@@ -58,6 +60,7 @@ public static class DbSeeder
             "maya.alvarez@example.com", "Cliffside!921");
 
         var clients = new[] { sofia, olivia, isla, amelia, charlotte, mayaEthan };
+        foreach (var c in clients) c.AssignedPlannerId = maya.Id;
         db.Clients.AddRange(clients);
 
         SeedSofiaDetail(db, sofia);
@@ -394,7 +397,7 @@ public static class DbSeeder
                 new WebsiteGalleryPhoto(null, "A golden afternoon", "A golden afternoon"),
                 new WebsiteGalleryPhoto(null, "Our favorite people", "Our favorite people"),
             ];
-            rsvp = new WebsiteRsvpConfig("2026-08-20", "We can't wait to celebrate with you. Your response has been received.", true, false, false, false, false, false);
+            rsvp = new WebsiteRsvpConfig("2026-08-20", "We can't wait to celebrate with you. Your response has been received.", true, false, false);
         }
         else if (heroFilledIn)
         {
@@ -467,7 +470,7 @@ public static class DbSeeder
             new WebsiteGalleryPhoto(null, "Add another photo", "Add a short caption"),
         ];
 
-        var rsvp = new WebsiteRsvpConfig("", "We can't wait to celebrate with you. Your response has been received.", true, false, false, false, false, false);
+        var rsvp = new WebsiteRsvpConfig("", "We can't wait to celebrate with you. Your response has been received.", true, false, false);
 
         return (ourStory, details, schedule, travel, gallery, rsvp);
     }

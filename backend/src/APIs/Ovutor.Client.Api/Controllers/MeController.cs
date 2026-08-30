@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Ovutor.Client.Api.Common;
 using Ovutor.Client.Api.Interfaces;
+using Ovutor.Client.Api.Models.Requests;
 
 namespace Ovutor.Client.Api.Controllers;
 
@@ -49,6 +50,13 @@ public class MeController(IMeService meService) : ControllerBase
     public async Task<IActionResult> GetDocuments(CancellationToken ct)
     {
         var response = await meService.GetDocumentsAsync(ClaimsReader.GetClientId(User), ct);
+        return StatusCode(response.Code, response);
+    }
+
+    [HttpPost("documents")]
+    public async Task<IActionResult> UploadDocument([FromForm] UploadDocumentForm form, CancellationToken ct)
+    {
+        var response = await meService.UploadDocumentAsync(ClaimsReader.GetClientId(User), form.File, form.Category, ct);
         return StatusCode(response.Code, response);
     }
 

@@ -23,9 +23,6 @@ public record PublicRsvpBlock(
     string Deadline,
     string ConfirmationMessage,
     bool CollectDietary,
-    bool CollectPlusOne,
-    bool CollectEmail,
-    bool CollectMobile,
     bool CollectAccommodation,
     bool CollectTransportation);
 

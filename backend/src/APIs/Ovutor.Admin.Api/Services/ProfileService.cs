@@ -58,5 +58,5 @@ public class ProfileService(IRepository<AdminUser> adminUsers, ILogger<ProfileSe
         }
     }
 
-    private static AdminUserResponse ToResponse(AdminUser user) => new(user.Id, user.Name, user.Email, user.Role);
+    private static AdminUserResponse ToResponse(AdminUser user) => new(user.Id, user.Name, user.Email, user.Role, user.IsSuperAdmin);
 }

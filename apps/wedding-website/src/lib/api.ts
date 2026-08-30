@@ -26,10 +26,7 @@ export async function getSite(slug: string): Promise<SiteConfig> {
 export interface SubmitRsvpPayload {
   fullName: string;
   attending: boolean;
-  attendanceCount?: number;
   dietary?: string;
-  email?: string;
-  mobile?: string;
   needsAccommodation?: boolean;
   needsTransportation?: boolean;
 }

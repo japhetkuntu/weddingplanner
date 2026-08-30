@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Ovutor.Client.Api.Interfaces;
 using Ovutor.Client.Api.Models.Responses;
@@ -30,7 +31,7 @@ public class MeService(
         try
         {
             var client = await clients.GetByIdAsync(clientId, ct) ?? throw new NotFoundException("We couldn't find your workspace.");
-            var planner = await adminUsers.GetQueryable().FirstOrDefaultAsync(ct);
+            var planner = client.AssignedPlannerId.HasValue ? await adminUsers.GetByIdAsync(client.AssignedPlannerId.Value, ct) : null;
             var plannerResponse = planner is null ? new PlannerResponse("Your Ovutor planner", "Lead planner") : new PlannerResponse(planner.Name, planner.Role);
 
             var response = new ProfileResponse(
@@ -136,6 +137,57 @@ public class MeService(
             logger.LogError(e, "[GetDocumentsAsync] Failed to load documents for {ClientId}", clientId);
             return ApiResponseFactory.InternalError<List<DocumentFileResponse>>("Failed to load your documents.");
         }
+    }
+
+    public async Task<IApiResponse<DocumentFileResponse>> UploadDocumentAsync(Guid clientId, IFormFile file, string category, CancellationToken ct = default)
+    {
+        try
+        {
+            if (file.Length == 0) throw new OvutorException("The selected file is empty.", 400);
+            var client = await clients.GetByIdAsync(clientId, ct) ?? throw new NotFoundException("We couldn't find your workspace.");
+
+            var key = await storageService.UploadAsync(new UploadFileRequest
+            {
+                OpenContent = file.OpenReadStream,
+                OriginalFileName = file.FileName,
+                ContentType = file.ContentType,
+                Folder = $"documents/{clientId}",
+            }, ct);
+
+            var document = new DocumentFile
+            {
+                ClientId = clientId,
+                Name = file.FileName,
+                Uploader = client.CoupleNames,
+                // Always shared with the planner — a couple has no reason to upload something only
+                // they themselves can see.
+                Visibility = "client",
+                Category = string.IsNullOrWhiteSpace(category) ? "Other" : category,
+                SizeLabel = FormatSize(file.Length),
+                UploadedAtUtc = DateTime.UtcNow,
+                StoragePath = key,
+                ContentType = file.ContentType,
+            };
+            await documents.AddAsync(document, ct);
+
+            return new DocumentFileResponse(
+                document.Id, document.Name, document.Category, document.Uploader, document.SizeLabel,
+                document.UploadedAtUtc.ToString("yyyy-MM-dd"), storageService.BuildPublicUrl(key), document.ContentType)
+                .ToCreatedApiResponse("File uploaded.");
+        }
+        catch (OvutorException) { throw; }
+        catch (Exception e)
+        {
+            logger.LogError(e, "[UploadDocumentAsync] Failed to upload document for {ClientId}", clientId);
+            return ApiResponseFactory.InternalError<DocumentFileResponse>("Failed to upload your file.");
+        }
+    }
+
+    private static string FormatSize(long bytes)
+    {
+        if (bytes >= 1024 * 1024) return $"{bytes / (1024.0 * 1024.0):0.0} MB";
+        if (bytes >= 1024) return $"{bytes / 1024.0:0.0} KB";
+        return $"{bytes} B";
     }
 
     public async Task<IApiResponse<WebsiteStatusResponse>> GetWebsiteStatusAsync(Guid clientId, CancellationToken ct = default)
