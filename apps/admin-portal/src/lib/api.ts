@@ -63,8 +63,8 @@ export function getMe() {
   return api.get<AdminUser>("/api/me");
 }
 
-export function updateProfile(name: string, email: string) {
-  return api.put<AdminUser>("/api/me", { name, email });
+export function updateProfile(name: string) {
+  return api.put<AdminUser>("/api/me", { name });
 }
 
 export function changePassword(currentPassword: string, newPassword: string) {

@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "LWYk7Ei0R0U=",
+  "dgSpecHash": "KX8mEwgHMUU=",
   "success": true,
   "projectFilePath": "/Users/joe/Work/Others/Ovutor/backend/src/APIs/Ovutor.Admin.Api/Ovutor.Admin.Api.csproj",
   "expectedPackageFiles": [
@@ -62,6 +62,7 @@
     "/Users/joe/.nuget/packages/serilog.sinks.console/5.0.0/serilog.sinks.console.5.0.0.nupkg.sha512",
     "/Users/joe/.nuget/packages/serilog.sinks.debug/2.0.0/serilog.sinks.debug.2.0.0.nupkg.sha512",
     "/Users/joe/.nuget/packages/serilog.sinks.file/5.0.0/serilog.sinks.file.5.0.0.nupkg.sha512",
+    "/Users/joe/.nuget/packages/sixlabors.imagesharp/3.1.12/sixlabors.imagesharp.3.1.12.nupkg.sha512",
     "/Users/joe/.nuget/packages/stackexchange.redis/2.8.16/stackexchange.redis.2.8.16.nupkg.sha512",
     "/Users/joe/.nuget/packages/swashbuckle.aspnetcore/6.6.2/swashbuckle.aspnetcore.6.6.2.nupkg.sha512",
     "/Users/joe/.nuget/packages/swashbuckle.aspnetcore.swagger/6.6.2/swashbuckle.aspnetcore.swagger.6.6.2.nupkg.sha512",

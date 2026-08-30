@@ -9,4 +9,5 @@ public record VendorResponse(
     string? Summary,
     string? PhotoUrl,
     string? ContractUrl,
-    string? ContractFileName);
+    string? ContractFileName,
+    bool CanManage);

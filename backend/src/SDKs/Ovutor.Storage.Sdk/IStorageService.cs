@@ -25,4 +25,11 @@ public sealed class UploadFileRequest
     public required string OriginalFileName { get; init; } // used for the extension
     public required string ContentType { get; init; }
     public required string Folder { get; init; }            // e.g. "documents"
+
+    /// <summary>Set for genuine photo uploads (vendor photos, website hero/gallery) so the file is
+    /// downscaled and re-encoded as JPEG before it ever reaches storage — full-resolution camera
+    /// photos otherwise ship straight to the public wedding-website, which is the single biggest
+    /// hit to page-load speed. Left false for documents/contracts, where fidelity matters more than
+    /// load time and the source may not even be an image.</summary>
+    public bool OptimizeAsPhoto { get; init; }
 }

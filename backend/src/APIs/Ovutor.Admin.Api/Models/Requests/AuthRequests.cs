@@ -10,4 +10,7 @@ public record ResetPasswordRequest(string Token, string NewPassword);
 
 public record ChangePasswordRequest(string CurrentPassword, string NewPassword);
 
-public record UpdateProfileRequest(string Name, string Email);
+/// <summary>Email is intentionally absent — it's the admin's login identifier, so it's never
+/// self-service editable from the profile form (a Super Admin can still change it via Team management
+/// if one is ever needed there).</summary>
+public record UpdateProfileRequest(string Name);

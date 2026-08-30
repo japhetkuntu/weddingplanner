@@ -24,7 +24,7 @@ function VendorCard({ vendor, onClick }: { vendor: Vendor; onClick: () => void }
     <button type="button" onClick={onClick} className="block border border-[#ddd] bg-white text-left transition-shadow hover:shadow-md">
       <div className="aspect-[4/3] w-full overflow-hidden bg-bg-warm">
         {vendor.photoUrl ? (
-          <img src={vendor.photoUrl} alt={vendor.name} className="h-full w-full object-cover" />
+          <img src={vendor.photoUrl} alt={vendor.name} className="h-full w-full object-cover" loading="lazy" decoding="async" />
         ) : (
           <div className="grid h-full w-full place-items-center text-3xl text-ink/20">{vendor.name.charAt(0).toUpperCase()}</div>
         )}
@@ -305,29 +305,35 @@ function VendorDetail({
     <div>
       <div className="mb-4 aspect-[4/3] w-full overflow-hidden border border-[#ddd] bg-bg-warm">
         {vendor.photoUrl ? (
-          <img src={vendor.photoUrl} alt={vendor.name} className="h-full w-full object-cover" />
+          <img src={vendor.photoUrl} alt={vendor.name} className="h-full w-full object-cover" loading="lazy" decoding="async" />
         ) : (
           <div className="grid h-full w-full place-items-center text-4xl text-ink/20">{vendor.name.charAt(0).toUpperCase()}</div>
         )}
       </div>
-      <Label htmlFor="vendor-photo" className={uploadingPhoto ? "pointer-events-none opacity-50" : "cursor-pointer text-primary"}>
-        {uploadingPhoto ? "Uploading…" : vendor.photoUrl ? "Change photo" : "+ Add photo"}
-      </Label>
-      <input
-        id="vendor-photo"
-        type="file"
-        accept="image/*"
-        className="sr-only"
-        disabled={uploadingPhoto}
-        onChange={(e) => handlePhotoChange(e.target.files?.[0])}
-      />
+      {vendor.canManage ? (
+        <>
+          <Label htmlFor="vendor-photo" className={uploadingPhoto ? "pointer-events-none opacity-50" : "cursor-pointer text-primary"}>
+            {uploadingPhoto ? "Uploading…" : vendor.photoUrl ? "Change photo" : "+ Add photo"}
+          </Label>
+          <input
+            id="vendor-photo"
+            type="file"
+            accept="image/*"
+            className="sr-only"
+            disabled={uploadingPhoto}
+            onChange={(e) => handlePhotoChange(e.target.files?.[0])}
+          />
+        </>
+      ) : (
+        <p className="text-xs text-ink/50">Added by another planner — you can view this vendor but only its creator or a Super Admin can edit it.</p>
+      )}
 
       <form onSubmit={handleSubmit} className="mt-2">
         <Label htmlFor="vendor-name-edit">Name</Label>
-        <Input id="vendor-name-edit" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+        <Input id="vendor-name-edit" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} disabled={!vendor.canManage} />
 
         <Label htmlFor="vendor-category-edit">Category</Label>
-        <Select id="vendor-category-edit" value={form.category ?? ""} onChange={(e) => setForm({ ...form, category: e.target.value })}>
+        <Select id="vendor-category-edit" value={form.category ?? ""} onChange={(e) => setForm({ ...form, category: e.target.value })} disabled={!vendor.canManage}>
           <option value="">Not set</option>
           {CATEGORY_OPTIONS.map((c) => (
             <option key={c} value={c}>
@@ -337,13 +343,13 @@ function VendorDetail({
         </Select>
 
         <Label htmlFor="vendor-location-edit">Location</Label>
-        <Input id="vendor-location-edit" value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} />
+        <Input id="vendor-location-edit" value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} disabled={!vendor.canManage} />
 
         <Label htmlFor="vendor-contact-edit">Contact</Label>
-        <Input id="vendor-contact-edit" value={form.contact ?? ""} onChange={(e) => setForm({ ...form, contact: e.target.value })} placeholder="Phone or email" />
+        <Input id="vendor-contact-edit" value={form.contact ?? ""} onChange={(e) => setForm({ ...form, contact: e.target.value })} placeholder="Phone or email" disabled={!vendor.canManage} />
 
         <Label htmlFor="vendor-summary-edit">What they provide</Label>
-        <Textarea id="vendor-summary-edit" value={form.summary ?? ""} onChange={(e) => setForm({ ...form, summary: e.target.value })} />
+        <Textarea id="vendor-summary-edit" value={form.summary ?? ""} onChange={(e) => setForm({ ...form, summary: e.target.value })} disabled={!vendor.canManage} />
 
         <div className="my-4 border-t border-[#eee] pt-4">
           <p className="mb-2 text-[10px] font-bold uppercase tracking-[.1em] text-ink/40">Contract</p>
@@ -357,28 +363,40 @@ function VendorDetail({
           ) : (
             <p className="mb-2 text-sm text-ink/50">No contract on file yet.</p>
           )}
-          <Label htmlFor="vendor-contract" className={uploadingContract ? "pointer-events-none opacity-50" : "cursor-pointer text-primary"}>
-            {uploadingContract ? "Uploading…" : vendor.contractUrl ? "Replace contract" : "+ Attach contract"}
-          </Label>
-          <input
-            id="vendor-contract"
-            type="file"
-            accept="application/pdf,.doc,.docx,image/*"
-            className="sr-only"
-            disabled={uploadingContract}
-            onChange={(e) => handleContractChange(e.target.files?.[0])}
-          />
+          {vendor.canManage ? (
+            <>
+              <Label htmlFor="vendor-contract" className={uploadingContract ? "pointer-events-none opacity-50" : "cursor-pointer text-primary"}>
+                {uploadingContract ? "Uploading…" : vendor.contractUrl ? "Replace contract" : "+ Attach contract"}
+              </Label>
+              <input
+                id="vendor-contract"
+                type="file"
+                accept="application/pdf,.doc,.docx,image/*"
+                className="sr-only"
+                disabled={uploadingContract}
+                onChange={(e) => handleContractChange(e.target.files?.[0])}
+              />
+            </>
+          ) : null}
         </div>
 
-        <Button type="submit" className="w-full" loading={saving}>
-          Save changes
-        </Button>
-        <Badge tone="muted" className="mt-3 block w-fit">
-          {vendor.location}
-        </Badge>
-        <button type="button" onClick={onDelete} className="mt-4 block text-xs font-bold uppercase tracking-[.06em] text-primary">
-          Remove vendor
-        </button>
+        {vendor.canManage ? (
+          <>
+            <Button type="submit" className="w-full" loading={saving}>
+              Save changes
+            </Button>
+            <Badge tone="muted" className="mt-3 block w-fit">
+              {vendor.location}
+            </Badge>
+            <button type="button" onClick={onDelete} className="mt-4 block text-xs font-bold uppercase tracking-[.06em] text-primary">
+              Remove vendor
+            </button>
+          </>
+        ) : (
+          <Badge tone="muted" className="mt-3 block w-fit">
+            {vendor.location}
+          </Badge>
+        )}
       </form>
     </div>
   );

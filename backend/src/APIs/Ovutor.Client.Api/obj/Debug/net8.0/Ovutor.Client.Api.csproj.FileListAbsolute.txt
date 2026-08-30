@@ -139,3 +139,4 @@
 /Users/joe/Work/Others/Ovutor/backend/src/APIs/Ovutor.Client.Api/obj/Debug/net8.0/Ovutor.Client.Api.genruntimeconfig.cache
 /Users/joe/Work/Others/Ovutor/backend/src/APIs/Ovutor.Client.Api/obj/Debug/net8.0/ref/Ovutor.Client.Api.dll
 /Users/joe/Work/Others/Ovutor/backend/src/APIs/Ovutor.Client.Api/obj/Debug/net8.0/Ovutor.Client.Api.sourcelink.json
+/Users/joe/Work/Others/Ovutor/backend/src/APIs/Ovutor.Client.Api/bin/Debug/net8.0/SixLabors.ImageSharp.dll

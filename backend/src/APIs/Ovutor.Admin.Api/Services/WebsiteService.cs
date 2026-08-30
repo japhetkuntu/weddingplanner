@@ -113,6 +113,7 @@ public class WebsiteService(
                 OriginalFileName = file.FileName,
                 ContentType = file.ContentType,
                 Folder = $"website/{clientId}",
+                OptimizeAsPhoto = true,
             }, ct);
 
             return new WebsiteImageUploadResponse(storageService.BuildPublicUrl(key)).ToCreatedApiResponse("Image uploaded.");

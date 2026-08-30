@@ -308,7 +308,7 @@ function DocumentPreview({ doc }: { doc: DocumentFile }) {
   if (doc.previewUrl && doc.fileType?.startsWith("image/")) {
     return (
       <div className="mb-4 border border-[#ddd] bg-bg-warm">
-        <img src={doc.previewUrl} alt={doc.name} className="max-h-64 w-full object-contain" />
+        <img src={doc.previewUrl} alt={doc.name} className="max-h-64 w-full object-contain" loading="lazy" decoding="async" />
       </div>
     );
   }

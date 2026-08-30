@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Ovutor.Admin.Api.Common;
 using Ovutor.Admin.Api.Interfaces;
 
 namespace Ovutor.Admin.Api.Controllers;
@@ -12,7 +13,7 @@ public class DashboardController(IDashboardService dashboardService) : Controlle
     [HttpGet]
     public async Task<IActionResult> Get(CancellationToken ct)
     {
-        var response = await dashboardService.GetAsync(ct);
+        var response = await dashboardService.GetAsync(ClaimsReader.GetAdminId(User), ct);
         return StatusCode(response.Code, response);
     }
 

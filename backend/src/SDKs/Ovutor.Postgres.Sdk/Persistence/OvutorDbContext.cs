@@ -85,6 +85,11 @@ public class OvutorDbContext(DbContextOptions<OvutorDbContext> options) : DbCont
             e.HasOne(x => x.Client).WithMany(c => c.RsvpGuests).HasForeignKey(x => x.ClientId).OnDelete(DeleteBehavior.Cascade);
         });
 
+        modelBuilder.Entity<Vendor>(e =>
+        {
+            e.HasOne(x => x.CreatedByAdmin).WithMany().HasForeignKey(x => x.CreatedByAdminId).OnDelete(DeleteBehavior.SetNull);
+        });
+
         modelBuilder.Entity<DocumentCategory>(e =>
         {
             e.HasIndex(x => x.Name).IsUnique();

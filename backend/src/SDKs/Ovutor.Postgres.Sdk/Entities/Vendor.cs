@@ -18,4 +18,10 @@ public class Vendor : BaseEntity
     public string? ContractStoragePath { get; set; }
     public string? ContractFileName { get; set; }
     public string? ContractContentType { get; set; }
+
+    /// <summary>The admin who added this vendor. A Super Admin can manage every vendor; anyone else
+    /// can only manage the ones they added themselves. Null means no one but a Super Admin can manage
+    /// it — the state a vendor falls back to if its creator's account is ever removed.</summary>
+    public Guid? CreatedByAdminId { get; set; }
+    public AdminUser? CreatedByAdmin { get; set; }
 }

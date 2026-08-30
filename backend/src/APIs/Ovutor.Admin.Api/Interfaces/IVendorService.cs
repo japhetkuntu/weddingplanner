@@ -7,10 +7,10 @@ namespace Ovutor.Admin.Api.Interfaces;
 
 public interface IVendorService
 {
-    Task<IApiResponse<List<VendorResponse>>> GetAllAsync(CancellationToken ct = default);
-    Task<IApiResponse<VendorResponse>> AddAsync(CreateVendorRequest request, CancellationToken ct = default);
-    Task<IApiResponse<VendorResponse>> UpdateAsync(Guid vendorId, UpdateVendorRequest request, CancellationToken ct = default);
-    Task<IApiResponse<VendorResponse>> UploadPhotoAsync(Guid vendorId, IFormFile file, CancellationToken ct = default);
-    Task<IApiResponse<VendorResponse>> UploadContractAsync(Guid vendorId, IFormFile file, CancellationToken ct = default);
-    Task<IApiResponse<object>> DeleteAsync(Guid vendorId, CancellationToken ct = default);
+    Task<IApiResponse<List<VendorResponse>>> GetAllAsync(Guid requestingAdminId, CancellationToken ct = default);
+    Task<IApiResponse<VendorResponse>> AddAsync(CreateVendorRequest request, Guid requestingAdminId, CancellationToken ct = default);
+    Task<IApiResponse<VendorResponse>> UpdateAsync(Guid vendorId, UpdateVendorRequest request, Guid requestingAdminId, CancellationToken ct = default);
+    Task<IApiResponse<VendorResponse>> UploadPhotoAsync(Guid vendorId, IFormFile file, Guid requestingAdminId, CancellationToken ct = default);
+    Task<IApiResponse<VendorResponse>> UploadContractAsync(Guid vendorId, IFormFile file, Guid requestingAdminId, CancellationToken ct = default);
+    Task<IApiResponse<object>> DeleteAsync(Guid vendorId, Guid requestingAdminId, CancellationToken ct = default);
 }

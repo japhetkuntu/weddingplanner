@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Ovutor.Common.Sdk")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e6107334c851146ebd3cb5cbd9e1fc5cb2a89c3f")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+94812dbc45f9b8fdd6ea765e2fc18f1bb63244c7")]
 [assembly: System.Reflection.AssemblyProductAttribute("Ovutor.Common.Sdk")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Ovutor.Common.Sdk")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -23,7 +23,6 @@ public class ProfileService(IRepository<AdminUser> adminUsers, ILogger<ProfileSe
         {
             var user = await adminUsers.GetByIdAsync(adminId, ct) ?? throw new NotFoundException("Admin account not found.");
             user.Name = request.Name.Trim();
-            user.Email = request.Email.Trim().ToLowerInvariant();
             await adminUsers.UpdateAsync(user, ct);
             return ToResponse(user).ToOkApiResponse("Profile saved.");
         }

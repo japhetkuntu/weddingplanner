@@ -92,6 +92,9 @@ export interface Vendor {
   photoUrl?: string;
   contractUrl?: string;
   contractFileName?: string;
+  /** False for a vendor added by another (non-Super-Admin) planner — visible in the shared
+   * directory, but not editable/removable by anyone except its creator or a Super Admin. */
+  canManage: boolean;
 }
 
 export interface BudgetCategory {

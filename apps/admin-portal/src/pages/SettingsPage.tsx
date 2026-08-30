@@ -9,7 +9,6 @@ export default function SettingsPage() {
   const setUser = useAuthStore((s) => s.setUser);
 
   const [fullName, setFullName] = useState(user?.name ?? "");
-  const [email, setEmail] = useState(user?.email ?? "");
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [logoutOpen, setLogoutOpen] = useState(false);
@@ -31,7 +30,7 @@ export default function SettingsPage() {
   async function saveProfile() {
     setSavingProfile(true);
     try {
-      const updated = await updateProfile(fullName, email);
+      const updated = await updateProfile(fullName);
       setUser(updated);
       flashToast("Profile saved");
     } catch (e) {
@@ -82,7 +81,8 @@ export default function SettingsPage() {
             </div>
             <div>
               <Label htmlFor="workEmail">Work email</Label>
-              <Input id="workEmail" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+              <Input id="workEmail" type="email" value={user?.email ?? ""} disabled readOnly />
+              <p className="mt-1 text-xs text-ink/45">Your login email can't be changed here — ask a Super Admin if it needs to change.</p>
             </div>
           </div>
           <Button className="mt-4" onClick={saveProfile} loading={savingProfile}>

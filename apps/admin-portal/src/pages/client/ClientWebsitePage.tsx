@@ -278,7 +278,7 @@ function ImageField({
   return (
     <div className="flex gap-3">
       <div className="grid h-16 w-16 shrink-0 place-items-center border border-dashed border-[#ccc] bg-bg-warm text-center text-[10px] text-ink/40">
-        {image.url ? <img src={image.url} alt={image.label} className="h-full w-full object-cover" /> : <span className="px-1">{image.label || "No image"}</span>}
+        {image.url ? <img src={image.url} alt={image.label} className="h-full w-full object-cover" loading="lazy" decoding="async" /> : <span className="px-1">{image.label || "No image"}</span>}
       </div>
       <div className="flex-1 space-y-2">
         <Input

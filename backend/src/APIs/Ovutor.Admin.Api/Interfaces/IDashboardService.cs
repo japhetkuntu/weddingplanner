@@ -5,6 +5,6 @@ namespace Ovutor.Admin.Api.Interfaces;
 
 public interface IDashboardService
 {
-    Task<IApiResponse<DashboardResponse>> GetAsync(CancellationToken ct = default);
+    Task<IApiResponse<DashboardResponse>> GetAsync(Guid requestingAdminId, CancellationToken ct = default);
     Task<IApiResponse<ClientActivityResponse>> GetForClientAsync(Guid clientId, CancellationToken ct = default);
 }
