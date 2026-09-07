@@ -13,5 +13,6 @@ public interface IMeService
     Task<IApiResponse<List<DocumentFileResponse>>> GetDocumentsAsync(Guid clientId, CancellationToken ct = default);
     Task<IApiResponse<DocumentFileResponse>> UploadDocumentAsync(Guid clientId, IFormFile file, string category, CancellationToken ct = default);
     Task<IApiResponse<WebsiteStatusResponse>> GetWebsiteStatusAsync(Guid clientId, CancellationToken ct = default);
+    Task<IApiResponse<List<VendorSummaryResponse>>> GetVendorsAsync(Guid clientId, CancellationToken ct = default);
     Task<IApiResponse<DashboardResponse>> GetDashboardAsync(Guid clientId, CancellationToken ct = default);
 }

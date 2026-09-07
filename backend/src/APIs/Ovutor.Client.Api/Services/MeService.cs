@@ -18,6 +18,7 @@ public class MeService(
     IRepository<ChecklistTask> checklistTasks,
     IRepository<BudgetCategory> budgetCategories,
     IRepository<BudgetExpense> budgetExpenses,
+    IRepository<Vendor> vendors,
     IRepository<RsvpGuest> rsvpGuests,
     IRepository<DocumentFile> documents,
     IRepository<WebsiteSection> websiteSections,
@@ -205,6 +206,32 @@ public class MeService(
         {
             logger.LogError(e, "[GetWebsiteStatusAsync] Failed to load website status for {ClientId}", clientId);
             return ApiResponseFactory.InternalError<WebsiteStatusResponse>("Failed to load your website status.");
+        }
+    }
+
+    public async Task<IApiResponse<List<VendorSummaryResponse>>> GetVendorsAsync(Guid clientId, CancellationToken ct = default)
+    {
+        try
+        {
+            var categoryIds = await budgetCategories.GetQueryable().Where(c => c.ClientId == clientId).Select(c => c.Id).ToListAsync(ct);
+            var vendorIds = await budgetExpenses.GetQueryable()
+                .Where(e => categoryIds.Contains(e.CategoryId) && e.VendorId != null)
+                .Select(e => e.VendorId!.Value)
+                .Distinct()
+                .ToListAsync(ct);
+
+            var linkedVendors = await vendors.GetQueryable().Where(v => vendorIds.Contains(v.Id)).OrderBy(v => v.Name).ToListAsync(ct);
+            var response = linkedVendors
+                .Select(v => new VendorSummaryResponse(
+                    v.Id, v.Name, v.Category, v.Summary, v.Contact, v.Location,
+                    string.IsNullOrWhiteSpace(v.PhotoStoragePath) ? null : storageService.BuildPublicUrl(v.PhotoStoragePath)))
+                .ToList();
+            return response.ToOkApiResponse();
+        }
+        catch (Exception e)
+        {
+            logger.LogError(e, "[GetVendorsAsync] Failed to load vendors for {ClientId}", clientId);
+            return ApiResponseFactory.InternalError<List<VendorSummaryResponse>>("Failed to load your vendors.");
         }
     }
 

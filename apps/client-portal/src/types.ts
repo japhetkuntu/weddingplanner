@@ -91,3 +91,13 @@ export interface WebsiteStatus {
   isLive: boolean;
   siteUrl: string;
 }
+
+export interface Vendor {
+  id: string;
+  name: string;
+  category?: string;
+  summary?: string;
+  contact?: string;
+  location: string;
+  photoUrl?: string;
+}

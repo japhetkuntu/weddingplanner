@@ -41,6 +41,12 @@ public record DocumentFileResponse(Guid Id, string Name, string Category, string
 
 public record WebsiteStatusResponse(bool IsLive, string SiteUrl);
 
+/// <summary>A vendor is only ever shown to a couple because it's actually booked on their wedding —
+/// i.e. linked via a <c>VendorId</c> on one of their own budget expenses — never the full shared
+/// admin directory. Contract details stay admin-only; this is just enough for the couple to see who
+/// they've booked.</summary>
+public record VendorSummaryResponse(Guid Id, string Name, string? Category, string? Summary, string? Contact, string Location, string? PhotoUrl);
+
 public record DashboardMetricsResponse(int ChecklistDone, int ChecklistTotal, decimal BudgetRemaining, string Currency, int RsvpAttending, int RsvpTotal, bool WebsiteLive);
 
 public record UpcomingItemResponse(string Title, string Detail, string DueDate);

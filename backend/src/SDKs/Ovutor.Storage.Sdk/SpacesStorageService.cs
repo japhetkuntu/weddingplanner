@@ -26,12 +26,24 @@ public sealed class SpacesStorageService(IAmazonS3 s3, IOptions<StorageSettings>
     {
         try
         {
-            var isPhoto = request.OptimizeAsPhoto && request.ContentType.StartsWith("image/", StringComparison.OrdinalIgnoreCase);
-            var key = BuildKey(_settings.RootFolder, request.Folder, request.OriginalFileName, isPhoto);
-            var contentType = isPhoto ? "image/jpeg" : request.ContentType;
+            var wantsOptimization = request.OptimizeAsPhoto && request.ContentType.StartsWith("image/", StringComparison.OrdinalIgnoreCase);
 
-            await using var sourceStream = request.OpenContent();
-            await using var uploadStream = isPhoto ? await OptimizePhotoAsync(sourceStream, ct) : sourceStream;
+            // ImageSharp can't decode every "image/*" content type a browser or phone might hand us
+            // (HEIC straight off an iPhone, AVIF, SVG, some raw/exotic formats) — falling back to the
+            // original bytes on a decode failure means every image type is still accepted for upload,
+            // just without the resize/re-encode win for formats it doesn't understand.
+            MemoryStream? optimized = null;
+            if (wantsOptimization)
+            {
+                await using var sourceStream = request.OpenContent();
+                optimized = await TryOptimizePhotoAsync(sourceStream, ct);
+            }
+
+            var forceJpeg = optimized is not null;
+            var key = BuildKey(_settings.RootFolder, request.Folder, request.OriginalFileName, forceJpeg);
+            var contentType = forceJpeg ? "image/jpeg" : request.ContentType;
+
+            await using var uploadStream = optimized ?? request.OpenContent();
 
             var uploadRequest = new TransferUtilityUploadRequest
             {
@@ -56,19 +68,30 @@ public sealed class SpacesStorageService(IAmazonS3 s3, IOptions<StorageSettings>
         }
     }
 
-    private static async Task<Stream> OptimizePhotoAsync(Stream source, CancellationToken ct)
+    private static async Task<MemoryStream?> TryOptimizePhotoAsync(Stream source, CancellationToken ct)
     {
-        using var image = await Image.LoadAsync(source, ct);
-        image.Mutate(x => x.Resize(new ResizeOptions
+        try
         {
-            Mode = ResizeMode.Max,
-            Size = MaxPhotoDimensions,
-        }));
+            using var image = await Image.LoadAsync(source, ct);
+            image.Mutate(x => x.Resize(new ResizeOptions
+            {
+                Mode = ResizeMode.Max,
+                Size = MaxPhotoDimensions,
+            }));
 
-        var output = new MemoryStream();
-        await image.SaveAsJpegAsync(output, new JpegEncoder { Quality = JpegQuality }, ct);
-        output.Position = 0;
-        return output;
+            var output = new MemoryStream();
+            await image.SaveAsJpegAsync(output, new JpegEncoder { Quality = JpegQuality }, ct);
+            output.Position = 0;
+            return output;
+        }
+        catch (UnknownImageFormatException)
+        {
+            return null;
+        }
+        catch (InvalidImageContentException)
+        {
+            return null;
+        }
     }
 
     public async Task DeleteAsync(string key, CancellationToken ct = default)

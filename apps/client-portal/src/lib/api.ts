@@ -16,6 +16,7 @@ import type {
   RsvpGuest,
   UpcomingItem,
   UpdateEvent,
+  Vendor,
   WebsiteStatus,
 } from "@/types";
 
@@ -173,4 +174,10 @@ export async function uploadDocument(file: File, category: string): Promise<Docu
 
 export function getWebsiteStatus(): Promise<WebsiteStatus> {
   return api.get<WebsiteStatus>("/api/me/website");
+}
+
+// ---------- Vendors ----------
+
+export function getVendors(): Promise<Vendor[]> {
+  return api.get<Vendor[]>("/api/me/vendors");
 }

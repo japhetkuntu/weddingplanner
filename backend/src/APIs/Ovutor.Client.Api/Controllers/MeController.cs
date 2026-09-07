@@ -66,4 +66,11 @@ public class MeController(IMeService meService) : ControllerBase
         var response = await meService.GetWebsiteStatusAsync(ClaimsReader.GetClientId(User), ct);
         return StatusCode(response.Code, response);
     }
+
+    [HttpGet("vendors")]
+    public async Task<IActionResult> GetVendors(CancellationToken ct)
+    {
+        var response = await meService.GetVendorsAsync(ClaimsReader.GetClientId(User), ct);
+        return StatusCode(response.Code, response);
+    }
 }

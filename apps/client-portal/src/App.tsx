@@ -8,6 +8,7 @@ const LoginPage = lazy(() => import("@/pages/LoginPage"));
 const DashboardPage = lazy(() => import("@/pages/DashboardPage"));
 const ChecklistPage = lazy(() => import("@/pages/ChecklistPage"));
 const BudgetPage = lazy(() => import("@/pages/BudgetPage"));
+const VendorsPage = lazy(() => import("@/pages/VendorsPage"));
 const RsvpsPage = lazy(() => import("@/pages/RsvpsPage"));
 const DocumentsPage = lazy(() => import("@/pages/DocumentsPage"));
 const WebsitePage = lazy(() => import("@/pages/WebsitePage"));
@@ -35,6 +36,7 @@ export default function App() {
         <Route path="/dashboard" element={<RequireAuth><DashboardPage /></RequireAuth>} />
         <Route path="/checklist" element={<RequireAuth><ChecklistPage /></RequireAuth>} />
         <Route path="/budget" element={<RequireAuth><BudgetPage /></RequireAuth>} />
+        <Route path="/vendors" element={<RequireAuth><VendorsPage /></RequireAuth>} />
         <Route path="/rsvps" element={<RequireAuth><RsvpsPage /></RequireAuth>} />
         <Route path="/documents" element={<RequireAuth><DocumentsPage /></RequireAuth>} />
         <Route path="/website" element={<RequireAuth><WebsitePage /></RequireAuth>} />
