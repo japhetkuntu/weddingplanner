@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# Builds and (re)deploys both APIs from source already on the droplet. Run this for
-# the first deploy (after install.sh) and for every subsequent update.
+# Builds and (re)deploys both APIs and all three frontends from source already on the
+# droplet. Run this for the first deploy (after install.sh) and for every subsequent
+# update.
 #
 # Usage: sudo bash /opt/ovutor-src/backend/deploy/deploy.sh
 set -euo pipefail
@@ -71,5 +72,27 @@ wait_healthy "http://127.0.0.1:5000/health" ovutor-client-api
 echo "== starting admin-api =="
 systemctl restart ovutor-admin-api
 wait_healthy "http://127.0.0.1:5001/health" ovutor-admin-api
+
+echo "== installing frontend dependencies =="
+cd "$SRC_DIR"
+pnpm install --frozen-lockfile
+
+publish_frontend() {
+  local app="$1" out="/var/www/ovutor/$1"
+  echo "== building $app =="
+  # Each app reads its own gitignored .env.production.local (created once by
+  # install.sh from the tracked .example) automatically — Vite loads it for any
+  # `vite build` run without NODE_ENV=development, no flag needed.
+  pnpm --filter "@ovutor/${app}" build
+  # --delete matters here, not just for tidiness: Vite content-hashes every filename
+  # under dist/assets/, so a stale file from a previous build left behind wouldn't
+  # just be dead weight, it would sit there forever since nothing ever names it again.
+  rsync -a --delete "$SRC_DIR/apps/${app}/dist/" "$out/"
+  chown -R www-data:www-data "$out"
+}
+
+publish_frontend admin-portal
+publish_frontend client-portal
+publish_frontend wedding-website
 
 echo "Deploy complete."

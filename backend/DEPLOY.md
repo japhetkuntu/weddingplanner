@@ -1,13 +1,14 @@
-# Deploying the backend to a DigitalOcean droplet (bare metal, no containers)
+# Deploying everything to a DigitalOcean droplet (bare metal, no containers)
 
 Both APIs (`Ovutor.Client.Api`, `Ovutor.Admin.Api`) run directly on the droplet as
-systemd services, talking to a natively-installed PostgreSQL and Redis. Nginx (also
-installed natively, not in a container) reverse-proxies two subdomains to them, and
-Certbot gets/renews the HTTPS certificates.
-
-The frontends (`admin-portal`, `client-portal`, `wedding-website`) stay on Netlify —
-this only covers the backend. Everything referenced below lives in
-[`backend/deploy/`](deploy/).
+systemd services, talking to a natively-installed PostgreSQL and Redis. All three
+frontends (`admin-portal`, `client-portal`, `wedding-website`) are static Vite
+builds published straight to `/var/www/ovutor/<app>` — no Node process, no Netlify,
+Nginx just serves the files. Nginx (also installed natively, not in a container)
+reverse-proxies the two API subdomains and serves the three frontend domains, and
+Certbot gets/renews the HTTPS certificates for all five. Everything referenced below
+lives in [`backend/deploy/`](deploy/) — the folder predates the frontends moving here
+too, but it's still the one place that governs the whole droplet.
 
 ## 0. Starting over on a droplet that's already been deployed to
 
@@ -29,34 +30,42 @@ go. After this, start again from step 1.
 
 ## 1. Point DNS at the droplet first
 
-Your domain itself can stay wherever it already lives (Netlify, a registrar, whoever
-you bought it from) — DigitalOcean is never involved in DNS here, and doesn't need to
-be. You're just adding two subdomain records in whatever DNS panel is authoritative
-for the domain today (for a Netlify-managed domain: Netlify -> Domains -> your domain
--> DNS panel -> Add record):
+Your domain itself can stay wherever it's registered — DigitalOcean is never involved
+in DNS here, and doesn't need to be. You're just adding five records in whatever DNS
+panel is authoritative for the domain today:
 
-| Type | Host                    | Value                 |
-|------|-------------------------|------------------------|
-| A    | api (or your subdomain) | `<your droplet's IP>` |
-| A    | admin-api (or your sub) | `<your droplet's IP>` |
+| Type | Host                       | Value                 |
+|------|----------------------------|------------------------|
+| A    | client-api (or your sub)  | `<your droplet's IP>` |
+| A    | admin-api (or your sub)   | `<your droplet's IP>` |
+| A    | admin (or your sub)       | `<your droplet's IP>` |
+| A    | client (or your sub)      | `<your droplet's IP>` |
+| A    | @ (the bare apex)         | `<your droplet's IP>` |
+| A    | www                        | `<your droplet's IP>` |
 
-Everything else about the domain (the apex, `www`, the actual frontend sites) keeps
-pointing at Netlify exactly as it does now — adding these two A records doesn't move
-or affect any of that, it just carves out two subdomains that resolve to the droplet
-instead.
+The apex + `www` records are for the wedding-website — every couple's site is a
+*path* on that one domain (`yourdomain.com/<slug>`), not a subdomain, so there's no
+wildcard record involved.
+
+If you were previously on Netlify, this is the point where you're moving the domain's
+DNS off Netlify entirely (or at minimum repointing every one of these records away
+from it) — once these five records resolve here, nothing about the site is served
+from Netlify anymore. You can safely delete/unlink the three Netlify sites once
+you've verified everything works end-to-end on the droplet (step 4).
 
 Certbot needs to complete an HTTP challenge, so get DNS live before requesting
 certificates (you can still provision and deploy before this finishes propagating,
-just not run certbot yet). Confirm propagation with `dig api.yourdomain.com` before
-running certbot.
+just not run certbot yet). Confirm propagation with `dig <domain>` for each record
+before running certbot.
 
 ## 2. Provision the droplet
 
 If the repo is private, the droplet needs a way to clone it (a deploy key, or an
 HTTPS URL with a token) — pass whichever `REPO_URL` form matches. SSH in, then run the
-provisioning script (installs .NET 8 SDK, PostgreSQL, Redis, Nginx + Certbot, creates
-the app directories, clones the repo, installs the systemd units and Nginx site config
-— the services run as `www-data`, no dedicated custom user needed):
+provisioning script (installs .NET 8 SDK, Node 20 + pnpm, PostgreSQL, Redis, Nginx +
+Certbot, creates the app directories, clones the repo, installs the systemd units and
+Nginx site config — the two API services run as `www-data`, no dedicated custom user
+needed; the three frontends have no service at all, just published static files):
 
 ```bash
 ssh root@<your-droplet-ip>
@@ -69,14 +78,18 @@ REPO_URL=https://github.com/<you>/ovutor.git sudo -E bash install.sh
 clone if `/opt/ovutor-src` already exists.)
 
 It will prompt you for:
-- the Client API domain (e.g. `api.yourdomain.com`)
+- the Client API domain (e.g. `client-api.yourdomain.com`)
 - the Admin API domain (e.g. `admin-api.yourdomain.com`)
+- the admin-portal domain (e.g. `admin.yourdomain.com`)
+- the client-portal domain (e.g. `client.yourdomain.com`)
+- the wedding-website domain — the bare apex (e.g. `yourdomain.com`)
 - an email address for Let's Encrypt renewal notices
 - a password for the `ovutor` Postgres role — remember it, you need it in step 3
 
-## 3. Fill in secrets
+## 3. Fill in secrets and frontend config
 
-The script copies templates into place; edit the real ones:
+The script copies templates into place; edit the real ones. The two APIs read their
+env at process start (systemd `EnvironmentFile`s under `/etc/ovutor/`):
 
 ```bash
 nano /etc/ovutor/client-api.env   # see backend/deploy/client-api.env.example
@@ -91,23 +104,36 @@ openssl rand -base64 48   # -> Jwt__SigningKey in client-api.env
 openssl rand -base64 48   # -> Jwt__SigningKey in admin-api.env
 ```
 
-`Cors__AllowedOrigins__*` in each file must be the exact origin(s) your Netlify-hosted
-frontends are served from (e.g. `https://ovutor.com`, no trailing slash) — CORS
-rejects anything else. `client-api.env` needs two origins (client-portal and
-wedding-website both call this API); `admin-api.env` needs one (admin-portal). Storage
-keys are your DigitalOcean Spaces access/secret key pair — both env files must point
+`Cors__AllowedOrigins__*` in each file must be the exact origin(s) the frontends are
+served from (e.g. `https://client.yourdomain.com`, no trailing slash) — CORS rejects
+anything else. `client-api.env` needs two origins (client-portal and wedding-website
+both call this API); `admin-api.env` needs one (admin-portal). Storage keys are your
+DigitalOcean Spaces access/secret key pair — both env files must point
 at the **same** bucket/region/root-folder, since the Client API only reads back public
 URLs for files the Admin API uploads.
 
 ## 4. First deploy
+
+Before running this, make sure each frontend's real config is in place — install.sh
+already created `apps/<app>/.env.production.local` from the `.example` template, but
+double-check the API URLs in each are right for your domains:
+
+```bash
+nano /opt/ovutor-src/apps/admin-portal/.env.production.local
+nano /opt/ovutor-src/apps/client-portal/.env.production.local
+nano /opt/ovutor-src/apps/wedding-website/.env.production.local
+```
+
+Then:
 
 ```bash
 sudo bash /opt/ovutor-src/backend/deploy/deploy.sh
 ```
 
 This publishes both APIs, restarts `ovutor-client-api` (which applies all EF Core
-migrations against the fresh database on boot), waits for it to report healthy, then
-restarts and health-checks `ovutor-admin-api`.
+migrations against the fresh database on boot), waits for it to report healthy,
+restarts and health-checks `ovutor-admin-api`, then builds all three frontends and
+publishes each `dist/` straight to `/var/www/ovutor/<app>` for Nginx to serve.
 
 Then, once DNS has actually propagated (`dig` from step 1), get the certificate —
 `install.sh` printed the exact command with your domains/email already filled in, e.g.:
@@ -115,23 +141,30 @@ Then, once DNS has actually propagated (`dig` from step 1), get the certificate 
 ```bash
 sudo ufw enable   # if you haven't already
 sudo certbot --nginx -d client-api.ovutor.com -d admin-api.ovutor.com \
+  -d admin.ovutor.com -d client.ovutor.com \
+  -d ovutor.com -d www.ovutor.com \
   -m japhetkuntublankson1@gmail.com --agree-tos -n --redirect
 ```
 
-This single command gets one certificate covering both domains, edits
+This single command gets one certificate covering all six domains, edits
 `/etc/nginx/sites-available/ovutor` in place to add the `listen 443 ssl` blocks and
-an http->https redirect, and sets up auto-renewal (the `certbot` apt package installs
-a `certbot.timer` systemd timer that runs twice daily — nothing else to configure).
+an http->https redirect for every server block, and sets up auto-renewal (the
+`certbot` apt package installs a `certbot.timer` systemd timer that runs twice
+daily — nothing else to configure).
 
 Verify:
 
 ```bash
-curl https://api.yourdomain.com/health
-curl https://admin-api.yourdomain.com/health
+curl https://client-api.ovutor.com/health
+curl https://admin-api.ovutor.com/health
+curl -I https://admin.ovutor.com
+curl -I https://client.ovutor.com
+curl -I https://ovutor.com
 ```
 
-Both should return `Healthy`. If certbot fails, double-check DNS actually resolves to
-the droplet's IP first (`dig`), and that port 80 is reachable (`ufw status`,
+The two `/health` checks should return `Healthy`; the three frontend checks should
+return `200 OK`. If certbot fails, double-check DNS actually resolves to the
+droplet's IP first (`dig`), and that port 80 is reachable (`ufw status`,
 `systemctl status nginx`).
 
 ## 5. Everyday workflow: shipping updates
@@ -147,15 +180,26 @@ sudo bash /opt/ovutor-src/backend/deploy/deploy.sh
 
 That's the whole release process — `git pull`, republish both APIs, restart
 `ovutor-client-api` (applying any new EF migrations automatically), health-check it,
-then restart and health-check `ovutor-admin-api`. Nginx/certbot don't need touching
-again unless you're changing domains.
+restart and health-check `ovutor-admin-api`, then rebuild and republish all three
+frontends. Nginx/certbot don't need touching again unless you're changing domains.
 
-**Only an env var changed** (new API key, rotated secret, CORS origin, etc.) — no
+**Only an API env var changed** (new API key, rotated secret, CORS origin, etc.) — no
 need to rebuild anything, just edit the file and restart that one service:
 
 ```bash
 sudo nano /etc/ovutor/client-api.env    # or admin-api.env
 sudo systemctl restart ovutor-client-api
+```
+
+**Only a frontend env var changed** (a different API URL, say) — edit the app's
+`.env.production.local` and rebuild just that one app instead of running the whole
+`deploy.sh`:
+
+```bash
+sudo nano /opt/ovutor-src/apps/admin-portal/.env.production.local
+cd /opt/ovutor-src && sudo pnpm --filter @ovutor/admin-portal build
+sudo rsync -a --delete apps/admin-portal/dist/ /var/www/ovutor/admin-portal/
+sudo chown -R www-data:www-data /var/www/ovutor/admin-portal
 ```
 
 You can do this at any time, independently of `deploy.sh` — env files are only read
@@ -230,10 +274,13 @@ sudo -u postgres pg_dump Ovutor > "backup-$(date +%F).sql"
   running certbot is expected, not something to revert.
 - **`install.sh` adds a 2G swapfile** — on the smallest droplets (512MB-1GB RAM),
   `dotnet publish` gets OOM-killed partway through compiling (`MSB6006`, exit code
-  137) without it. If `deploy.sh` ever fails with that error on a droplet that
-  predates this, add swap manually: `fallocate -l 2G /swapfile && chmod 600
-  /swapfile && mkswap /swapfile && swapon /swapfile && echo '/swapfile none swap sw
-  0 0' >> /etc/fstab`.
+  137) without it; the three `vite build`s in the same `deploy.sh` run add to that
+  same memory pressure now that frontends build on the droplet too. If `deploy.sh`
+  ever fails with an OOM-style error on a droplet that predates this, add swap
+  manually: `fallocate -l 2G /swapfile && chmod 600 /swapfile && mkswap /swapfile &&
+  swapon /swapfile && echo '/swapfile none swap sw 0 0' >> /etc/fstab`. If you're
+  provisioning a fresh 512MB-1GB droplet and still see OOM kills with all three
+  frontends now in the mix, bump `install.sh`'s swapfile size to 4G.
 - Backups: set up a cron job (`crontab -e` as root) calling the `pg_dump` command
   above on a schedule, piped somewhere off-droplet (e.g. a Spaces bucket) — this repo
   doesn't automate that for you.
