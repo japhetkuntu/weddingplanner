@@ -1,6 +1,5 @@
+import { Link } from "react-router-dom";
 import { Button } from "@ovutor/ui";
-
-const MARKETING_URL = "https://ovutor.com";
 
 const PILLARS = [
   {
@@ -65,15 +64,12 @@ export function OvutorLanding({ eyebrow, title, message }: { eyebrow: string; ti
           <p className="mt-4 max-w-sm leading-relaxed text-white/70">{message}</p>
 
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-            <a href={MARKETING_URL}>
+            <Link to="/">
               <Button>Visit ovutor.com</Button>
-            </a>
-            <a
-              href={MARKETING_URL}
-              className="text-xs font-bold uppercase tracking-[.1em] text-white/60 hover:text-white"
-            >
+            </Link>
+            <Link to="/contact" className="text-xs font-bold uppercase tracking-[.1em] text-white/60 hover:text-white">
               Start planning your wedding &rarr;
-            </a>
+            </Link>
           </div>
         </div>
       </section>
@@ -103,9 +99,9 @@ export function OvutorLanding({ eyebrow, title, message }: { eyebrow: string; ti
         </div>
 
         <div className="mt-14 flex justify-center">
-          <a href={MARKETING_URL}>
+          <Link to="/about">
             <Button variant="outline">Learn more at ovutor.com</Button>
-          </a>
+          </Link>
         </div>
       </section>
 
