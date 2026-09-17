@@ -1,4 +1,17 @@
 import type { SiteImage } from "@/types";
+import brideArmchairBouquet from "@/assets/photos/bride-armchair-bouquet.jpg";
+import brideGettingReadyBed from "@/assets/photos/bride-getting-ready-bed.jpg";
+import brideGettingReadyDoor from "@/assets/photos/bride-getting-ready-door.jpg";
+import brideWindowCloseup from "@/assets/photos/bride-window-closeup.jpg";
+import brideWindowFulllength from "@/assets/photos/bride-window-fulllength.jpg";
+import coupleHallwayWhiteAttire from "@/assets/photos/couple-hallway-white-attire.jpg";
+import coupleTradPortraitGold from "@/assets/photos/couple-trad-portrait-gold.jpg";
+import coupleTradWickerCoral from "@/assets/photos/couple-trad-wicker-coral.jpg";
+import groomGettingReadyBowtie from "@/assets/photos/groom-getting-ready-bowtie.jpg";
+import groomGettingReadyGiftbox from "@/assets/photos/groom-getting-ready-giftbox.jpg";
+import receptionDanceGoldDress from "@/assets/photos/reception-dance-gold-dress.jpg";
+import receptionFirstDanceClouds from "@/assets/photos/reception-first-dance-clouds.jpg";
+import receptionFirstDanceSparklersWide from "@/assets/photos/reception-first-dance-sparklers-wide.jpg";
 
 /** Marketing media extends the couple-site `SiteImage` placeholder pattern with an optional
  * video source — when `video` is set it takes priority over `src`, and `src` (if also set)
@@ -8,10 +21,10 @@ export interface MarketingMedia extends SiteImage {
   video?: string;
 }
 
-/** Real Unsplash/Pexels demo assets so the site isn't just gradient placeholders while you
- * gather your own photos and video — every one of these is a stable, directly-hotlinkable CDN
- * URL (not a redirect/search service), so swap them for your own by just replacing the `src`/
- * `video` value here. `unsplash(id)` keeps the sizing params consistent across the file. */
+/** Real Unsplash/Pexels demo assets for the spots the studio's own photos (imported above)
+ * don't cover — every one of these is a stable, directly-hotlinkable CDN URL (not a redirect/
+ * search service), so swap them for your own by just replacing the `src`/`video` value here.
+ * `unsplash(id)` keeps the sizing params consistent across the file. */
 function unsplash(id: string) {
   return `https://images.unsplash.com/${id}?auto=format&fit=crop&w=2400&q=90`;
 }
@@ -46,9 +59,9 @@ export const HOME = {
     // A slow auto-advancing carousel, freely mixing photos and video — HeroMedia crossfades
     // between whatever's in this array, one slide at a time.
     media: [
-      { label: "A couple's first look, golden hour", src: unsplash("photo-1566813142858-99f1e35e333a"), focalPoint: "center" },
-      { label: "Getting into the getaway car", video: "https://videos.pexels.com/video-files/34502718/14618802_640_360_25fps.mp4", focalPoint: "center" },
-      { label: "Celebrating on the dance floor", src: unsplash("photo-1708569176813-746f00614012"), focalPoint: "center" },
+      { label: "First dance under a shower of sparklers", src: receptionFirstDanceSparklersWide, focalPoint: "center" },
+      { label: "Celebrating in the hallway, dressed in white", src: coupleHallwayWhiteAttire, focalPoint: "center" },
+      { label: "A couple in traditional dress, seated together", src: coupleTradWickerCoral, focalPoint: "center" },
     ] as MarketingMedia[],
     eyebrow: "Ovutor Weddings",
     title: "Thoughtfully planned.\nBeautifully celebrated.",
@@ -65,12 +78,11 @@ export const WHAT_WE_DO = {
   hero: {
     media: [
       {
-        label: "Behind the scenes, planning a tablescape",
-        src: unsplash("photo-1762941744800-385b067dff21"),
-        video: "https://videos.pexels.com/video-files/34502718/14618802_640_360_25fps.mp4",
+        label: "A quiet moment before the day begins",
+        src: brideGettingReadyBed,
         focalPoint: "center",
       },
-      { label: "Amanda & Brian's ceremony", src: unsplash("photo-1708569176850-9de9aa6b179b"), focalPoint: "center" },
+      { label: "A couple, dressed in gold and red for their traditional ceremony", src: coupleTradPortraitGold, focalPoint: "center" },
     ] as MarketingMedia[],
     eyebrow: "About Ovutor",
     title: "The studio behind\nyour wedding day",
@@ -87,8 +99,8 @@ export const WHAT_WE_DO = {
       body: "We don't believe in templates. Every couple we work with has a different story, a different rhythm, a different idea of what celebration means — our job is to listen first, then design around that.",
       meta: "How we begin",
       media: {
-        label: "Planner and couple reviewing a moodboard",
-        src: unsplash("photo-1719938570902-6fe35719cde9"),
+        label: "Reviewing the details together",
+        src: groomGettingReadyGiftbox,
         focalPoint: "center",
       } as MarketingMedia,
     },
@@ -98,8 +110,8 @@ export const WHAT_WE_DO = {
       body: "From vendor negotiations to the seating chart nobody sees, our role is to make the hard parts invisible — so you and your families get to actually be present on the day, instead of managing it.",
       meta: "How we work",
       media: {
-        label: "Coordinator adjusting table florals",
-        src: unsplash("photo-1769812344081-92b3e2ac39c0"),
+        label: "The small details, taken care of",
+        src: unsplash("photo-1535428245347-3ab06a1b100a"),
         focalPoint: "center",
       } as MarketingMedia,
     },
@@ -109,8 +121,8 @@ export const WHAT_WE_DO = {
       body: "We bring craft and experience — but the taste, the story, the little rituals that make it feel like you, come from you. We're here to build the frame that lets that shine.",
       meta: "How we design",
       media: {
-        label: "Bride laughing with her bridesmaids",
-        src: unsplash("photo-1758810409706-7e83e2434c40"),
+        label: "A bride, laughing while getting ready",
+        src: brideGettingReadyDoor,
         focalPoint: "center",
       } as MarketingMedia,
     },
@@ -124,12 +136,11 @@ export const PLANNING_PACKAGES = {
   hero: {
     media: [
       {
-        label: "Planner walking a couple through a venue",
-        src: unsplash("photo-1768777278495-5ffe24f9e3a8"),
-        video: "https://videos.pexels.com/video-files/34448979/14597235_640_360_25fps.mp4",
+        label: "A couple walking the grounds together",
+        src: unsplash("photo-1692457799626-4477193123c6"),
         focalPoint: "center",
       },
-      { label: "Sofia & Daniel's reception", src: unsplash("photo-1769230387364-8b0c2b63e18b"), focalPoint: "center" },
+      { label: "A couple in traditional dress, seated together", src: coupleTradWickerCoral, focalPoint: "center" },
     ] as MarketingMedia[],
     eyebrow: "Our planning packages",
     title: "Destination weddings,\ndesigned with intention",
@@ -235,8 +246,8 @@ export const PLANNING_PACKAGES = {
 export const OUR_APPROACH = {
   hero: {
     media: [
-      { label: "Planning notes and a quiet moment", src: unsplash("photo-1719938570902-6fe35719cde9"), focalPoint: "center" },
-      { label: "A couple reviewing their plans together", src: unsplash("photo-1708569176850-9de9aa6b179b"), focalPoint: "center" },
+      { label: "A groom, in a quiet moment before the day", src: groomGettingReadyBowtie, focalPoint: "center" },
+      { label: "A couple, close together", src: unsplash("photo-1719499683843-721331f2495f"), focalPoint: "center" },
     ] as MarketingMedia[],
     eyebrow: "How we work",
     title: "A process built\naround you",
@@ -295,7 +306,7 @@ export const JOURNAL_POSTS: JournalPost[] = [
     excerpt: "Private villa over the sea, black-tie tuxedos and elegant gowns, all drawn into the romantic atmosphere of the evening.",
     date: "2026-06-12",
     category: "Real Weddings",
-    media: { label: "Amanda & Brian's first dance", src: unsplash("photo-1708569176850-9de9aa6b179b"), focalPoint: "center" },
+    media: { label: "Amanda & Brian's first dance", src: receptionFirstDanceClouds, focalPoint: "center" },
     body: [
       "Amanda and Brian wanted their wedding to feel like a long, unhurried evening with the people they loved most — so we built the whole day around golden light and long tables.",
       "We worked with local florists to bring in loose, garden-style arrangements that echoed the cliffside setting, and kept the schedule open enough that nobody ever felt rushed from one moment to the next.",
@@ -303,16 +314,16 @@ export const JOURNAL_POSTS: JournalPost[] = [
     photos: [
       { label: "Ceremony florals and chairs", src: unsplash("photo-1769812344081-92b3e2ac39c0") },
       { label: "Wedding rings, up close", src: unsplash("photo-1561828995-aa79a2db86dd") },
-      { label: "Toasting with champagne", src: unsplash("photo-1758810410268-5e9d85b60065") },
+      { label: "A quiet embrace, rooftop at golden hour", src: unsplash("photo-1624228652376-d4faa602b278") },
       { label: "The wedding cake", src: unsplash("photo-1631998878375-236a6826ce7f") },
-      { label: "Feeding each other cake", src: unsplash("photo-1685524482095-93501703552c") },
-      { label: "Down the aisle", src: unsplash("photo-1769869174509-7d448052e605") },
-      { label: "Amanda & Brian, portrait", src: unsplash("photo-1762941744800-385b067dff21") },
+      { label: "A close embrace among the trees", src: unsplash("photo-1594425437587-e75c19ebf332") },
+      { label: "A couple in traditional dress, together", src: unsplash("photo-1661332517932-2d441bfb2994") },
+      { label: "Amanda & Brian, portrait", src: brideWindowCloseup },
       { label: "Getting-ready details", src: unsplash("photo-1680789527271-f1fc1528f27e") },
-      { label: "Bride, in the mirror", src: unsplash("photo-1746777758990-04d0d42ea497") },
+      { label: "Bride, full length", src: brideWindowFulllength },
       { label: "Veil, up close", src: unsplash("photo-1473271008451-b0fcb08b728d") },
-      { label: "Pinning the boutonniere", src: unsplash("photo-1445117627052-274425469152") },
-      { label: "Lifted up in celebration", src: unsplash("photo-1758810411287-a362740f269e") },
+      { label: "A small, tender detail", src: unsplash("photo-1535428245347-3ab06a1b100a") },
+      { label: "Lifted up in celebration", src: unsplash("photo-1786529745852-d7d529b55676") },
     ],
   },
   {
@@ -342,23 +353,23 @@ export const JOURNAL_POSTS: JournalPost[] = [
     excerpt: "Family-style dinner under string lights, and a first dance that ran twenty minutes long because nobody wanted it to end.",
     date: "2026-03-18",
     category: "Real Weddings",
-    media: { label: "Sofia & Daniel's reception under string lights", src: unsplash("photo-1769230387364-8b0c2b63e18b"), focalPoint: "center" },
+    media: { label: "Sofia & Daniel's reception, dancing the night away", src: receptionDanceGoldDress, focalPoint: "center" },
     body: [
       "Sofia and Daniel's only real brief was 'make it feel like a big family dinner' — so we leaned all the way into long communal tables, warm string lighting, and a menu built around both of their grandmothers' recipes.",
     ],
     photos: [
       { label: "String lights over the barn", src: unsplash("photo-1780728953990-50a6513d05e1") },
       { label: "Twilight at the reception", src: unsplash("photo-1780888207019-dd9121069a81") },
-      { label: "First dance", src: unsplash("photo-1772945492345-ee8d17e9a74b") },
-      { label: "Cutting the cake", src: unsplash("photo-1637015131338-2e546e84a462") },
-      { label: "A bite for the groom", src: unsplash("photo-1707192325061-98ce20b94eb6") },
-      { label: "A toast with the wedding party", src: unsplash("photo-1732594518883-878478999758") },
+      { label: "First dance, in black and white", src: unsplash("photo-1624228652954-9e3725a2a4f8") },
+      { label: "Cutting the cake", src: unsplash("photo-1719499683843-721331f2495f") },
+      { label: "A bite for the groom", src: unsplash("photo-1594425437587-e75c19ebf332") },
+      { label: "A toast with the wedding party", src: brideArmchairBouquet },
       { label: "Bracelet detail", src: unsplash("photo-1631050165122-626a1377fbce") },
-      { label: "Garden ceremony, guests seated", src: unsplash("photo-1769230365032-4591a0050fe3") },
-      { label: "The groom, one last check", src: unsplash("photo-1472417583565-62e7bdeda490") },
-      { label: "Dancing under the string lights", src: unsplash("photo-1769374075776-2a44ee11e086") },
-      { label: "Tango on the dance floor", src: unsplash("photo-1767784097269-943e5c8bd3b1") },
-      { label: "A quiet moment together", src: unsplash("photo-1772945492456-8dd1ad977172") },
+      { label: "Garden ceremony, guests seated", src: unsplash("photo-1788035963213-b8021895ce6d") },
+      { label: "The groom, one last check", src: groomGettingReadyBowtie },
+      { label: "Dancing under the string lights", src: receptionDanceGoldDress },
+      { label: "Tango on the dance floor", src: unsplash("photo-1786529745852-d7d529b55676") },
+      { label: "A quiet moment together", src: unsplash("photo-1624228652376-d4faa602b278") },
     ],
   },
 ];
@@ -368,8 +379,8 @@ export const JOURNAL_POSTS: JournalPost[] = [
 // ---------------------------------------------------------------------------
 export const CONNECT = {
   media: {
-    label: "Celebrating on the dance floor",
-    src: unsplash("photo-1708569176813-746f00614012"),
+    label: "Celebrating in the hallway, dressed in white",
+    src: coupleHallwayWhiteAttire,
     focalPoint: "center",
   } as MarketingMedia,
   eyebrow: "Get in touch",
