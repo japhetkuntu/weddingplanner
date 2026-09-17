@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Button } from "@ovutor/ui";
+import { Logo } from "@/components/Logo";
 
 const PILLARS = [
   {
@@ -48,26 +49,26 @@ const PILLARS = [
 export function OvutorLanding({ eyebrow, title, message }: { eyebrow: string; title: string; message: string }) {
   return (
     <div className="ovutor-fade-in min-h-screen bg-bg font-sans text-ink">
-      <section className="grid min-h-screen place-items-center bg-ink px-6 py-20 text-center text-white sm:px-10">
+      <section className="grid min-h-screen place-items-center bg-gold px-6 py-20 text-center text-ink sm:px-10">
         <div className="flex max-w-lg flex-col items-center">
           <svg width="56" height="50" viewBox="0 0 100 90" fill="none" aria-hidden="true">
             <path
               d="M50 86C50 86 6 58 6 28C6 12 18 4 32 4C42 4 50 12 50 22C50 12 58 4 68 4C82 4 94 12 94 28C94 58 50 86 50 86Z"
-              stroke="#C1281B"
+              stroke="#E0115F"
               strokeWidth="4"
               strokeLinecap="round"
               strokeLinejoin="round"
             />
           </svg>
-          <p className="mt-5 text-[10px] font-bold uppercase tracking-[.2em] text-white/50">{eyebrow}</p>
+          <p className="mt-5 text-[10px] font-bold uppercase tracking-[.2em] text-ink/50">{eyebrow}</p>
           <h1 className="mt-3 font-display text-3xl leading-tight sm:text-4xl">{title}</h1>
-          <p className="mt-4 max-w-sm leading-relaxed text-white/70">{message}</p>
+          <p className="mt-4 max-w-sm leading-relaxed text-ink/70">{message}</p>
 
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
             <Link to="/">
               <Button>Visit ovutor.com</Button>
             </Link>
-            <Link to="/contact" className="text-xs font-bold uppercase tracking-[.1em] text-white/60 hover:text-white">
+            <Link to="/connect-with-us" className="text-xs font-bold uppercase tracking-[.1em] text-ink/60 hover:text-ink">
               Start planning your wedding &rarr;
             </Link>
           </div>
@@ -99,16 +100,16 @@ export function OvutorLanding({ eyebrow, title, message }: { eyebrow: string; ti
         </div>
 
         <div className="mt-14 flex justify-center">
-          <Link to="/about">
+          <Link to="/what-we-do">
             <Button variant="outline">Learn more at ovutor.com</Button>
           </Link>
         </div>
       </section>
 
       <footer className="border-t border-[#eee] px-6 py-8 text-center">
-        <p className="font-display text-lg">
-          Ovutor <span className="text-primary">&#9825;</span>
-        </p>
+        <div className="flex justify-center">
+          <Logo className="text-2xl" />
+        </div>
         <p className="mt-1 text-xs text-ink/40">Thoughtfully planned. Beautifully celebrated.</p>
       </footer>
     </div>

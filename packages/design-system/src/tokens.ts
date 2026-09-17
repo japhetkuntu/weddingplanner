@@ -3,12 +3,15 @@
  * sync with tailwind-preset.js. */
 
 export const colors = {
-  brandPrimary: "#C1281B", // brick red — CTAs, active states, links
-  brandAccent: "#C1281B",
+  brandPrimary: "#E0115F", // ruby pink — CTAs, active states, links
+  brandAccent: "#E0115F",
   brandAccentTint: "#E6F4FE",
   brandBg: "#FAF9F8", // page canvas — warm off-white
   brandBackgroundWarm: "#F9F9FB",
   brandInk: "#1E1E1E", // primary text — near-black charcoal
+  brandGold: "#FEB326", // solid dark-section fills (footers, hero overlays, dark button/toast
+  // variants) — replaces the old near-black ("ink") background sections. Text on top of it uses
+  // `ink`, not white — white-on-gold fails contrast badly (~1.6:1).
   brandSurface: "#FFFFFF", // card / panel fill
 };
 

@@ -27,21 +27,21 @@ export default function LoginPage() {
 
   return (
     <div className="grid min-h-screen grid-cols-1 lg:grid-cols-[1.05fr_.95fr]">
-      <section className="hidden flex-col justify-between bg-ink px-10 py-12 text-white lg:flex xl:px-16">
+      <section className="hidden flex-col justify-between bg-gold px-10 py-12 text-ink lg:flex xl:px-16">
         <div className="font-display text-3xl">
           Ovutor <span className="text-primary">&#9825;</span>
         </div>
         <div>
-          <p className="text-[10px] font-bold uppercase tracking-[.16em] text-white">Your wedding, in hand</p>
+          <p className="text-[10px] font-bold uppercase tracking-[.16em] text-ink">Your wedding, in hand</p>
           <h1 className="my-3 max-w-md font-display text-5xl leading-[1.1]">
             Thoughtfully planned.
             <br />
             Beautifully celebrated.
           </h1>
-          <p className="max-w-md leading-relaxed text-[#eee7e2]">
+          <p className="max-w-md leading-relaxed text-ink/70">
             A calm shared home for every decision, detail, and moment on the way to your wedding day.
           </p>
-          <div className="mt-8 max-w-md border-t border-white/30 pt-5 italic leading-relaxed text-[#eee7e2]">
+          <div className="mt-8 max-w-md border-t border-ink/25 pt-5 italic leading-relaxed text-ink/70">
             &ldquo;We can see what matters, together—and that makes planning feel lighter.&rdquo;
           </div>
         </div>

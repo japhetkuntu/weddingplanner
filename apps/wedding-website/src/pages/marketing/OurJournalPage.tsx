@@ -8,10 +8,10 @@ import { JOURNAL_CATEGORIES, JOURNAL_POSTS } from "@/content/marketing";
 
 const ALL = "All Posts";
 
-/** Masthead + category tabs arranged like nordicadventureweddings.eu/blog, but each entry in the
- * list renders as the full split-row editorial layout from juliaandevita.com/galleries instead of
- * a small grid card. */
-export default function JournalPage() {
+/** "Our Journal" (formerly "Journal"). Masthead + category tabs arranged like
+ * nordicadventureweddings.eu/blog, but each entry in the list renders as the full split-row
+ * editorial layout from juliaandevita.com/galleries instead of a small grid card. */
+export default function OurJournalPage() {
   const [filter, setFilter] = useState(ALL);
   const posts = useMemo(() => (filter === ALL ? JOURNAL_POSTS : JOURNAL_POSTS.filter((p) => p.category === filter)), [filter]);
 
@@ -20,7 +20,7 @@ export default function JournalPage() {
       <MarketingNav dark={false} />
 
       <section className="px-6 pb-14 pt-32 text-center sm:px-10 sm:pt-40">
-        <p className="text-[10px] font-bold uppercase tracking-[.2em] text-primary">Journal &mdash; the stories we tell</p>
+        <p className="text-[10px] font-bold uppercase tracking-[.2em] text-primary">Our Journal &mdash; the stories we tell</p>
         <h1 className="mx-auto mt-3 max-w-2xl font-display text-4xl leading-tight sm:text-5xl">From every wedding, a story worth telling.</h1>
         <p className="mx-auto mt-4 max-w-lg leading-relaxed text-ink/60">
           Real weddings we've planned, destination guides, and the odd bit of planning advice — from us to you.
@@ -43,9 +43,9 @@ export default function JournalPage() {
         ))}
       </div>
 
-      <div className="bg-[#4A0F14]">
+      <div className="bg-primary">
         {posts.map((post, i) => (
-          <Link key={post.slug} to={`/journal/${post.slug}`} className="block">
+          <Link key={post.slug} to={`/our-journal/${post.slug}`} className="block">
             <SplitRow
               media={post.media}
               index={post.index}

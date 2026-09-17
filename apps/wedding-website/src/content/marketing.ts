@@ -23,10 +23,11 @@ export interface NavLink {
 
 export const NAV_LINKS: NavLink[] = [
   { label: "Home", to: "/" },
-  { label: "About", to: "/about" },
-  { label: "Services", to: "/services" },
-  { label: "Journal", to: "/journal" },
-  { label: "Contact", to: "/contact" },
+  { label: "What We Do", to: "/what-we-do" },
+  { label: "Our Planning Packages", to: "/our-planning-packages" },
+  { label: "Our Approach", to: "/our-approach" },
+  { label: "Our Journal", to: "/our-journal" },
+  { label: "Connect with Us", to: "/connect-with-us" },
 ];
 
 export const STUDIO = {
@@ -53,14 +54,14 @@ export const HOME = {
     title: "Thoughtfully planned.\nBeautifully celebrated.",
     subtitle: "A boutique studio designing intimate, unforgettable weddings — from the first toast to the last dance.",
     ctaLabel: "Start planning your day",
-    ctaTo: "/contact",
+    ctaTo: "/connect-with-us",
   },
 };
 
 // ---------------------------------------------------------------------------
-// About
+// What We Do (formerly "About")
 // ---------------------------------------------------------------------------
-export const ABOUT = {
+export const WHAT_WE_DO = {
   hero: {
     media: [
       {
@@ -117,9 +118,9 @@ export const ABOUT = {
 };
 
 // ---------------------------------------------------------------------------
-// Services
+// Our Planning Packages (formerly "Services")
 // ---------------------------------------------------------------------------
-export const SERVICES = {
+export const PLANNING_PACKAGES = {
   hero: {
     media: [
       {
@@ -130,15 +131,22 @@ export const SERVICES = {
       },
       { label: "Sofia & Daniel's reception", src: unsplash("photo-1769230387364-8b0c2b63e18b"), focalPoint: "center" },
     ] as MarketingMedia[],
-    eyebrow: "Work with us",
+    eyebrow: "Our planning packages",
     title: "Destination weddings,\ndesigned with intention",
   },
   intro: "Since our first wedding, our approach has been rooted in one belief: your day should feel effortless, authentic, and designed with intention. We embrace quiet luxury — refined elegance without excess — to create a celebration that feels entirely yours.",
+  // The full-bleed photo + large script-text divider between the intro and the category list,
+  // exactly like the château photo + "Our Services" overlay on annelaureweddings.com/services.
+  dividerPhoto: { label: "A ceremony ready for guests", src: unsplash("photo-1769812344081-92b3e2ac39c0"), focalPoint: "center" } as MarketingMedia,
+  // One overarching heading + body for the whole page (matches annelaureweddings.com/services,
+  // which states this once at the top) — NOT repeated per category. Categories below are lean
+  // stacked bands (name + bullet groups only), which is what actually makes them read as a
+  // "stack" instead of four disconnected mini hero sections each with their own heading/CTA.
+  heading: "Full wedding planning and thoughtful design",
+  body: "As your planner and designer, we oversee every step of your wedding. Together, we imagine and bring to life an elegant, timeless event tailored to your story — from selecting inspired vendors to designing a cohesive atmosphere for every moment.",
   categories: [
     {
       name: "Planning",
-      heading: "Full wedding planning and thoughtful design",
-      body: "As your planner and designer, we oversee every step of your wedding. Together, we imagine and bring to life an elegant, timeless event tailored to your story — from selecting inspired vendors to designing a cohesive atmosphere for every moment.",
       groups: [
         {
           title: "Venue Selection & Management",
@@ -160,8 +168,6 @@ export const SERVICES = {
     },
     {
       name: "Design",
-      heading: "Styling & creative direction",
-      body: "Every detail is designed, never defaulted. We build a full visual world for your wedding — palette, texture, light — and bring in the right hands to make it real.",
       groups: [
         {
           title: "Styling & Creative Direction",
@@ -183,8 +189,6 @@ export const SERVICES = {
     },
     {
       name: "Guests",
-      heading: "Guest experience, start to finish",
-      body: "Your guests are part of the story too. We handle the logistics of getting everyone there, comfortable, and cared for — quietly, in the background.",
       groups: [
         {
           title: "Guestlist & RSVP",
@@ -204,8 +208,6 @@ export const SERVICES = {
     },
     {
       name: "On the day",
-      heading: "On-site coordination",
-      body: "On your wedding day, we're the ones checking the time so you don't have to. A detailed run of show, and a team on the ground to hold it together.",
       groups: [
         {
           title: "Timeline & Run of Show",
@@ -224,19 +226,48 @@ export const SERVICES = {
       ],
     },
   ],
-  howWeWork: {
-    heading: "How we work",
-    steps: [
-      { title: "Discovery call", body: "We begin with a consultation to understand your story, your style, and your wishes for the day." },
-      { title: "A tailored proposal", body: "From there, we craft a proposal built around your needs, your guests, and your venue." },
-      { title: "Design & planning", body: "Together, we build every layer of the day — vendors, design, logistics — with you involved as much or as little as you like." },
-      { title: "Your wedding day", body: "We're on-site from first light to last dance, so every moment is exactly as it should be." },
-    ],
-  },
 };
 
 // ---------------------------------------------------------------------------
-// Journal
+// Our Approach — the studio's process/methodology, split out into its own page
+// from what used to be the "How We Work" section at the bottom of Services.
+// ---------------------------------------------------------------------------
+export const OUR_APPROACH = {
+  hero: {
+    media: [
+      { label: "Planning notes and a quiet moment", src: unsplash("photo-1719938570902-6fe35719cde9"), focalPoint: "center" },
+      { label: "A couple reviewing their plans together", src: unsplash("photo-1708569176850-9de9aa6b179b"), focalPoint: "center" },
+    ] as MarketingMedia[],
+    eyebrow: "How we work",
+    title: "A process built\naround you",
+  },
+  intro: "No two weddings — and no two couples — are planned the same way. Our approach is a steady, four-part rhythm that flexes around your story, your timeline, and how involved you want to be at each stage. It's less a checklist than a conversation that deepens over time, one that leaves room for your wedding to surprise you in all the right ways.",
+  steps: [
+    {
+      index: "01",
+      title: "Discovery call",
+      body: "We begin with a consultation to understand your story, your style, and your wishes for the day — no assumptions, just listening. This is where we learn who you are as a couple: how you met, what draws you to a destination, the moments you most want your guests to remember. We ask about budget and boundaries early and honestly, so nothing that follows comes as a surprise. By the end of the call, we should feel less like planners you've hired and more like friends who happen to know how to throw a wedding.",
+    },
+    {
+      index: "02",
+      title: "A tailored proposal",
+      body: "From there, we craft a proposal built around your needs, your guests, and your venue — a clear picture of what working together looks like. It lays out scope, timeline, and investment in plain language, with room to adjust before anything is finalized. We'd rather spend an extra week refining a proposal than hand you one that doesn't feel like yours. Once you sign on, you'll know exactly what to expect from us at every stage that follows, and when to expect it.",
+    },
+    {
+      index: "03",
+      title: "Design & planning",
+      body: "Together, we build every layer of the day — vendors, design, logistics — with you involved as much or as little as you like. We source venues and vendors who match your vision and vet every contract on your behalf, so you're never the one chasing a confirmation. Design moves from mood boards to floor plans to final details, with regular check-ins to keep you close to the process without carrying its weight. Travel, permits, and the countless small logistics of a destination wedding are ours to manage.",
+    },
+    {
+      index: "04",
+      title: "Your wedding day",
+      body: "We're on-site from first light to last dance, so every moment is exactly as it should be, and you're free to just be present in it. Our team runs the timeline, manages every vendor, and quietly solves whatever comes up, so any hiccup is handled long before it reaches you. You and your guests get to simply experience the day — the toasts, the dancing, the small unrepeatable moments — while we handle everything happening just out of view.",
+    },
+  ],
+};
+
+// ---------------------------------------------------------------------------
+// Our Journal (formerly "Journal")
 // ---------------------------------------------------------------------------
 export interface JournalPost {
   slug: string;
@@ -333,9 +364,9 @@ export const JOURNAL_POSTS: JournalPost[] = [
 ];
 
 // ---------------------------------------------------------------------------
-// Contact
+// Connect with Us (formerly "Contact")
 // ---------------------------------------------------------------------------
-export const CONTACT = {
+export const CONNECT = {
   media: {
     label: "Celebrating on the dance floor",
     src: unsplash("photo-1708569176813-746f00614012"),

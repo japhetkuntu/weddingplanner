@@ -5,11 +5,11 @@ import { HeroMedia } from "@/components/marketing/HeroMedia";
 import { GalleryGrid } from "@/components/marketing/GalleryGrid";
 import { JOURNAL_POSTS } from "@/content/marketing";
 
-export default function JournalPostPage() {
+export default function OurJournalPostPage() {
   const { postSlug } = useParams<{ postSlug: string }>();
   const post = JOURNAL_POSTS.find((p) => p.slug === postSlug);
 
-  if (!post) return <Navigate to="/journal" replace />;
+  if (!post) return <Navigate to="/our-journal" replace />;
 
   return (
     <div className="ovutor-fade-in bg-bg font-sans text-ink">
@@ -38,8 +38,8 @@ export default function JournalPostPage() {
       ) : null}
 
       <div className="px-6 pb-16 text-center sm:px-10">
-        <Link to="/journal" className="inline-block text-xs font-bold uppercase tracking-[.1em] text-primary hover:underline">
-          &larr; Back to the Journal
+        <Link to="/our-journal" className="inline-block text-xs font-bold uppercase tracking-[.1em] text-primary hover:underline">
+          &larr; Back to Our Journal
         </Link>
       </div>
 

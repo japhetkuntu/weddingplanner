@@ -4,16 +4,23 @@ export default {
   theme: {
     extend: {
       colors: {
-        primary: "#C1281B", // brand-primary / brand-accent — brick red
+        primary: "#E0115F", // brand-primary / brand-accent — ruby pink
         "primary-tint": "#E6F4FE",
         ink: "#1E1E1E", // brand-ink — charcoal body text
         bg: "#FAF9F8", // brand-background — warm off-white canvas
         "bg-warm": "#F9F9FB",
         surface: "#FFFFFF", // brand-surface — card/panel fill
+        // Solid dark-section fills (footers, hero overlays, dark button/toast variants) —
+        // replaces the old near-black ("ink") background sections. Always pair with `text-ink`,
+        // never `text-white` — white-on-gold fails contrast badly (~1.6:1).
+        gold: "#FEB326",
       },
       fontFamily: {
         display: ['"Playfair Display"', "Georgia", "serif"],
         sans: ["Inter", "Arial", "sans-serif"],
+        // The Ovutor wordmark's cursive script — only the wedding-website app loads the font file
+        // and uses this, but the token lives here alongside the others it's kept in sync with.
+        script: ['"Alex Brush"', "cursive"],
       },
       // Every corner in the designs is square — flatten Tailwind's radius scale.
       borderRadius: {

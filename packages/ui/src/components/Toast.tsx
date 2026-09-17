@@ -12,7 +12,7 @@ export interface ToastProps {
 }
 
 const toneClasses: Record<ToastTone, string> = {
-  default: "bg-ink text-white",
+  default: "bg-gold text-ink",
   error: "bg-[#5d2924] text-white border border-primary",
 };
 

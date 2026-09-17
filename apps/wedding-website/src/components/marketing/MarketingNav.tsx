@@ -1,13 +1,17 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@ovutor/ui";
-import { NAV_LINKS } from "@/content/marketing";
+import { Logo } from "@/components/Logo";
+import { NAV_LINKS, STUDIO } from "@/content/marketing";
 
-/** Fixed top bar (logo + a "Menu" trigger, transparent so it sits over a hero) plus a full-screen
- * overlay menu — the pattern borrowed from nordicadventureweddings.eu's navigation: opening the
- * menu doesn't drop a small dropdown, it takes over the whole viewport with large stacked links,
- * closed by an explicit X. Closes automatically on route change so a link click doesn't leave the
- * overlay sitting open on the next page.
+const OVERLAY_IMAGE = "https://images.unsplash.com/photo-1566813142858-99f1e35e333a?auto=format&fit=crop&w=1200&q=85";
+
+/** Fixed top bar (icon / centered logo / bare hamburger, no "Menu" label — transparent so it sits
+ * over a hero) plus a full-screen overlay menu — the pattern from nordicadventureweddings.eu's
+ * navigation: an icon-left, logo-center, hamburger-right top bar, and opening the menu takes over
+ * the whole viewport with a decorative photo on one side and large stacked links on the other,
+ * rather than a small dropdown. Closes automatically on route change so a link click doesn't leave
+ * the overlay sitting open on the next page.
  *
  * `dark` controls the closed top bar's own text color, not the overlay (which is always the same
  * light/ink combination) — pass `dark={false}` on a page whose very top is a light background
@@ -33,26 +37,40 @@ export function MarketingNav({ dark = true }: { dark?: boolean }) {
     <>
       <header
         className={cn(
-          "absolute inset-x-0 top-0 z-40 flex items-center justify-between px-6 py-6 sm:px-10",
+          "absolute inset-x-0 top-0 z-40 grid grid-cols-[1fr_auto_1fr] items-center gap-4 px-6 py-6 sm:px-10",
           dark ? "text-white" : "text-ink",
         )}
       >
-        <Link to="/" className="font-display text-2xl">
-          Ovutor <span className="text-primary">&#9825;</span>
-        </Link>
-        <button
-          type="button"
-          onClick={() => setOpen(true)}
-          className="flex items-center gap-3 text-[10px] font-bold uppercase tracking-[.2em]"
-          aria-expanded={open}
-          aria-label="Open menu"
+        <a
+          href={`https://instagram.com/${STUDIO.instagram.replace("@", "")}`}
+          target="_blank"
+          rel="noreferrer"
+          aria-label="Ovutor on Instagram"
+          className="justify-self-start opacity-80 hover:opacity-100"
         >
-          Menu
-          <span className={cn("flex h-10 w-10 flex-col items-center justify-center gap-[5px] border", dark ? "border-white/50" : "border-ink/30")}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true">
+            <rect x="3" y="3" width="18" height="18" rx="5" />
+            <circle cx="12" cy="12" r="4" />
+            <circle cx="17.2" cy="6.8" r="1" fill="currentColor" stroke="none" />
+          </svg>
+        </a>
+
+        <Link to="/" className="justify-self-center">
+          <Logo className="text-3xl sm:text-4xl" />
+        </Link>
+
+        <div className="flex items-center justify-self-end gap-4">
+          <button
+            type="button"
+            onClick={() => setOpen(true)}
+            aria-expanded={open}
+            aria-label="Open menu"
+            className={cn("flex h-10 w-10 flex-col items-center justify-center gap-[5px] border", dark ? "border-white/50" : "border-ink/30")}
+          >
             <span className={cn("h-px w-4", dark ? "bg-white" : "bg-ink")} />
             <span className={cn("h-px w-4", dark ? "bg-white" : "bg-ink")} />
-          </span>
-        </button>
+          </button>
+        </div>
       </header>
 
       <div
@@ -66,31 +84,36 @@ export function MarketingNav({ dark = true }: { dark?: boolean }) {
           type="button"
           onClick={() => setOpen(false)}
           aria-label="Close menu"
-          className="absolute right-6 top-6 grid h-11 w-11 place-items-center border border-ink/15 text-lg sm:right-10 sm:top-6"
+          className="absolute left-1/2 top-6 z-10 grid h-11 w-11 -translate-x-1/2 place-items-center border border-ink/15 text-lg"
         >
           &#10005;
         </button>
 
-        <nav className="flex h-full flex-col items-end justify-center gap-3 px-8 sm:gap-4 sm:px-16">
-          {NAV_LINKS.map((link) => (
+        <div className="grid h-full grid-cols-1 lg:grid-cols-2">
+          <div className="hidden lg:block">
+            <img src={OVERLAY_IMAGE} alt="" className="h-full w-full object-cover" />
+          </div>
+          <nav className="flex flex-col items-start justify-center gap-3 px-8 py-24 sm:gap-4 sm:px-16">
+            {NAV_LINKS.map((link) => (
+              <Link
+                key={link.to}
+                to={link.to}
+                className={cn(
+                  "font-display text-3xl leading-tight transition-opacity hover:opacity-60 sm:text-4xl",
+                  location.pathname === link.to ? "text-primary" : "text-ink",
+                )}
+              >
+                {link.label}
+              </Link>
+            ))}
             <Link
-              key={link.to}
-              to={link.to}
-              className={cn(
-                "font-display text-4xl leading-tight transition-opacity hover:opacity-60 sm:text-5xl",
-                location.pathname === link.to ? "text-primary" : "text-ink",
-              )}
+              to="/connect-with-us"
+              className="mt-6 border border-primary bg-primary px-6 py-3.5 text-xs font-bold uppercase tracking-[.12em] text-white hover:brightness-110"
             >
-              {link.label}
+              Enquire now
             </Link>
-          ))}
-          <Link
-            to="/contact"
-            className="mt-6 border border-primary bg-primary px-6 py-3.5 text-xs font-bold uppercase tracking-[.12em] text-white hover:brightness-110"
-          >
-            Enquire now
-          </Link>
-        </nav>
+          </nav>
+        </div>
       </div>
     </>
   );

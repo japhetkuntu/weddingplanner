@@ -51,8 +51,8 @@ function HeroSlide({ media, active }: { media: MarketingMedia; active: boolean }
           fetchPriority={active ? "high" : "low"}
         />
       ) : (
-        <div className="flex h-full w-full items-end justify-end bg-gradient-to-br from-ink/80 via-ink/60 to-ink/70 p-6 text-right">
-          <span className="font-display text-sm italic text-white/25">{media.label}</span>
+        <div className="flex h-full w-full items-end justify-end bg-gold p-6 text-right">
+          <span className="font-display text-sm italic text-ink/40">{media.label}</span>
         </div>
       )}
     </div>
@@ -95,7 +95,7 @@ export function HeroMedia({
   }, [slides.length]);
 
   return (
-    <section className={cn("relative flex overflow-hidden bg-ink", heightClassName, className)}>
+    <section className={cn("relative flex overflow-hidden bg-gold", heightClassName, className)}>
       <div className="absolute inset-0">
         {slides.map((slide, i) => (
           <HeroSlide key={slide.video ?? slide.src ?? slide.label} media={slide} active={i === index} />

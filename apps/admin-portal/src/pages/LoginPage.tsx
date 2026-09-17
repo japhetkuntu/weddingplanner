@@ -27,27 +27,27 @@ export default function LoginPage() {
 
   return (
     <div className="grid min-h-screen grid-cols-1 lg:grid-cols-[1.05fr_.95fr]">
-      <section className="relative hidden flex-col justify-between overflow-hidden bg-ink px-10 py-12 text-white lg:flex xl:px-16">
+      <section className="relative hidden flex-col justify-between overflow-hidden bg-gold px-10 py-12 text-ink lg:flex xl:px-16">
         <div className="pointer-events-none absolute -bottom-36 -right-40 h-[420px] w-[420px] rotate-[25deg] border border-primary" />
         <div>
           <div className="font-display text-3xl">
             Ovutor <span className="text-primary">&#9825;</span>
           </div>
-          <p className="mt-3 text-[10px] font-bold uppercase tracking-[.16em] text-[#e7aca6]">Protected planning workspace</p>
+          <p className="mt-3 text-[10px] font-bold uppercase tracking-[.16em] text-ink/70">Protected planning workspace</p>
         </div>
         <div className="relative z-10">
           <h1 className="max-w-md font-display text-5xl leading-[1.1]">Every celebration, beautifully in sync.</h1>
-          <p className="mt-3.5 max-w-md leading-relaxed text-[#eee7e2]">
+          <p className="mt-3.5 max-w-md leading-relaxed text-ink/70">
             Securely coordinate the decisions, people and details that keep meaningful wedding days moving.
           </p>
-          <div className="mt-6 grid max-w-md grid-cols-2 gap-3.5 border-t border-white/30 pt-5">
+          <div className="mt-6 grid max-w-md grid-cols-2 gap-3.5 border-t border-ink/25 pt-5">
             <div>
               <b className="block font-display text-3xl">38</b>
-              <span className="text-sm text-[#eee7e2]">celebrations in planning</span>
+              <span className="text-sm text-ink/70">celebrations in planning</span>
             </div>
             <div>
               <b className="block font-display text-3xl">1 place</b>
-              <span className="text-sm text-[#eee7e2]">for every detail that matters</span>
+              <span className="text-sm text-ink/70">for every detail that matters</span>
             </div>
           </div>
         </div>

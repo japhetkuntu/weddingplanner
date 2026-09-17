@@ -105,7 +105,7 @@ export default function WebsitePage() {
             href={siteUrl}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex min-h-[45px] items-center border border-ink px-5 text-[11px] font-bold uppercase tracking-[.1em] text-ink hover:bg-ink hover:text-white"
+            className="inline-flex min-h-[45px] items-center border border-ink px-5 text-[11px] font-bold uppercase tracking-[.1em] text-ink hover:border-gold hover:bg-gold hover:text-ink"
           >
             Open link
           </a>

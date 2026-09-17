@@ -5,6 +5,7 @@ import { getSite, submitRsvp, ApiError } from "@/lib/api";
 import { PlaceholderImage } from "@/components/PlaceholderImage";
 import { WeddingLoader } from "@/components/WeddingLoader";
 import { OvutorLanding } from "@/components/OvutorLanding";
+import { Logo } from "@/components/Logo";
 import type { SiteConfig } from "@/types";
 
 const NAV_LINKS = [
@@ -69,9 +70,7 @@ export default function CoupleSitePage() {
   return (
     <div className="ovutor-fade-in bg-bg font-sans text-ink">
       <header className="absolute inset-x-0 top-0 z-30 flex items-center justify-between px-6 py-5 text-white sm:px-10">
-        <div className="font-display text-2xl">
-          Ovutor <span className="text-primary">&#9825;</span>
-        </div>
+        <Logo className="text-3xl" />
         <nav className="hidden gap-6 text-xs font-bold uppercase tracking-[.1em] lg:flex">
           {NAV_LINKS.map((link) => (
             <a key={link.href} href={link.href} className="hover:opacity-70">
@@ -87,7 +86,7 @@ export default function CoupleSitePage() {
       </header>
 
       {isPublished("hero") ? (
-        <section id="home" className="relative flex min-h-[75vh] items-end bg-ink sm:min-h-[85vh]">
+        <section id="home" className="relative flex min-h-[75vh] items-end bg-gold sm:min-h-[85vh]">
           <div className="absolute inset-0">
             <PlaceholderImage image={c.hero.image} fit="contain" priority />
             <div className="absolute inset-0 bg-gradient-to-t from-ink/85 via-ink/10 to-transparent" />
@@ -136,24 +135,24 @@ export default function CoupleSitePage() {
         </a>
       ) : null}
 
-      <footer className="bg-ink px-6 py-12 text-center text-white sm:px-10">
+      <footer className="bg-gold px-6 py-12 text-center text-ink sm:px-10">
         <div className="font-display text-xl">{c.coupleNames}</div>
-        <p className="mt-1.5 text-sm text-white/70">
+        <p className="mt-1.5 text-sm text-ink/70">
           {new Date(c.date).toLocaleDateString(undefined, { month: "long", day: "numeric", year: "numeric" })}
         </p>
 
-        <div className="mx-auto mt-8 h-px w-10 bg-white/20" />
+        <div className="mx-auto mt-8 h-px w-10 bg-ink/20" />
 
         {/* Small, deliberately quiet — this is the couple's site, Ovutor gets a credit line, not a stage. */}
         <a
           href="/"
-          className="mt-6 inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[.1em] text-white/50 transition-colors hover:text-white"
+          className="mt-6 inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[.1em] text-ink/50 transition-colors hover:text-ink"
         >
-          Made with Ovutor <span className="text-primary">&#9825;</span>
+          Made with <Logo className="text-sm" />
         </a>
-        <p className="mt-1.5 text-xs text-white/35">
+        <p className="mt-1.5 text-xs text-ink/35">
           Planning your own wedding?{" "}
-          <a href="/" className="underline decoration-white/30 underline-offset-2 hover:text-white/70">
+          <a href="/" className="underline decoration-ink/30 underline-offset-2 hover:text-ink/70">
             Start at ovutor.com
           </a>
         </p>
@@ -364,10 +363,10 @@ function RsvpBlock({ site, slug }: { site: SiteConfig; slug: string }) {
   }
 
   return (
-    <section id="rsvp" className="bg-ink px-6 py-16 text-center text-white sm:px-10 sm:py-24">
-      <p className="text-[10px] font-bold uppercase tracking-[.14em] text-white/70">{rsvp.eyebrow}</p>
+    <section id="rsvp" className="bg-gold px-6 py-16 text-center text-ink sm:px-10 sm:py-24">
+      <p className="text-[10px] font-bold uppercase tracking-[.14em] text-ink/70">{rsvp.eyebrow}</p>
       <h2 className="my-3 font-display text-4xl sm:text-5xl">{rsvp.title}</h2>
-      <p className="mx-auto max-w-[550px] leading-relaxed text-white/80">{rsvp.body}</p>
+      <p className="mx-auto max-w-[550px] leading-relaxed text-ink/80">{rsvp.body}</p>
 
       <div className="mx-auto mt-10 max-w-[440px] bg-white p-6 text-left text-ink sm:p-8">
         {!showForm && stored ? (
@@ -413,7 +412,7 @@ function RsvpBlock({ site, slug }: { site: SiteConfig; slug: string }) {
                 aria-pressed={attending === false}
                 className={cn(
                   "flex flex-1 items-center justify-center gap-2 border py-3 text-sm font-bold uppercase tracking-[.04em]",
-                  attending === false ? "border-ink bg-ink text-white" : "border-[#aaa29d] text-ink hover:border-ink",
+                  attending === false ? "border-gold bg-gold text-ink" : "border-[#aaa29d] text-ink hover:border-ink",
                 )}
               >
                 👎 No

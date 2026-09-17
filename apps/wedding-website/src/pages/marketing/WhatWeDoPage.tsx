@@ -3,13 +3,13 @@ import { MarketingFooter } from "@/components/marketing/MarketingFooter";
 import { HeroMedia } from "@/components/marketing/HeroMedia";
 import { StatementSection } from "@/components/marketing/StatementSection";
 import { SplitRow } from "@/components/marketing/SplitRow";
-import { ABOUT } from "@/content/marketing";
+import { WHAT_WE_DO } from "@/content/marketing";
 
-/** juliaandevita.com/services' video hero + overlapping title card, then its black-and-white
- * statement section — followed by annelaureweddings.com/love-notes' repeating split-row flow,
- * but on a vibrant wine background instead of their white. */
-export default function AboutPage() {
-  const { hero, statement, flow } = ABOUT;
+/** "What We Do" (formerly "About"). juliaandevita.com/services' video hero + overlapping title
+ * card, then its black-and-white statement section — followed by annelaureweddings.com/love-notes'
+ * repeating split-row flow, but on the platform's own brand-pink background instead of their white. */
+export default function WhatWeDoPage() {
+  const { hero, statement, flow } = WHAT_WE_DO;
   return (
     <div className="ovutor-fade-in bg-bg font-sans text-ink">
       <MarketingNav />
@@ -28,7 +28,7 @@ export default function AboutPage() {
         <StatementSection heading={statement.heading} body={statement.body} script={statement.script} />
       </div>
 
-      <div className="bg-[#4A0F14]">
+      <div className="bg-primary">
         {flow.map((row, i) => (
           <SplitRow
             key={row.index}

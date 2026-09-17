@@ -3,17 +3,18 @@ import { MarketingNav } from "@/components/marketing/MarketingNav";
 import { MarketingFooter } from "@/components/marketing/MarketingFooter";
 import { PlaceholderImage } from "@/components/PlaceholderImage";
 import { Button } from "@ovutor/ui";
-import { CONTACT, STUDIO } from "@/content/marketing";
+import { CONNECT, STUDIO } from "@/content/marketing";
 
 const FIELD_CLASS =
   "mt-1 w-full border-0 border-b border-white/30 bg-transparent pb-2 text-sm text-white placeholder:text-white/40 focus:border-white focus:outline-none";
 const LABEL_CLASS = "block text-[10px] font-bold uppercase tracking-[.12em] text-white/60";
 
-/** annelaureweddings.com/contact's split intro (photo + "Let's Connect") plus its full-width
- * enquiry form below — on a vibrant wine background instead of their cream. This form isn't
- * wired to a backend yet; it just confirms receipt locally. Swap handleSubmit for a real
- * endpoint once one exists for studio-wide enquiries (distinct from a couple's own RSVP API). */
-export default function ContactPage() {
+/** "Connect with Us" (formerly "Contact"). annelaureweddings.com/contact's split intro (photo +
+ * "Let's Connect") plus its full-width enquiry form below — on the platform's own brand-pink
+ * background instead of their cream. This form isn't wired to a backend yet; it just confirms
+ * receipt locally. Swap handleSubmit for a real endpoint once one exists for studio-wide
+ * enquiries (distinct from a couple's own RSVP API). */
+export default function ConnectWithUsPage() {
   const [sent, setSent] = useState(false);
 
   function handleSubmit(e: React.FormEvent) {
@@ -22,17 +23,17 @@ export default function ContactPage() {
   }
 
   return (
-    <div className="ovutor-fade-in bg-[#4A0F14] font-sans text-ink">
+    <div className="ovutor-fade-in bg-primary font-sans text-ink">
       <MarketingNav />
 
       <div className="grid grid-cols-1 pt-24 lg:grid-cols-2 lg:pt-0">
         <div className="relative aspect-[4/3] lg:aspect-auto">
-          <PlaceholderImage image={CONTACT.media} className="absolute inset-0" />
+          <PlaceholderImage image={CONNECT.media} className="absolute inset-0" />
         </div>
         <div className="flex flex-col justify-center px-6 py-14 sm:px-12 sm:py-20 lg:px-16">
-          <p className="text-[10px] font-bold uppercase tracking-[.2em] text-white/60">{CONTACT.eyebrow}</p>
-          <h1 className="mt-3 font-display text-4xl italic text-white sm:text-5xl">{CONTACT.title}</h1>
-          {CONTACT.paragraphs.map((p) => (
+          <p className="text-[10px] font-bold uppercase tracking-[.2em] text-white/60">{CONNECT.eyebrow}</p>
+          <h1 className="mt-3 font-display text-4xl italic text-white sm:text-5xl">{CONNECT.title}</h1>
+          {CONNECT.paragraphs.map((p) => (
             <p key={p} className="mt-4 max-w-md text-sm leading-relaxed text-white/75">
               {p}
             </p>

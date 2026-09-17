@@ -5,51 +5,40 @@ interface ServiceGroup {
   bullets: string[];
 }
 
-/** One category block from the middle of annelaureweddings.com/services: a centered heading +
- * description + CTA, a divider, then a label and a 2-column set of bulleted sub-groups. Repeats
- * once per service category on the Services page. */
-export function ServiceCategoryBlock({
-  name,
-  heading,
-  body,
-  groups,
-}: {
-  name: string;
-  heading: string;
-  body: string;
-  groups: ServiceGroup[];
-}) {
+/** One "stacked" band exactly as annelaureweddings.com/services does it: a 2-column set of
+ * bulleted sub-groups, then a centered "Our Work" label + a solid filled button — all on the same
+ * flat cream background as the rest of the page. No color blocks, no per-band heading/paragraph.
+ * The category's own name isn't rendered here — it's passed as `title` to the surrounding
+ * `StackedSection`, which pins it to a header strip that stays visible once the next section
+ * stacks over this one. Meant to be rendered inside a `StackedSection`, which supplies the
+ * full-screen height, the sticky positioning, and the shadow that separates it from the next band
+ * — this component only owns its own body content and padding. */
+export function ServiceCategoryBlock({ groups }: { groups: ServiceGroup[] }) {
   return (
-    <div className="border-t border-white/15 py-16 sm:py-20">
-      <div className="mx-auto max-w-2xl px-6 text-center sm:px-10">
-        <h3 className="font-display text-2xl leading-snug text-white sm:text-3xl">{heading}</h3>
-        <p className="mt-4 text-sm leading-relaxed text-white/75">{body}</p>
-        <div className="mt-6 flex flex-col items-center gap-3">
-          <p className="text-xs font-bold uppercase tracking-[.1em] text-white/50">Our work</p>
-          <Link
-            to="/contact"
-            className="border border-white/70 px-6 py-3 text-xs font-bold uppercase tracking-[.1em] text-white hover:bg-white hover:text-ink"
-          >
+    <div className="px-6 py-14 sm:px-10 sm:py-16">
+      <div className="mx-auto max-w-3xl">
+        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2">
+          {groups.map((g) => (
+            <div key={g.title}>
+              <h4 className="text-xs font-bold uppercase tracking-[.08em] text-ink">{g.title}</h4>
+              <ul className="mt-3 space-y-2 text-sm leading-relaxed text-ink/70">
+                {g.bullets.map((b) => (
+                  <li key={b} className="flex gap-2">
+                    <span className="text-ink/35">&middot;</span>
+                    <span>{b}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-10 flex flex-col items-center gap-3">
+          <p className="text-xs font-bold uppercase tracking-[.1em] text-ink/50">Our work</p>
+          <Link to="/connect-with-us" className="border border-primary bg-primary px-6 py-3 text-xs font-bold uppercase tracking-[.1em] text-white hover:brightness-110">
             Inquire for availability
           </Link>
         </div>
-      </div>
-
-      <p className="mt-14 text-center font-display text-xl italic text-white/60">{name}</p>
-      <div className="mx-auto mt-6 grid max-w-3xl grid-cols-1 gap-10 px-6 sm:grid-cols-2 sm:px-10">
-        {groups.map((g) => (
-          <div key={g.title}>
-            <h4 className="text-xs font-bold uppercase tracking-[.08em] text-white">{g.title}</h4>
-            <ul className="mt-3 space-y-2 text-sm leading-relaxed text-white/70">
-              {g.bullets.map((b) => (
-                <li key={b} className="flex gap-2">
-                  <span className="text-white/40">&middot;</span>
-                  <span>{b}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
       </div>
     </div>
   );

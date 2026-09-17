@@ -71,15 +71,15 @@ export default function DashboardPage() {
       </div>
 
       {nextDecision ? (
-        <section className="mb-6 flex flex-wrap items-center justify-between gap-4 bg-ink p-6 text-white">
+        <section className="mb-6 flex flex-wrap items-center justify-between gap-4 bg-gold p-6 text-ink">
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-[.12em] text-white/70">
+            <p className="text-[10px] font-bold uppercase tracking-[.12em] text-ink/70">
               Your next decision · Due {new Date(nextDecision.date).toLocaleDateString(undefined, { month: "short", day: "numeric" })}
             </p>
             <h2 className="my-1.5 font-display text-2xl">{nextDecision.title}</h2>
-            <p className="max-w-xl text-white/80">{nextDecision.detail}</p>
+            <p className="max-w-xl text-ink/80">{nextDecision.detail}</p>
           </div>
-          <LinkButton to="/checklist" variant="dark" className="border-white">
+          <LinkButton to="/checklist" variant="dark" className="border-ink">
             Review choices
           </LinkButton>
         </section>
