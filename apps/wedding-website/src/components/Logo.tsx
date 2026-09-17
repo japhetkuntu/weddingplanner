@@ -9,15 +9,17 @@ import { cn } from "@ovutor/ui";
  * should flip with the surrounding text color. */
 export function Logo({ className }: { className?: string }) {
   return (
-    <span className={cn("relative inline-block whitespace-nowrap font-script normal-case leading-none tracking-normal", className)}>
-      <span aria-hidden="true">Ovutor</span>
-      <span
-        aria-hidden="true"
-        className="absolute"
-        style={{ left: "0.26em", top: "0.72em", fontSize: "0.4em", color: "#E2231A", lineHeight: 1 }}
-      >
-        &#9829;
+    <span className={cn("inline-block whitespace-nowrap font-script normal-case leading-none tracking-normal", className)}>
+      <span aria-hidden="true" className="relative inline-block leading-none">
+        O
+        <span
+          className="absolute"
+          style={{ left: "0.22em", top: "0.78em", fontSize: "0.38em", color: "#E2231A", lineHeight: 1 }}
+        >
+          &#9829;
+        </span>
       </span>
+      <span aria-hidden="true">vutor</span>
       <span className="sr-only">Ovutor</span>
     </span>
   );
