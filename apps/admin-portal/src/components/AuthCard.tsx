@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { Logo } from "@ovutor/ui";
 
 export function AuthShell({ children }: { children: ReactNode }) {
   return <div className="grid min-h-screen place-items-center bg-bg px-4 py-10">{children}</div>;
@@ -9,11 +10,7 @@ export function AuthCard({ children }: { children: ReactNode }) {
 }
 
 export function AuthLogo() {
-  return (
-    <div className="font-display text-2xl">
-      Ovutor <span className="text-primary">&#9825;</span>
-    </div>
-  );
+  return <Logo className="text-3xl" />;
 }
 
 export function AuthEyebrow({ children }: { children: ReactNode }) {

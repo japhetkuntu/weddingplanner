@@ -233,6 +233,43 @@ export interface WebsiteContent {
   rsvp: WebsiteRsvpConfig;
 }
 
+/** The Ovutor studio's own marketing site (apps/wedding-website) — distinct from WebsiteContent
+ * above, which is a couple's wedding site. Every field is optional: null/blank means the admin
+ * hasn't set it, and the public site falls back to its own static copy for that field. */
+export interface MarketingImage {
+  url?: string;
+  label?: string;
+  focalPoint?: FocalPoint;
+}
+
+export interface MarketingHero {
+  eyebrow?: string;
+  title?: string;
+  subtitle?: string;
+  ctaLabel?: string;
+  ctaTo?: string;
+  media?: MarketingImage[];
+}
+
+export type MarketingSectionLayout = "text-only" | "image-left" | "image-right" | "image-full";
+
+export interface MarketingContentBlock {
+  heading?: string;
+  body?: string;
+  image?: MarketingImage;
+  layout: MarketingSectionLayout;
+}
+
+export interface MarketingSection {
+  id: string;
+  pageSlug: string;
+  type: string;
+  order: number;
+  isEnabled: boolean;
+  title: string;
+  content: MarketingContentBlock;
+}
+
 export interface MilestoneItem {
   id: string;
   clientId: string;

@@ -18,6 +18,9 @@ import type {
   ChecklistPhase,
   ChecklistTask,
   DocumentFile,
+  MarketingContentBlock,
+  MarketingHero,
+  MarketingSection,
   MilestoneItem,
   RsvpGuest,
   Vendor,
@@ -437,6 +440,47 @@ export async function uploadWebsiteImage(clientId: string, file: File): Promise<
   const form = new FormData();
   form.append("file", file);
   const result = await api.post<{ url: string }>(`/api/clients/${clientId}/website/images`, form, { isFormData: true });
+  return result.url;
+}
+
+// ---------- Marketing (the Ovutor studio's own site, not a client's) ----------
+
+export function getMarketingHero(pageSlug: string): Promise<MarketingHero> {
+  return api.get<{ pageSlug: string; hero: MarketingHero }>(`/api/marketing/pages/${pageSlug}/hero`).then((r) => r.hero);
+}
+
+export function updateMarketingHero(pageSlug: string, hero: MarketingHero): Promise<MarketingHero> {
+  return api.put<{ pageSlug: string; hero: MarketingHero }>(`/api/marketing/pages/${pageSlug}/hero`, { hero }).then((r) => r.hero);
+}
+
+export function getMarketingSections(pageSlug: string): Promise<MarketingSection[]> {
+  return api.get<MarketingSection[]>(`/api/marketing/pages/${pageSlug}/sections`);
+}
+
+export function createMarketingSection(pageSlug: string, title: string, content: MarketingContentBlock): Promise<MarketingSection> {
+  return api.post<MarketingSection>(`/api/marketing/pages/${pageSlug}/sections`, { title, content });
+}
+
+export function updateMarketingSection(sectionId: string, title: string, content: MarketingContentBlock): Promise<MarketingSection> {
+  return api.put<MarketingSection>(`/api/marketing/sections/${sectionId}`, { title, content });
+}
+
+export function setMarketingSectionEnabled(sectionId: string, isEnabled: boolean): Promise<MarketingSection> {
+  return api.patch<MarketingSection>(`/api/marketing/sections/${sectionId}/enabled`, { isEnabled });
+}
+
+export function reorderMarketingSections(pageSlug: string, orderedIds: string[]): Promise<MarketingSection[]> {
+  return api.put<MarketingSection[]>(`/api/marketing/pages/${pageSlug}/sections/order`, { orderedIds });
+}
+
+export function deleteMarketingSection(sectionId: string): Promise<void> {
+  return api.delete(`/api/marketing/sections/${sectionId}`);
+}
+
+export async function uploadMarketingImage(pageSlug: string, file: File): Promise<string> {
+  const form = new FormData();
+  form.append("file", file);
+  const result = await api.post<{ url: string }>(`/api/marketing/pages/${pageSlug}/images`, form, { isFormData: true });
   return result.url;
 }
 

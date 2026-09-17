@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
-import { Button } from "@ovutor/ui";
-import { Logo } from "@/components/Logo";
+import { Button, Logo } from "@ovutor/ui";
 
 const PILLARS = [
   {

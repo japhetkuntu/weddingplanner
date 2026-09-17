@@ -29,6 +29,7 @@ public static class ApplicationServiceExtensions
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IMeService, MeService>();
         services.AddScoped<IPublicSiteService, PublicSiteService>();
+        services.AddScoped<IPublicMarketingService, PublicMarketingService>();
         return services;
     }
 

@@ -1,11 +1,10 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { Button, Checkbox, cn, Input, Label } from "@ovutor/ui";
+import { Button, Checkbox, cn, Input, Label, Logo } from "@ovutor/ui";
 import { getSite, submitRsvp, ApiError } from "@/lib/api";
 import { PlaceholderImage } from "@/components/PlaceholderImage";
 import { WeddingLoader } from "@/components/WeddingLoader";
 import { OvutorLanding } from "@/components/OvutorLanding";
-import { Logo } from "@/components/Logo";
 import type { SiteConfig } from "@/types";
 
 const NAV_LINKS = [

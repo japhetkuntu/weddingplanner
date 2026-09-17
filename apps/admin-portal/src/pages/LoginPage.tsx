@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button, Input, Label, Checkbox, PasswordInput } from "@ovutor/ui";
+import { Button, Input, Label, Checkbox, PasswordInput, Logo } from "@ovutor/ui";
 import { useAuthStore } from "@/store/authStore";
 
 export default function LoginPage() {
@@ -30,9 +30,7 @@ export default function LoginPage() {
       <section className="relative hidden flex-col justify-between overflow-hidden bg-gold px-10 py-12 text-ink lg:flex xl:px-16">
         <div className="pointer-events-none absolute -bottom-36 -right-40 h-[420px] w-[420px] rotate-[25deg] border border-primary" />
         <div>
-          <div className="font-display text-3xl">
-            Ovutor <span className="text-primary">&#9825;</span>
-          </div>
+          <Logo className="text-4xl" />
           <p className="mt-3 text-[10px] font-bold uppercase tracking-[.16em] text-ink/70">Protected planning workspace</p>
         </div>
         <div className="relative z-10">

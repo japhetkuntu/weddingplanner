@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Logo } from "@/components/Logo";
+import { Logo } from "@ovutor/ui";
 import { NAV_LINKS, STUDIO } from "@/content/marketing";
 
 export function MarketingFooter() {

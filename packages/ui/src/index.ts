@@ -19,3 +19,4 @@ export * from "./components/Toggle";
 export * from "./components/EmptyState";
 export * from "./components/Skeleton";
 export * from "./components/PageLoader";
+export * from "./components/Logo";

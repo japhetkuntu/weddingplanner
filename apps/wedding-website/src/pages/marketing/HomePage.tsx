@@ -1,13 +1,35 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
 import { MarketingFooter } from "@/components/marketing/MarketingFooter";
 import { HeroMedia } from "@/components/marketing/HeroMedia";
+import { DynamicContentBlock } from "@/components/marketing/DynamicContentBlock";
 import { HOME } from "@/content/marketing";
+import { mergeHero } from "@/content/mergeMarketing";
+import { getMarketingPage, type MarketingSectionDto } from "@/lib/marketingApi";
 
-/** The landing page is deliberately a single section — a full-bleed image/video hero (the
- * thedestinationwedding.co inspiration), nothing else competing for attention. */
+/** The landing page is deliberately a single section by default — a full-bleed image/video hero
+ * (the thedestinationwedding.co inspiration), nothing else competing for attention. Every field
+ * below starts out as the static `HOME.hero` copy (so the page never waits on the network, and
+ * degrades perfectly if the API is slow or down) and is upgraded in place, field by field, once
+ * any admin-authored content loads — see mergeHero. Admin-added extra sections, if any, render
+ * after the hero. */
 export default function HomePage() {
-  const { hero } = HOME;
+  const [hero, setHero] = useState(HOME.hero);
+  const [sections, setSections] = useState<MarketingSectionDto[]>([]);
+
+  useEffect(() => {
+    getMarketingPage("home")
+      .then((data) => {
+        setHero(mergeHero(data.hero, HOME.hero));
+        setSections(data.sections);
+      })
+      .catch(() => {
+        // Nothing admin-authored, or the API is unreachable — both resolve to "keep showing
+        // the static content already on screen", so there's nothing to do here.
+      });
+  }, []);
+
   return (
     <div className="ovutor-fade-in bg-bg font-sans text-ink">
       <MarketingNav />
@@ -27,6 +49,10 @@ export default function HomePage() {
           </Link>
         </div>
       </HeroMedia>
+
+      {sections.map((section) => (
+        <DynamicContentBlock key={section.id} section={section} />
+      ))}
 
       <MarketingFooter />
     </div>

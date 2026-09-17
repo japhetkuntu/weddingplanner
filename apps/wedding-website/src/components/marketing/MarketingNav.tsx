@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { cn } from "@ovutor/ui";
-import { Logo } from "@/components/Logo";
+import { cn, Logo } from "@ovutor/ui";
 import { NAV_LINKS, STUDIO } from "@/content/marketing";
 import overlayImage from "@/assets/photos/couple-trad-portrait-gold.jpg";
 
