@@ -12,7 +12,7 @@ using Ovutor.Postgres.Sdk.Persistence;
 namespace Ovutor.Postgres.Sdk.Migrations
 {
     [DbContext(typeof(OvutorDbContext))]
-    [Migration("20260917133930_AddMarketingContent")]
+    [Migration("20260917171619_AddMarketingContent")]
     partial class AddMarketingContent
     {
         /// <inheritdoc />
@@ -451,7 +451,7 @@ namespace Ovutor.Postgres.Sdk.Migrations
                     b.ToTable("DocumentFiles");
                 });
 
-            modelBuilder.Entity("Ovutor.Postgres.Sdk.Entities.MarketingHeroContent", b =>
+            modelBuilder.Entity("Ovutor.Postgres.Sdk.Entities.MarketingFixedContent", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -467,6 +467,10 @@ namespace Ovutor.Postgres.Sdk.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("Key")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<string>("PageSlug")
                         .IsRequired()
                         .HasColumnType("text");
@@ -476,10 +480,10 @@ namespace Ovutor.Postgres.Sdk.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("PageSlug")
+                    b.HasIndex("PageSlug", "Key")
                         .IsUnique();
 
-                    b.ToTable("MarketingHeroContents");
+                    b.ToTable("MarketingFixedContents");
                 });
 
             modelBuilder.Entity("Ovutor.Postgres.Sdk.Entities.MarketingSection", b =>

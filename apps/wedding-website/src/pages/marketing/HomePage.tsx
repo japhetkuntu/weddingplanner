@@ -6,7 +6,7 @@ import { HeroMedia } from "@/components/marketing/HeroMedia";
 import { DynamicContentBlock } from "@/components/marketing/DynamicContentBlock";
 import { HOME } from "@/content/marketing";
 import { mergeHero } from "@/content/mergeMarketing";
-import { getMarketingPage, type MarketingSectionDto } from "@/lib/marketingApi";
+import { getContentBlock, getMarketingPage, type MarketingHeroDto, type MarketingSectionDto } from "@/lib/marketingApi";
 
 /** The landing page is deliberately a single section by default — a full-bleed image/video hero
  * (the thedestinationwedding.co inspiration), nothing else competing for attention. Every field
@@ -21,7 +21,7 @@ export default function HomePage() {
   useEffect(() => {
     getMarketingPage("home")
       .then((data) => {
-        setHero(mergeHero(data.hero, HOME.hero));
+        setHero(mergeHero(getContentBlock<MarketingHeroDto>(data, "hero"), HOME.hero));
         setSections(data.sections);
       })
       .catch(() => {

@@ -270,6 +270,86 @@ export interface MarketingSection {
   content: MarketingContentBlock;
 }
 
+/** The other named fixed-content blocks a page can define beyond its hero — What We Do's
+ * statement/flow, Our Planning Packages' intro/divider/heading/categories, Our Approach's
+ * intro/steps, Our Journal's posts, Connect with Us's intro paragraphs. Each shape below mirrors
+ * apps/wedding-website's matching Marketing*Dto in src/lib/marketingApi.ts — the backend stores
+ * and returns all of these as opaque JSON, so keeping the two frontends' shapes in sync is on us,
+ * not enforced by any shared type. */
+export interface MarketingStatement {
+  heading?: string;
+  body?: string;
+  script?: string;
+}
+
+export interface MarketingFlowItem {
+  title?: string;
+  body?: string;
+  meta?: string;
+  image?: MarketingImage;
+}
+
+export interface MarketingFlow {
+  items?: MarketingFlowItem[];
+}
+
+export interface MarketingText {
+  text?: string;
+}
+
+export interface MarketingImageBlock {
+  image?: MarketingImage;
+}
+
+export interface MarketingHeadingBody {
+  heading?: string;
+  body?: string;
+}
+
+export interface MarketingCategoryGroup {
+  title?: string;
+  bullets?: string[];
+}
+
+export interface MarketingCategoryItem {
+  name?: string;
+  groups?: MarketingCategoryGroup[];
+}
+
+export interface MarketingCategories {
+  items?: MarketingCategoryItem[];
+}
+
+export interface MarketingStepItem {
+  title?: string;
+  body?: string;
+}
+
+export interface MarketingSteps {
+  items?: MarketingStepItem[];
+}
+
+export interface MarketingPostItem {
+  slug?: string;
+  title?: string;
+  location?: string;
+  excerpt?: string;
+  date?: string;
+  category?: string;
+  media?: MarketingImage;
+  body?: string[];
+  photos?: MarketingImage[];
+}
+
+export interface MarketingPosts {
+  items?: MarketingPostItem[];
+}
+
+export interface MarketingParagraphs {
+  paragraphs?: string[];
+  formNote?: string;
+}
+
 export interface MilestoneItem {
   id: string;
   clientId: string;

@@ -1,15 +1,35 @@
+import { useEffect, useState } from "react";
 import { Link, Navigate, useParams } from "react-router-dom";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
 import { MarketingFooter } from "@/components/marketing/MarketingFooter";
 import { HeroMedia } from "@/components/marketing/HeroMedia";
 import { GalleryGrid } from "@/components/marketing/GalleryGrid";
 import { JOURNAL_POSTS } from "@/content/marketing";
+import { mergeJournalPosts } from "@/content/mergeMarketing";
+import { getContentBlock, getMarketingPage, type MarketingPostsDto } from "@/lib/marketingApi";
 
+/** A post's detail page looks itself up by slug within the same merged post list the journal
+ * index page builds (see mergeJournalPosts) — not just the static JOURNAL_POSTS — so an
+ * admin-added post is reachable at its own URL, not just listed on the index. Starts from the
+ * static list (so an existing post's page never waits on the network) and only redirects to the
+ * journal index once the merged list has actually loaded and still doesn't contain this slug —
+ * redirecting before that would incorrectly bounce a brand-new admin-added post that just hasn't
+ * loaded yet. */
 export default function OurJournalPostPage() {
   const { postSlug } = useParams<{ postSlug: string }>();
-  const post = JOURNAL_POSTS.find((p) => p.slug === postSlug);
+  const [posts, setPosts] = useState(JOURNAL_POSTS);
+  const [loaded, setLoaded] = useState(false);
 
-  if (!post) return <Navigate to="/our-journal" replace />;
+  useEffect(() => {
+    getMarketingPage("our-journal")
+      .then((data) => setPosts(mergeJournalPosts(getContentBlock<MarketingPostsDto>(data, "posts")?.items, JOURNAL_POSTS)))
+      .catch(() => {})
+      .finally(() => setLoaded(true));
+  }, []);
+
+  const post = posts.find((p) => p.slug === postSlug);
+
+  if (!post) return loaded ? <Navigate to="/our-journal" replace /> : null;
 
   return (
     <div className="ovutor-fade-in bg-bg font-sans text-ink">

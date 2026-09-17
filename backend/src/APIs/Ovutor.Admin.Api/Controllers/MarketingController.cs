@@ -11,17 +11,17 @@ namespace Ovutor.Admin.Api.Controllers;
 [Authorize]
 public class MarketingController(IMarketingService marketingService) : ControllerBase
 {
-    [HttpGet("api/marketing/pages/{pageSlug}/hero")]
-    public async Task<IActionResult> GetHero(string pageSlug, CancellationToken ct)
+    [HttpGet("api/marketing/pages/{pageSlug}/content/{key}")]
+    public async Task<IActionResult> GetContent(string pageSlug, string key, CancellationToken ct)
     {
-        var response = await marketingService.GetHeroAsync(pageSlug, ct);
+        var response = await marketingService.GetContentAsync(pageSlug, key, ct);
         return StatusCode(response.Code, response);
     }
 
-    [HttpPut("api/marketing/pages/{pageSlug}/hero")]
-    public async Task<IActionResult> UpdateHero(string pageSlug, UpdateMarketingHeroRequest request, CancellationToken ct)
+    [HttpPut("api/marketing/pages/{pageSlug}/content/{key}")]
+    public async Task<IActionResult> UpdateContent(string pageSlug, string key, UpdateMarketingFixedContentRequest request, CancellationToken ct)
     {
-        var response = await marketingService.UpdateHeroAsync(pageSlug, request, ct);
+        var response = await marketingService.UpdateContentAsync(pageSlug, key, request, ct);
         return StatusCode(response.Code, response);
     }
 

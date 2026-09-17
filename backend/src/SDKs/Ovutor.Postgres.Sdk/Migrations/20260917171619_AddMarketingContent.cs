@@ -12,11 +12,12 @@ namespace Ovutor.Postgres.Sdk.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "MarketingHeroContents",
+                name: "MarketingFixedContents",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     PageSlug = table.Column<string>(type: "text", nullable: false),
+                    Key = table.Column<string>(type: "text", nullable: false),
                     ContentJson = table.Column<string>(type: "jsonb", nullable: false),
                     CreatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UpdatedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
@@ -24,7 +25,7 @@ namespace Ovutor.Postgres.Sdk.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_MarketingHeroContents", x => x.Id);
+                    table.PrimaryKey("PK_MarketingFixedContents", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -48,9 +49,9 @@ namespace Ovutor.Postgres.Sdk.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_MarketingHeroContents_PageSlug",
-                table: "MarketingHeroContents",
-                column: "PageSlug",
+                name: "IX_MarketingFixedContents_PageSlug_Key",
+                table: "MarketingFixedContents",
+                columns: new[] { "PageSlug", "Key" },
                 unique: true);
 
             migrationBuilder.CreateIndex(
@@ -63,7 +64,7 @@ namespace Ovutor.Postgres.Sdk.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "MarketingHeroContents");
+                name: "MarketingFixedContents");
 
             migrationBuilder.DropTable(
                 name: "MarketingSections");

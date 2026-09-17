@@ -14,7 +14,7 @@ namespace Ovutor.Client.Api.Services;
 /// meaningful state (returns null hero / no sections), since apps/wedding-website falls back to its
 /// own static content per field rather than treating "nothing admin-authored" as an error.</summary>
 public class PublicMarketingService(
-    IRepository<MarketingHeroContent> heroes,
+    IRepository<MarketingFixedContent> fixedContents,
     IRepository<MarketingSection> sections,
     ILogger<PublicMarketingService> logger) : IPublicMarketingService
 {
@@ -24,8 +24,8 @@ public class PublicMarketingService(
     {
         try
         {
-            var heroEntity = await heroes.FindAsync(h => h.PageSlug == pageSlug, ct);
-            var hero = heroEntity is null ? null : ToPublicHero(JsonSerializer.Deserialize<MarketingHero>(heroEntity.ContentJson, JsonOptions)!);
+            var contentEntities = await fixedContents.GetQueryable().Where(c => c.PageSlug == pageSlug).ToListAsync(ct);
+            var content = contentEntities.ToDictionary(c => c.Key, c => JsonDocument.Parse(c.ContentJson).RootElement);
 
             var sectionEntities = await sections.GetQueryable()
                 .Where(s => s.PageSlug == pageSlug && s.IsEnabled)
@@ -38,7 +38,7 @@ public class PublicMarketingService(
                 return new PublicMarketingSection(s.Id, s.Type, block.Heading, block.Body, ToPublicImage(block.Image), block.Layout);
             }).ToList();
 
-            return new PublicMarketingPageResponse(hero, publicSections).ToOkApiResponse();
+            return new PublicMarketingPageResponse(content, publicSections).ToOkApiResponse();
         }
         catch (Exception e)
         {
@@ -47,12 +47,6 @@ public class PublicMarketingService(
         }
     }
 
-    private static PublicMarketingHero ToPublicHero(MarketingHero hero) =>
-        new(hero.Eyebrow, hero.Title, hero.Subtitle, hero.CtaLabel, hero.CtaTo, hero.Media?.Select(ToPublicImageNonNull).ToList());
-
-    private static PublicMarketingImage ToPublicImageNonNull(MarketingImage image) =>
-        new(image.Url, image.Label, image.FocalPoint);
-
     private static PublicMarketingImage? ToPublicImage(MarketingImage? image) =>
-        image is null ? null : ToPublicImageNonNull(image);
+        image is null ? null : new PublicMarketingImage(image.Url, image.Label, image.FocalPoint);
 }

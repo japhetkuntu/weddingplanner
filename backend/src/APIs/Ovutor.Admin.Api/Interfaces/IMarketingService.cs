@@ -7,8 +7,8 @@ namespace Ovutor.Admin.Api.Interfaces;
 
 public interface IMarketingService
 {
-    Task<IApiResponse<MarketingHeroResponse>> GetHeroAsync(string pageSlug, CancellationToken ct = default);
-    Task<IApiResponse<MarketingHeroResponse>> UpdateHeroAsync(string pageSlug, UpdateMarketingHeroRequest request, CancellationToken ct = default);
+    Task<IApiResponse<MarketingFixedContentResponse>> GetContentAsync(string pageSlug, string key, CancellationToken ct = default);
+    Task<IApiResponse<MarketingFixedContentResponse>> UpdateContentAsync(string pageSlug, string key, UpdateMarketingFixedContentRequest request, CancellationToken ct = default);
 
     Task<IApiResponse<List<MarketingSectionResponse>>> GetSectionsAsync(string pageSlug, CancellationToken ct = default);
     Task<IApiResponse<MarketingSectionResponse>> CreateSectionAsync(string pageSlug, CreateMarketingSectionRequest request, CancellationToken ct = default);

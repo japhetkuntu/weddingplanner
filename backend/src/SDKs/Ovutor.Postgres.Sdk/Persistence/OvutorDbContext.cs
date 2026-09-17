@@ -20,7 +20,7 @@ public class OvutorDbContext(DbContextOptions<OvutorDbContext> options) : DbCont
     public DbSet<WebsiteSection> WebsiteSections => Set<WebsiteSection>();
     public DbSet<WebsiteContent> WebsiteContents => Set<WebsiteContent>();
     public DbSet<Vendor> Vendors => Set<Vendor>();
-    public DbSet<MarketingHeroContent> MarketingHeroContents => Set<MarketingHeroContent>();
+    public DbSet<MarketingFixedContent> MarketingFixedContents => Set<MarketingFixedContent>();
     public DbSet<MarketingSection> MarketingSections => Set<MarketingSection>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -132,9 +132,9 @@ public class OvutorDbContext(DbContextOptions<OvutorDbContext> options) : DbCont
             e.HasIndex(x => x.TokenHash).IsUnique();
         });
 
-        modelBuilder.Entity<MarketingHeroContent>(e =>
+        modelBuilder.Entity<MarketingFixedContent>(e =>
         {
-            e.HasIndex(x => x.PageSlug).IsUnique();
+            e.HasIndex(x => new { x.PageSlug, x.Key }).IsUnique();
             e.Property(x => x.ContentJson).HasColumnType("jsonb");
         });
 

@@ -295,6 +295,14 @@ export interface JournalPost {
   photos?: MarketingMedia[];
 }
 
+export const JOURNAL = {
+  masthead: {
+    eyebrow: "Our Journal — the stories we tell",
+    title: "From every wedding, a story worth telling.",
+    subtitle: "Real weddings we've planned, destination guides, and the odd bit of planning advice — from us to you.",
+  },
+};
+
 export const JOURNAL_CATEGORIES = ["All Posts", "Real Weddings", "Destinations", "Planning Tips"];
 
 export const JOURNAL_POSTS: JournalPost[] = [

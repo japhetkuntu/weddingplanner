@@ -19,7 +19,6 @@ import type {
   ChecklistTask,
   DocumentFile,
   MarketingContentBlock,
-  MarketingHero,
   MarketingSection,
   MilestoneItem,
   RsvpGuest,
@@ -445,12 +444,16 @@ export async function uploadWebsiteImage(clientId: string, file: File): Promise<
 
 // ---------- Marketing (the Ovutor studio's own site, not a client's) ----------
 
-export function getMarketingHero(pageSlug: string): Promise<MarketingHero> {
-  return api.get<{ pageSlug: string; hero: MarketingHero }>(`/api/marketing/pages/${pageSlug}/hero`).then((r) => r.hero);
+/** Generic per-(page, key) fixed content block — "hero", "statement", "categories", etc. `T`
+ * is whatever shape the caller expects for that key; the backend stores/returns it as opaque
+ * JSON and never validates its shape, so getting `T` right is entirely on the caller. Returns
+ * `null` for a block nobody has saved anything for yet — a normal state, not an error. */
+export function getMarketingContent<T>(pageSlug: string, key: string): Promise<T | null> {
+  return api.get<{ pageSlug: string; key: string; content: T | null }>(`/api/marketing/pages/${pageSlug}/content/${key}`).then((r) => r.content);
 }
 
-export function updateMarketingHero(pageSlug: string, hero: MarketingHero): Promise<MarketingHero> {
-  return api.put<{ pageSlug: string; hero: MarketingHero }>(`/api/marketing/pages/${pageSlug}/hero`, { hero }).then((r) => r.hero);
+export function updateMarketingContent<T>(pageSlug: string, key: string, content: T): Promise<T> {
+  return api.put<{ pageSlug: string; key: string; content: T }>(`/api/marketing/pages/${pageSlug}/content/${key}`, { content }).then((r) => r.content);
 }
 
 export function getMarketingSections(pageSlug: string): Promise<MarketingSection[]> {

@@ -14,7 +14,7 @@ using Ovutor.Storage.Sdk;
 namespace Ovutor.Admin.Api.Services;
 
 public class MarketingService(
-    IRepository<MarketingHeroContent> heroes,
+    IRepository<MarketingFixedContent> fixedContents,
     IRepository<MarketingSection> sections,
     IStorageService storageService,
     ILogger<MarketingService> logger) : IMarketingService
@@ -22,44 +22,44 @@ public class MarketingService(
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
     private const string ContentBlockType = "content-block";
 
-    public async Task<IApiResponse<MarketingHeroResponse>> GetHeroAsync(string pageSlug, CancellationToken ct = default)
+    public async Task<IApiResponse<MarketingFixedContentResponse>> GetContentAsync(string pageSlug, string key, CancellationToken ct = default)
     {
         try
         {
-            var hero = await heroes.FindAsync(h => h.PageSlug == pageSlug, ct);
-            var content = hero is null ? new MarketingHero(null, null, null, null, null, null) : Deserialize(hero.ContentJson);
-            return new MarketingHeroResponse(pageSlug, content).ToOkApiResponse();
+            var entity = await fixedContents.FindAsync(c => c.PageSlug == pageSlug && c.Key == key, ct);
+            var content = entity is null ? (JsonElement?)null : JsonDocument.Parse(entity.ContentJson).RootElement;
+            return new MarketingFixedContentResponse(pageSlug, key, content).ToOkApiResponse();
         }
         catch (Exception e)
         {
-            logger.LogError(e, "[GetHeroAsync] Failed to load hero for {PageSlug}", pageSlug);
-            return ApiResponseFactory.InternalError<MarketingHeroResponse>("Failed to load the hero section.");
+            logger.LogError(e, "[GetContentAsync] Failed to load {Key} for {PageSlug}", key, pageSlug);
+            return ApiResponseFactory.InternalError<MarketingFixedContentResponse>("Failed to load that content.");
         }
     }
 
-    public async Task<IApiResponse<MarketingHeroResponse>> UpdateHeroAsync(string pageSlug, UpdateMarketingHeroRequest request, CancellationToken ct = default)
+    public async Task<IApiResponse<MarketingFixedContentResponse>> UpdateContentAsync(string pageSlug, string key, UpdateMarketingFixedContentRequest request, CancellationToken ct = default)
     {
         try
         {
-            var hero = await heroes.FindAsync(h => h.PageSlug == pageSlug, ct);
-            var json = JsonSerializer.Serialize(request.Hero, JsonOptions);
-            if (hero is null)
+            var entity = await fixedContents.FindAsync(c => c.PageSlug == pageSlug && c.Key == key, ct);
+            var json = request.Content.GetRawText();
+            if (entity is null)
             {
-                hero = new MarketingHeroContent { PageSlug = pageSlug, ContentJson = json };
-                await heroes.AddAsync(hero, ct);
+                entity = new MarketingFixedContent { PageSlug = pageSlug, Key = key, ContentJson = json };
+                await fixedContents.AddAsync(entity, ct);
             }
             else
             {
-                hero.ContentJson = json;
-                await heroes.UpdateAsync(hero, ct);
+                entity.ContentJson = json;
+                await fixedContents.UpdateAsync(entity, ct);
             }
 
-            return new MarketingHeroResponse(pageSlug, request.Hero).ToOkApiResponse("Saved.");
+            return new MarketingFixedContentResponse(pageSlug, key, request.Content).ToOkApiResponse("Saved.");
         }
         catch (Exception e)
         {
-            logger.LogError(e, "[UpdateHeroAsync] Failed to save hero for {PageSlug}", pageSlug);
-            return ApiResponseFactory.InternalError<MarketingHeroResponse>("Failed to save the hero section.");
+            logger.LogError(e, "[UpdateContentAsync] Failed to save {Key} for {PageSlug}", key, pageSlug);
+            return ApiResponseFactory.InternalError<MarketingFixedContentResponse>("Failed to save that content.");
         }
     }
 
@@ -207,8 +207,6 @@ public class MarketingService(
             return ApiResponseFactory.InternalError<MarketingImageUploadResponse>("Failed to upload image.");
         }
     }
-
-    private static MarketingHero Deserialize(string json) => JsonSerializer.Deserialize<MarketingHero>(json, JsonOptions)!;
 
     private static MarketingSectionResponse ToResponse(MarketingSection s) => new(
         s.Id,

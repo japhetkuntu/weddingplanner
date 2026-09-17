@@ -1,17 +1,51 @@
+import { useEffect, useState } from "react";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
 import { MarketingFooter } from "@/components/marketing/MarketingFooter";
 import { HeroMedia } from "@/components/marketing/HeroMedia";
 import { StackedSection } from "@/components/marketing/StackedSection";
+import { DynamicContentBlock } from "@/components/marketing/DynamicContentBlock";
 import { OUR_APPROACH } from "@/content/marketing";
+import { mergeMediaHero, mergeText, pickList } from "@/content/mergeMarketing";
+import {
+  getContentBlock,
+  getMarketingPage,
+  type MarketingHeroDto,
+  type MarketingSectionDto,
+  type MarketingStepsDto,
+  type MarketingTextDto,
+} from "@/lib/marketingApi";
 
 /** "Our Approach" — the process/methodology that used to live as a "How We Work" section at the
  * bottom of the old Services page, now its own destination. Same hero treatment as What We Do /
  * Our Planning Packages, then the same scroll-stacking experience as Our Planning Packages: each
  * step's title pins to its own header strip and stays visible as the next step stacks over it.
  * Unlike Planning Packages, there's nothing bulleted or itemized here — each step is a single
- * flowing paragraph, read more like a short passage than a checklist. */
+ * flowing paragraph, read more like a short passage than a checklist. Every block on this page
+ * starts as its static OUR_APPROACH copy and upgrades in place, field by field, once any
+ * admin-authored content loads — see mergeMarketing.ts. */
 export default function OurApproachPage() {
-  const { hero, intro, steps } = OUR_APPROACH;
+  const [hero, setHero] = useState(OUR_APPROACH.hero);
+  const [intro, setIntro] = useState(OUR_APPROACH.intro);
+  const [steps, setSteps] = useState(OUR_APPROACH.steps);
+  const [sections, setSections] = useState<MarketingSectionDto[]>([]);
+
+  useEffect(() => {
+    getMarketingPage("our-approach")
+      .then((data) => {
+        setHero(mergeMediaHero(getContentBlock<MarketingHeroDto>(data, "hero"), OUR_APPROACH.hero));
+        setIntro(mergeText(getContentBlock<MarketingTextDto>(data, "intro"), OUR_APPROACH.intro));
+        setSteps(
+          pickList(getContentBlock<MarketingStepsDto>(data, "steps")?.items, OUR_APPROACH.steps, (item, i) => ({
+            index: String(i + 1).padStart(2, "0"),
+            title: item.title ?? "",
+            body: item.body ?? "",
+          })),
+        );
+        setSections(data.sections);
+      })
+      .catch(() => {});
+  }, []);
+
   return (
     <div className="ovutor-fade-in bg-bg font-sans text-ink">
       <MarketingNav />
@@ -41,6 +75,10 @@ export default function OurApproachPage() {
           </StackedSection>
         ))}
       </div>
+
+      {sections.map((section) => (
+        <DynamicContentBlock key={section.id} section={section} />
+      ))}
 
       <MarketingFooter />
     </div>

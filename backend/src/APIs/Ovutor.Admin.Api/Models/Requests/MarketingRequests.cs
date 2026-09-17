@@ -1,9 +1,13 @@
+using System.Text.Json;
 using Microsoft.AspNetCore.Http;
 using Ovutor.Common.Sdk.MarketingContent;
 
 namespace Ovutor.Admin.Api.Models.Requests;
 
-public record UpdateMarketingHeroRequest(MarketingHero Hero);
+/// <summary>Content is opaque to the backend — whatever JSON the admin editor sends for a given
+/// (pageSlug, key) is stored and returned verbatim; only the frontend on each side knows what a
+/// "hero" or a "categories" block actually contains.</summary>
+public record UpdateMarketingFixedContentRequest(JsonElement Content);
 
 public record CreateMarketingSectionRequest(string Title, MarketingContentBlock Content);
 

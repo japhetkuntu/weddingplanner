@@ -1,31 +1,50 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { cn } from "@ovutor/ui";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
 import { MarketingFooter } from "@/components/marketing/MarketingFooter";
 import { SplitRow } from "@/components/marketing/SplitRow";
-import { JOURNAL_CATEGORIES, JOURNAL_POSTS } from "@/content/marketing";
+import { DynamicContentBlock } from "@/components/marketing/DynamicContentBlock";
+import { JOURNAL, JOURNAL_CATEGORIES, JOURNAL_POSTS } from "@/content/marketing";
+import { mergeJournalPosts, mergeTextHero } from "@/content/mergeMarketing";
+import { getContentBlock, getMarketingPage, type MarketingHeroDto, type MarketingPostsDto, type MarketingSectionDto } from "@/lib/marketingApi";
 
 const ALL = "All Posts";
 
 /** "Our Journal" (formerly "Journal"). Masthead + category tabs arranged like
  * nordicadventureweddings.eu/blog, but each entry in the list renders as the full split-row
- * editorial layout from juliaandevita.com/galleries instead of a small grid card. */
+ * editorial layout from juliaandevita.com/galleries instead of a small grid card. The masthead
+ * text and the post list are both admin-editable — see mergeMarketing.ts. */
 export default function OurJournalPage() {
   const [filter, setFilter] = useState(ALL);
-  const posts = useMemo(() => (filter === ALL ? JOURNAL_POSTS : JOURNAL_POSTS.filter((p) => p.category === filter)), [filter]);
+  const [masthead, setMasthead] = useState(JOURNAL.masthead);
+  const [journalPosts, setJournalPosts] = useState(JOURNAL_POSTS);
+  const [sections, setSections] = useState<MarketingSectionDto[]>([]);
+  const posts = useMemo(() => (filter === ALL ? journalPosts : journalPosts.filter((p) => p.category === filter)), [filter, journalPosts]);
+
+  useEffect(() => {
+    getMarketingPage("our-journal")
+      .then((data) => {
+        setMasthead(mergeTextHero(getContentBlock<MarketingHeroDto>(data, "hero"), JOURNAL.masthead));
+        setJournalPosts(mergeJournalPosts(getContentBlock<MarketingPostsDto>(data, "posts")?.items, JOURNAL_POSTS));
+        setSections(data.sections);
+      })
+      .catch(() => {});
+  }, []);
 
   return (
     <div className="ovutor-fade-in bg-bg font-sans text-ink">
       <MarketingNav dark={false} />
 
       <section className="px-6 pb-14 pt-32 text-center sm:px-10 sm:pt-40">
-        <p className="text-[10px] font-bold uppercase tracking-[.2em] text-primary">Our Journal &mdash; the stories we tell</p>
-        <h1 className="mx-auto mt-3 max-w-2xl font-display text-4xl leading-tight sm:text-5xl">From every wedding, a story worth telling.</h1>
-        <p className="mx-auto mt-4 max-w-lg leading-relaxed text-ink/60">
-          Real weddings we've planned, destination guides, and the odd bit of planning advice — from us to you.
-        </p>
+        <p className="text-[10px] font-bold uppercase tracking-[.2em] text-primary">{masthead.eyebrow}</p>
+        <h1 className="mx-auto mt-3 max-w-2xl font-display text-4xl leading-tight sm:text-5xl">{masthead.title}</h1>
+        <p className="mx-auto mt-4 max-w-lg leading-relaxed text-ink/60">{masthead.subtitle}</p>
       </section>
+
+      {sections.map((section) => (
+        <DynamicContentBlock key={section.id} section={section} />
+      ))}
 
       <div className="flex flex-wrap justify-center gap-2 border-b border-[#e6e2dc] px-6 pb-8 sm:px-10">
         {JOURNAL_CATEGORIES.map((c) => (

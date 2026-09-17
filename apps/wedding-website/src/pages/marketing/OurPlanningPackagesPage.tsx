@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
 import { MarketingFooter } from "@/components/marketing/MarketingFooter";
@@ -5,16 +6,59 @@ import { HeroMedia } from "@/components/marketing/HeroMedia";
 import { PlaceholderImage } from "@/components/PlaceholderImage";
 import { ServiceCategoryBlock } from "@/components/marketing/ServiceCategoryBlock";
 import { StackedSection } from "@/components/marketing/StackedSection";
+import { DynamicContentBlock } from "@/components/marketing/DynamicContentBlock";
 import { PLANNING_PACKAGES } from "@/content/marketing";
+import { mergeHeadingBody, mergeImageBlock, mergeMediaHero, mergeText, pickList } from "@/content/mergeMarketing";
+import {
+  getContentBlock,
+  getMarketingPage,
+  type MarketingCategoriesDto,
+  type MarketingHeadingBodyDto,
+  type MarketingHeroDto,
+  type MarketingImageBlockDto,
+  type MarketingSectionDto,
+  type MarketingTextDto,
+} from "@/lib/marketingApi";
 
 /** "Our Planning Packages" (formerly "Services") — matches the content/experience of
  * annelaureweddings.com/services (flat cream background, a full-bleed photo + script-text divider,
  * one overarching heading before the category list), plus a scroll-driven "stacking cards" effect
  * on top of that: the main heading section and each category band `position: sticky` at the top of
  * the viewport with an increasing z-index, so as you scroll each one slides up and visibly piles on
- * top of the one before it, instead of just scrolling past. */
+ * top of the one before it, instead of just scrolling past. Every block on this page starts as its
+ * static PLANNING_PACKAGES copy and upgrades in place, field by field, once any admin-authored
+ * content loads — see mergeMarketing.ts. */
 export default function OurPlanningPackagesPage() {
-  const { hero, intro, dividerPhoto, heading, body, categories } = PLANNING_PACKAGES;
+  const [hero, setHero] = useState(PLANNING_PACKAGES.hero);
+  const [intro, setIntro] = useState(PLANNING_PACKAGES.intro);
+  const [dividerPhoto, setDividerPhoto] = useState(PLANNING_PACKAGES.dividerPhoto);
+  const [headingBlock, setHeadingBlock] = useState({ heading: PLANNING_PACKAGES.heading, body: PLANNING_PACKAGES.body });
+  const [categories, setCategories] = useState(PLANNING_PACKAGES.categories);
+  const [sections, setSections] = useState<MarketingSectionDto[]>([]);
+
+  useEffect(() => {
+    getMarketingPage("our-planning-packages")
+      .then((data) => {
+        setHero(mergeMediaHero(getContentBlock<MarketingHeroDto>(data, "hero"), PLANNING_PACKAGES.hero));
+        setIntro(mergeText(getContentBlock<MarketingTextDto>(data, "intro"), PLANNING_PACKAGES.intro));
+        setDividerPhoto(mergeImageBlock(getContentBlock<MarketingImageBlockDto>(data, "divider"), PLANNING_PACKAGES.dividerPhoto));
+        setHeadingBlock(
+          mergeHeadingBody(getContentBlock<MarketingHeadingBodyDto>(data, "heading"), {
+            heading: PLANNING_PACKAGES.heading,
+            body: PLANNING_PACKAGES.body,
+          }),
+        );
+        setCategories(
+          pickList(getContentBlock<MarketingCategoriesDto>(data, "categories")?.items, PLANNING_PACKAGES.categories, (item) => ({
+            name: item.name ?? "",
+            groups: (item.groups ?? []).map((g) => ({ title: g.title ?? "", bullets: g.bullets ?? [] })),
+          })),
+        );
+        setSections(data.sections);
+      })
+      .catch(() => {});
+  }, []);
+
   return (
     <div className="ovutor-fade-in bg-bg font-sans text-ink">
       <MarketingNav />
@@ -47,9 +91,9 @@ export default function OurPlanningPackagesPage() {
        * stick relative to <body> and they'd all just overlap immediately instead of stacking in
        * sequence as you scroll through them. */}
       <div className="relative">
-        <StackedSection index={0} title={heading}>
+        <StackedSection index={0} title={headingBlock.heading}>
           <div className="px-6 pb-16 pt-4 text-center sm:px-10 sm:pb-20">
-            <p className="mx-auto max-w-2xl text-sm leading-relaxed text-ink/70">{body}</p>
+            <p className="mx-auto max-w-2xl text-sm leading-relaxed text-ink/70">{headingBlock.body}</p>
             <div className="mt-8 flex flex-col items-center gap-3">
               <p className="text-xs font-bold uppercase tracking-[.1em] text-ink/50">Our work</p>
               <Link
@@ -68,6 +112,10 @@ export default function OurPlanningPackagesPage() {
           </StackedSection>
         ))}
       </div>
+
+      {sections.map((section) => (
+        <DynamicContentBlock key={section.id} section={section} />
+      ))}
 
       <MarketingFooter />
     </div>

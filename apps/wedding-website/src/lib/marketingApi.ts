@@ -23,6 +23,68 @@ export interface MarketingHeroDto {
   media?: MarketingImageDto[] | null;
 }
 
+/** What We Do's black-and-white statement block. */
+export interface MarketingStatementDto {
+  heading?: string | null;
+  body?: string | null;
+  script?: string | null;
+}
+
+/** What We Do's 3-row "how we work" flow — a list field, replaced wholesale if the admin has
+ * saved any items at all (same rule as hero.media). */
+export interface MarketingFlowDto {
+  items?: { title?: string | null; body?: string | null; meta?: string | null; image?: MarketingImageDto | null }[] | null;
+}
+
+/** A single block of plain text — Our Planning Packages' and Our Approach's intro paragraphs. */
+export interface MarketingTextDto {
+  text?: string | null;
+}
+
+/** A single { image } block — Our Planning Packages' divider photo. */
+export interface MarketingImageBlockDto {
+  image?: MarketingImageDto | null;
+}
+
+/** A heading + body pair — Our Planning Packages' pre-category heading. */
+export interface MarketingHeadingBodyDto {
+  heading?: string | null;
+  body?: string | null;
+}
+
+/** Our Planning Packages' category list, each with its own bulleted sub-groups. */
+export interface MarketingCategoriesDto {
+  items?: { name?: string | null; groups?: { title?: string | null; bullets?: string[] | null }[] | null }[] | null;
+}
+
+/** Our Approach's 4-step list. */
+export interface MarketingStepsDto {
+  items?: { title?: string | null; body?: string | null }[] | null;
+}
+
+/** Our Journal's entire post list, photo galleries included. */
+export interface MarketingPostsDto {
+  items?:
+    | {
+        slug?: string | null;
+        title?: string | null;
+        location?: string | null;
+        excerpt?: string | null;
+        date?: string | null;
+        category?: string | null;
+        media?: MarketingImageDto | null;
+        body?: string[] | null;
+        photos?: MarketingImageDto[] | null;
+      }[]
+    | null;
+}
+
+/** Connect with Us's intro paragraphs and the note above the enquiry form. */
+export interface MarketingParagraphsDto {
+  paragraphs?: string[] | null;
+  formNote?: string | null;
+}
+
 export interface MarketingSectionDto {
   id: string;
   type: string;
@@ -33,8 +95,18 @@ export interface MarketingSectionDto {
 }
 
 export interface MarketingPageDto {
-  hero: MarketingHeroDto | null;
+  /** Every named fixed-content block saved for this page, keyed the same way the admin editor
+   * names them ("hero", "statement", "categories", ...). Pull a typed slice out with
+   * `getContentBlock`. A key with nothing saved for it simply isn't present. */
+  content: Record<string, unknown>;
   sections: MarketingSectionDto[];
+}
+
+/** Type-asserts one named block out of a fetched page's `content` dictionary — `null` when the
+ * admin hasn't saved anything for that key yet, which every merge helper in mergeMarketing.ts
+ * already treats the same as "fall back to static". */
+export function getContentBlock<T>(page: MarketingPageDto, key: string): T | null {
+  return (page.content[key] as T | undefined) ?? null;
 }
 
 /** Studio-authored content for one marketing page — the Ovutor studio's own site, not a couple's.

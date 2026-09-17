@@ -6,7 +6,10 @@ import type { FocalPoint } from "@/types";
 /** One admin-added section, appended after a page's hero. Unlike the page's own fixed sections,
  * these have no static counterpart to fall back to — they only exist because an admin added them,
  * so a section with nothing in it yet (no heading, body, or image) renders nothing rather than an
- * empty box. */
+ * empty box. Always paints its own `bg-bg`/`text-ink`, regardless of what the parent page's
+ * background happens to be (e.g. Connect with Us is `bg-primary`) — an admin adding a section has
+ * no way to also pick text colors that'll stay readable against an arbitrary page background, so
+ * this guarantees contrast instead of inheriting whatever's behind it. */
 export function DynamicContentBlock({ section }: { section: MarketingSectionDto }) {
   const { heading, body, image, layout } = section;
   if (!heading && !body && !image?.url) return null;
@@ -19,7 +22,7 @@ export function DynamicContentBlock({ section }: { section: MarketingSectionDto 
   );
 
   if (layout === "text-only" || !image?.url) {
-    return <div className="text-center">{textBlock}</div>;
+    return <div className="bg-bg text-center">{textBlock}</div>;
   }
 
   const imageEl = (
@@ -40,7 +43,7 @@ export function DynamicContentBlock({ section }: { section: MarketingSectionDto 
   }
 
   return (
-    <div className={cn("flex flex-col sm:flex-row", layout === "image-right" && "sm:flex-row-reverse")}>
+    <div className={cn("flex flex-col bg-bg sm:flex-row", layout === "image-right" && "sm:flex-row-reverse")}>
       {imageEl}
       {textBlock}
     </div>
