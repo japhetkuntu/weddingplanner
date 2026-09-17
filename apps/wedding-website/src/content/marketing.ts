@@ -112,7 +112,7 @@ export const WHAT_WE_DO = {
       media: {
         label: "The small details, taken care of",
         src: unsplash("photo-1535428245347-3ab06a1b100a"),
-        focalPoint: "center",
+        focalPoint: "top",
       } as MarketingMedia,
     },
     {
@@ -366,7 +366,7 @@ export const JOURNAL_POSTS: JournalPost[] = [
       { label: "A toast with the wedding party", src: brideArmchairBouquet },
       { label: "Bracelet detail", src: unsplash("photo-1631050165122-626a1377fbce") },
       { label: "Garden ceremony, guests seated", src: unsplash("photo-1788035963213-b8021895ce6d") },
-      { label: "The groom, one last check", src: groomGettingReadyBowtie },
+      { label: "The groom, one last check", src: groomGettingReadyBowtie, focalPoint: "top" },
       { label: "Dancing under the string lights", src: receptionDanceGoldDress },
       { label: "Tango on the dance floor", src: unsplash("photo-1786529745852-d7d529b55676") },
       { label: "A quiet moment together", src: unsplash("photo-1624228652376-d4faa602b278") },

@@ -3,8 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { cn } from "@ovutor/ui";
 import { Logo } from "@/components/Logo";
 import { NAV_LINKS, STUDIO } from "@/content/marketing";
-
-const OVERLAY_IMAGE = "https://images.unsplash.com/photo-1566813142858-99f1e35e333a?auto=format&fit=crop&w=1200&q=85";
+import overlayImage from "@/assets/photos/couple-trad-portrait-gold.jpg";
 
 /** Fixed top bar (icon / centered logo / bare hamburger, no "Menu" label — transparent so it sits
  * over a hero) plus a full-screen overlay menu — the pattern from nordicadventureweddings.eu's
@@ -91,7 +90,7 @@ export function MarketingNav({ dark = true }: { dark?: boolean }) {
 
         <div className="grid h-full grid-cols-1 lg:grid-cols-2">
           <div className="hidden lg:block">
-            <img src={OVERLAY_IMAGE} alt="" className="h-full w-full object-cover" />
+            <img src={overlayImage} alt="" className="h-full w-full object-cover" />
           </div>
           <nav className="flex flex-col items-start justify-center gap-3 px-8 py-24 sm:gap-4 sm:px-16">
             {NAV_LINKS.map((link) => (
