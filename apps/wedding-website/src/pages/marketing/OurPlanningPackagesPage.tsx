@@ -98,7 +98,7 @@ export default function OurPlanningPackagesPage() {
               <p className="text-xs font-bold uppercase tracking-[.1em] text-ink/50">Our work</p>
               <Link
                 to="/connect-with-us"
-                className="border border-primary bg-primary px-6 py-3 text-xs font-bold uppercase tracking-[.1em] text-white hover:brightness-110"
+                className="border border-ink bg-ink px-6 py-3 text-xs font-bold uppercase tracking-[.1em] text-bg hover:opacity-85"
               >
                 Inquire for availability
               </Link>

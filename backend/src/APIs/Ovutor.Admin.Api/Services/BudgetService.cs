@@ -121,7 +121,7 @@ public class BudgetService(
         try
         {
             _ = await categories.GetByIdAsync(categoryId, ct) ?? throw new NotFoundException("We couldn't find that category.");
-            var expense = new BudgetExpense { CategoryId = categoryId, Vendor = "New expense", Estimated = 0, Actual = 0, Paid = 0 };
+            var expense = new BudgetExpense { CategoryId = categoryId, Title = "New expense", Vendor = "", Estimated = 0, Actual = 0, Paid = 0 };
             await expenses.AddAsync(expense, ct);
             return ToResponse(expense).ToCreatedApiResponse("Expense added.");
         }
@@ -139,8 +139,12 @@ public class BudgetService(
         {
             var expense = await expenses.GetByIdAsync(expenseId, ct) ?? throw new NotFoundException("We couldn't find that expense.");
 
+            expense.Title = string.IsNullOrWhiteSpace(request.Title) ? expense.Title : request.Title.Trim();
+
             // When a directory vendor is linked, its name is the source of truth for the display
-            // label — otherwise fall back to whatever free text the planner typed.
+            // label — otherwise fall back to whatever free text the planner typed. Either way this
+            // never touches Title above — assigning/changing a vendor adds information underneath
+            // the expense's own name, it doesn't replace it.
             if (request.VendorId.HasValue)
             {
                 var linkedVendor = await vendors.GetByIdAsync(request.VendorId.Value, ct);
@@ -190,5 +194,5 @@ public class BudgetService(
     private static BudgetCategoryResponse ToResponse(BudgetCategory c) => new(c.Id, c.ClientId, c.Name, c.Description);
 
     private static BudgetExpenseResponse ToResponse(BudgetExpense e) => new(
-        e.Id, e.CategoryId, e.Vendor, e.VendorId, e.Description, e.Estimated, e.Actual, e.Paid, e.NextDue?.ToString("yyyy-MM-dd"));
+        e.Id, e.CategoryId, e.Title, e.Vendor, e.VendorId, e.Description, e.Estimated, e.Actual, e.Paid, e.NextDue?.ToString("yyyy-MM-dd"));
 }

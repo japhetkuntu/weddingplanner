@@ -47,7 +47,7 @@ export function ClientHeader({ client }: { client: Client }) {
           <button
             type="button"
             onClick={() => setNotifyOpen(true)}
-            className="border border-primary px-3 py-2 text-xs font-bold uppercase tracking-[.06em] text-primary hover:bg-primary hover:text-white"
+            className="border border-primary px-3 py-2 text-xs font-bold uppercase tracking-[.06em] text-primary hover:border-gold hover:bg-gold hover:text-ink"
           >
             Notify couple
           </button>

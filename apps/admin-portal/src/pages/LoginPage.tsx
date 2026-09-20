@@ -6,7 +6,7 @@ import { useAuthStore } from "@/store/authStore";
 export default function LoginPage() {
   const navigate = useNavigate();
   const signIn = useAuthStore((s) => s.signIn);
-  const [email, setEmail] = useState("maya@northstarplanning.com");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -30,7 +30,7 @@ export default function LoginPage() {
       <section className="relative hidden flex-col justify-between overflow-hidden bg-gold px-10 py-12 text-ink lg:flex xl:px-16">
         <div className="pointer-events-none absolute -bottom-36 -right-40 h-[420px] w-[420px] rotate-[25deg] border border-primary" />
         <div>
-          <Logo className="text-4xl" />
+          <Logo className="h-10" />
           <p className="mt-3 text-[10px] font-bold uppercase tracking-[.16em] text-ink/70">Protected planning workspace</p>
         </div>
         <div className="relative z-10">

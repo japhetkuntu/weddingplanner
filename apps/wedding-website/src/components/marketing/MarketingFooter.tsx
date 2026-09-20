@@ -1,12 +1,23 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Logo } from "@ovutor/ui";
 import { NAV_LINKS, STUDIO } from "@/content/marketing";
+import { pick } from "@/content/mergeMarketing";
+import { getContentBlock, getMarketingPage, type MarketingSocialDto } from "@/lib/marketingApi";
 
 export function MarketingFooter() {
+  const [instagram, setInstagram] = useState(STUDIO.instagram);
+
+  useEffect(() => {
+    getMarketingPage("studio")
+      .then((data) => setInstagram(pick(getContentBlock<MarketingSocialDto>(data, "social")?.instagram, STUDIO.instagram)))
+      .catch(() => {});
+  }, []);
+
   return (
     <footer className="bg-gold px-6 py-16 text-center text-ink sm:px-10">
       <div className="flex justify-center">
-        <Logo className="text-3xl" />
+        <Logo className="h-8" />
       </div>
       <p className="mt-1.5 text-sm text-ink/60">{STUDIO.tagline}</p>
 
@@ -26,7 +37,7 @@ export function MarketingFooter() {
           {STUDIO.email}
         </a>
         <span className="mx-2 text-ink/30">&middot;</span>
-        <span className="text-ink/70">{STUDIO.instagram}</span>
+        <span className="text-ink/70">{instagram}</span>
       </p>
     </footer>
   );

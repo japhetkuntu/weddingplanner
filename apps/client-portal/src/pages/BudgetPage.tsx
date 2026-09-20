@@ -80,7 +80,7 @@ export default function BudgetPage() {
               <button
                 type="button"
                 onClick={() => setOpenId(isOpen ? null : cat.id)}
-                className="flex w-full flex-wrap items-center justify-between gap-2 px-4 py-3.5 text-left"
+                className="flex w-full flex-wrap items-center justify-between gap-2 border-b border-[#eee] bg-bg-warm px-4 py-3.5 text-left"
               >
                 <span className="font-bold">{cat.name}</span>
                 <span className="text-sm text-ink/50">
@@ -92,8 +92,9 @@ export default function BudgetPage() {
                   {cat.expenses.map((e) => (
                     <div key={e.id} className="grid grid-cols-1 gap-2 border-t border-[#eee] px-4 py-3 sm:grid-cols-[1fr_auto_auto_auto_auto]">
                       <div>
-                        <b>{e.vendor}</b>
-                        <small className="mt-0.5 block text-ink/50">{e.description}</small>
+                        <b>{e.title || e.vendor}</b>
+                        {e.title && e.vendor ? <small className="mt-0.5 block text-ink/50">{e.vendor}</small> : null}
+                        {e.description ? <small className="mt-0.5 block text-ink/50">{e.description}</small> : null}
                       </div>
                       <div className="text-sm">
                         <span className="block text-ink/50">Estimates</span>

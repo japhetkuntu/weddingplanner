@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Badge, Checkbox, DataGrid, Drawer, Input, Label, Modal, Select, Skeleton, StatCard, Textarea, Button, Toast, type DataGridColumn } from "@ovutor/ui";
 import { useCurrentClient } from "@/hooks/useCurrentClient";
-import { getRsvps, updateRsvp, addGuests, errorMessage, type GuestEntry } from "@/lib/api";
+import { getRsvps, updateRsvp, addGuests, deleteRsvp, errorMessage, type GuestEntry } from "@/lib/api";
 import type { RsvpGuest, RsvpStatus } from "@/types";
 
 const STATUS_LABEL: Record<RsvpStatus, string> = { attending: "Attending", declined: "Declined", awaiting: "Awaiting" };
@@ -41,6 +41,8 @@ export default function ClientRsvpsPage() {
   const [toast, setToast] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [addingGuests, setAddingGuests] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState<RsvpGuest | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const filtered = useMemo(
     () =>
@@ -86,6 +88,24 @@ export default function ClientRsvpsPage() {
     } catch (e) {
       setError(errorMessage(e, "Couldn't save that RSVP — please try again."));
       window.setTimeout(() => setError(null), 3200);
+    }
+  }
+
+  async function confirmDeleteAction() {
+    if (!confirmDelete) return;
+    setDeleting(true);
+    try {
+      await deleteRsvp(confirmDelete.id);
+      setGuests((prev) => prev.filter((g) => g.id !== confirmDelete.id));
+      setConfirmDelete(null);
+      setSelected(null);
+      setToast("Guest deleted");
+      window.setTimeout(() => setToast(null), 2000);
+    } catch (e) {
+      setError(errorMessage(e, "Couldn't delete that guest — please try again."));
+      window.setTimeout(() => setError(null), 3200);
+    } finally {
+      setDeleting(false);
     }
   }
 
@@ -150,8 +170,27 @@ export default function ClientRsvpsPage() {
       <DataGrid columns={columns} rows={filtered} rowKey={(g) => g.id} onRowClick={setSelected} emptyMessage="No guests match your search." />
 
       <Drawer open={!!selected} onClose={() => setSelected(null)} title="Guest response">
-        {selected ? <RsvpDetailForm guest={selected} onSave={saveSelected} /> : null}
+        {selected ? <RsvpDetailForm guest={selected} onSave={saveSelected} onDelete={setConfirmDelete} /> : null}
       </Drawer>
+
+      <Modal open={!!confirmDelete} onClose={() => setConfirmDelete(null)}>
+        {confirmDelete ? (
+          <div>
+            <h3 className="mb-2 font-display text-2xl">Delete guest?</h3>
+            <p className="mb-5 text-ink/60">
+              "{confirmDelete.household}" and their RSVP response will be permanently deleted. This can't be undone.
+            </p>
+            <div className="flex gap-2">
+              <Button onClick={confirmDeleteAction} className="flex-1" loading={deleting} loadingText="Deleting…">
+                Delete guest
+              </Button>
+              <Button variant="outline" onClick={() => setConfirmDelete(null)} disabled={deleting}>
+                Cancel
+              </Button>
+            </div>
+          </div>
+        ) : null}
+      </Modal>
 
       <Modal open={addingGuests} onClose={() => setAddingGuests(false)}>
         <AddGuestsModal
@@ -258,7 +297,15 @@ function AddGuestsModal({ clientId, onClose, onAdded }: { clientId: string; onCl
   );
 }
 
-function RsvpDetailForm({ guest, onSave }: { guest: RsvpGuest; onSave: (g: RsvpGuest) => Promise<void> }) {
+function RsvpDetailForm({
+  guest,
+  onSave,
+  onDelete,
+}: {
+  guest: RsvpGuest;
+  onSave: (g: RsvpGuest) => Promise<void>;
+  onDelete: (g: RsvpGuest) => void;
+}) {
   const [form, setForm] = useState(guest);
   const [saving, setSaving] = useState(false);
   const initial = guest.household.trim().charAt(0).toUpperCase() || "?";
@@ -368,6 +415,9 @@ function RsvpDetailForm({ guest, onSave }: { guest: RsvpGuest; onSave: (g: RsvpG
       <div className="mt-6 flex gap-2 border-t border-[#eee] pt-4">
         <Button type="submit" className="flex-1" loading={saving} loadingText="Saving changes…">
           Save changes
+        </Button>
+        <Button type="button" variant="outline" onClick={() => onDelete(guest)}>
+          Delete
         </Button>
       </div>
     </form>

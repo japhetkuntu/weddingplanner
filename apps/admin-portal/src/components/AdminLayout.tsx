@@ -30,6 +30,7 @@ export function AdminLayout({ children }: { children: ReactNode }) {
     { label: "RSVPs", to: `/clients/${activeClientId}/rsvps` },
     { label: "Vendors", to: "/vendors" },
     { label: "Studio Website", to: "/studio-website" },
+    { label: "Enquiries", to: "/enquiries" },
     { label: "Team", to: "/team" },
     { label: "Profile & Settings", to: "/settings" },
   ];

@@ -119,7 +119,7 @@ export default function DashboardPage() {
           ) : (
             dashboard.updates.map((event) => (
               <div key={event.id} className="flex gap-3 border-t border-[#ddd] py-3.5 first:border-t-0">
-                <span className="mt-1.5 h-2.5 w-2.5 shrink-0 bg-primary" />
+                <span className="mt-1.5 h-2.5 w-2.5 shrink-0 bg-gold" />
                 <div>
                   <b>{event.message}</b>
                   <small className="mt-0.5 block text-ink/50">

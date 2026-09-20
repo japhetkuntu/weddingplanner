@@ -69,7 +69,7 @@ export default function CoupleSitePage() {
   return (
     <div className="ovutor-fade-in bg-bg font-sans text-ink">
       <header className="absolute inset-x-0 top-0 z-30 flex items-center justify-between px-6 py-5 text-white sm:px-10">
-        <Logo className="text-3xl" />
+        <Logo className="h-8" invert />
         <nav className="hidden gap-6 text-xs font-bold uppercase tracking-[.1em] lg:flex">
           {NAV_LINKS.map((link) => (
             <a key={link.href} href={link.href} className="hover:opacity-70">
@@ -104,7 +104,7 @@ export default function CoupleSitePage() {
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
               {isPublished("rsvp") ? (
-                <a href="#rsvp" className="border border-primary bg-primary px-6 py-3.5 text-xs font-bold uppercase tracking-[.12em] text-white hover:brightness-110">
+                <a href="#rsvp" className="border border-gold bg-gold px-6 py-3.5 text-xs font-bold uppercase tracking-[.12em] text-ink hover:brightness-90">
                   RSVP
                 </a>
               ) : null}
@@ -129,7 +129,7 @@ export default function CoupleSitePage() {
       {isPublished("rsvp") ? <RsvpBlock site={c} slug={slug} /> : null}
 
       {isPublished("rsvp") ? (
-        <a href="#rsvp" className="fixed inset-x-0 bottom-0 z-30 block bg-primary py-4 text-center text-xs font-bold uppercase tracking-[.12em] text-white sm:hidden">
+        <a href="#rsvp" className="fixed inset-x-0 bottom-0 z-30 block bg-gold py-4 text-center text-xs font-bold uppercase tracking-[.12em] text-ink sm:hidden">
           RSVP
         </a>
       ) : null}
@@ -147,7 +147,7 @@ export default function CoupleSitePage() {
           href="/"
           className="mt-6 inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[.1em] text-ink/50 transition-colors hover:text-ink"
         >
-          Made with <Logo className="text-sm" />
+          Made with <Logo className="h-4" />
         </a>
         <p className="mt-1.5 text-xs text-ink/35">
           Planning your own wedding?{" "}
@@ -400,7 +400,7 @@ function RsvpBlock({ site, slug }: { site: SiteConfig; slug: string }) {
                 aria-pressed={attending === true}
                 className={cn(
                   "flex flex-1 items-center justify-center gap-2 border py-3 text-sm font-bold uppercase tracking-[.04em]",
-                  attending === true ? "border-primary bg-primary text-white" : "border-[#aaa29d] text-ink hover:border-ink",
+                  attending === true ? "border-gold bg-gold text-ink" : "border-[#aaa29d] text-ink hover:border-ink",
                 )}
               >
                 👍 Yes
@@ -411,7 +411,7 @@ function RsvpBlock({ site, slug }: { site: SiteConfig; slug: string }) {
                 aria-pressed={attending === false}
                 className={cn(
                   "flex flex-1 items-center justify-center gap-2 border py-3 text-sm font-bold uppercase tracking-[.04em]",
-                  attending === false ? "border-gold bg-gold text-ink" : "border-[#aaa29d] text-ink hover:border-ink",
+                  attending === false ? "border-primary bg-primary text-ink" : "border-[#aaa29d] text-ink hover:border-ink",
                 )}
               >
                 👎 No

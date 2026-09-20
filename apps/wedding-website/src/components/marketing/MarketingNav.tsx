@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { cn, Logo } from "@ovutor/ui";
 import { NAV_LINKS, STUDIO } from "@/content/marketing";
+import { pick } from "@/content/mergeMarketing";
+import { getContentBlock, getMarketingPage, type MarketingSocialDto } from "@/lib/marketingApi";
 import overlayImage from "@/assets/photos/couple-trad-portrait-gold.jpg";
 
 /** Fixed top bar (icon / centered logo / bare hamburger, no "Menu" label — transparent so it sits
@@ -16,9 +18,16 @@ import overlayImage from "@/assets/photos/couple-trad-portrait-gold.jpg";
  * (Journal's masthead has no hero image behind it), or the white default becomes unreadable. */
 export function MarketingNav({ dark = true }: { dark?: boolean }) {
   const [open, setOpen] = useState(false);
+  const [instagram, setInstagram] = useState(STUDIO.instagram);
   const location = useLocation();
 
   useEffect(() => setOpen(false), [location.pathname]);
+
+  useEffect(() => {
+    getMarketingPage("studio")
+      .then((data) => setInstagram(pick(getContentBlock<MarketingSocialDto>(data, "social")?.instagram, STUDIO.instagram)))
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     if (!open) return;
@@ -40,7 +49,7 @@ export function MarketingNav({ dark = true }: { dark?: boolean }) {
         )}
       >
         <a
-          href={`https://instagram.com/${STUDIO.instagram.replace("@", "")}`}
+          href={`https://instagram.com/${instagram.replace("@", "")}`}
           target="_blank"
           rel="noreferrer"
           aria-label="Ovutor on Instagram"
@@ -54,7 +63,7 @@ export function MarketingNav({ dark = true }: { dark?: boolean }) {
         </a>
 
         <Link to="/" className="justify-self-center">
-          <Logo className="text-3xl sm:text-4xl" />
+          <Logo className="h-8 sm:h-10" invert={dark} />
         </Link>
 
         <div className="flex items-center justify-self-end gap-4">
@@ -82,7 +91,7 @@ export function MarketingNav({ dark = true }: { dark?: boolean }) {
           type="button"
           onClick={() => setOpen(false)}
           aria-label="Close menu"
-          className="absolute left-1/2 top-6 z-10 grid h-11 w-11 -translate-x-1/2 place-items-center border border-ink/15 text-lg"
+          className="absolute left-1/2 top-6 z-10 grid h-11 w-11 -translate-x-1/2 place-items-center border border-primary text-lg text-primary"
         >
           &#10005;
         </button>
@@ -104,12 +113,12 @@ export function MarketingNav({ dark = true }: { dark?: boolean }) {
                 {link.label}
               </Link>
             ))}
-            <Link
-              to="/connect-with-us"
-              className="mt-6 border border-primary bg-primary px-6 py-3.5 text-xs font-bold uppercase tracking-[.12em] text-white hover:brightness-110"
+            <a
+              href="https://client.ovutor.com"
+              className="mt-6 border border-gold bg-gold px-6 py-3.5 text-xs font-bold uppercase tracking-[.12em] text-ink hover:brightness-90"
             >
               Enquire now
-            </Link>
+            </a>
           </nav>
         </div>
       </div>

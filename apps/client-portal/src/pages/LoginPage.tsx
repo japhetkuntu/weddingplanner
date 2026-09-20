@@ -28,7 +28,7 @@ export default function LoginPage() {
   return (
     <div className="grid min-h-screen grid-cols-1 lg:grid-cols-[1.05fr_.95fr]">
       <section className="hidden flex-col justify-between bg-gold px-10 py-12 text-ink lg:flex xl:px-16">
-        <Logo className="text-4xl" />
+        <Logo className="h-10" />
         <div>
           <p className="text-[10px] font-bold uppercase tracking-[.16em] text-ink">Your wedding, in hand</p>
           <h1 className="my-3 max-w-md font-display text-5xl leading-[1.1]">

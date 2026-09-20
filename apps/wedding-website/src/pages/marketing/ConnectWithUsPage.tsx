@@ -6,7 +6,14 @@ import { DynamicContentBlock } from "@/components/marketing/DynamicContentBlock"
 import { Button } from "@ovutor/ui";
 import { CONNECT, STUDIO } from "@/content/marketing";
 import { mergeMediaHero, mergeParagraphs } from "@/content/mergeMarketing";
-import { getContentBlock, getMarketingPage, type MarketingHeroDto, type MarketingParagraphsDto, type MarketingSectionDto } from "@/lib/marketingApi";
+import {
+  getContentBlock,
+  getMarketingPage,
+  submitEnquiry,
+  type MarketingHeroDto,
+  type MarketingParagraphsDto,
+  type MarketingSectionDto,
+} from "@/lib/marketingApi";
 
 const FIELD_CLASS =
   "mt-1 w-full border-0 border-b border-white/30 bg-transparent pb-2 text-sm text-white placeholder:text-white/40 focus:border-white focus:outline-none";
@@ -14,13 +21,15 @@ const LABEL_CLASS = "block text-[10px] font-bold uppercase tracking-[.12em] text
 
 /** "Connect with Us" (formerly "Contact"). annelaureweddings.com/contact's split intro (photo +
  * "Let's Connect") plus its full-width enquiry form below — on the platform's own brand-pink
- * background instead of their cream. This form isn't wired to a backend yet; it just confirms
- * receipt locally. Swap handleSubmit for a real endpoint once one exists for studio-wide
- * enquiries (distinct from a couple's own RSVP API). The eyebrow/title/photo are the only
- * admin-editable part — CONNECT.media is a single photo rather than a carousel, so it's merged
- * as a one-item array and read back out below. */
+ * background instead of their cream. Submissions land in the Admin Portal's Enquiries list via
+ * the public, unauthenticated `submitEnquiry` endpoint (studio-wide leads, distinct from a
+ * couple's own RSVP API). The eyebrow/title/photo are the only admin-editable part —
+ * CONNECT.media is a single photo rather than a carousel, so it's merged as a one-item array and
+ * read back out below. */
 export default function ConnectWithUsPage() {
   const [sent, setSent] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [hero, setHero] = useState({ eyebrow: CONNECT.eyebrow, title: CONNECT.title, media: [CONNECT.media] });
   const [intro, setIntro] = useState({ paragraphs: CONNECT.paragraphs, formNote: CONNECT.formNote });
   const [sections, setSections] = useState<MarketingSectionDto[]>([]);
@@ -35,9 +44,28 @@ export default function ConnectWithUsPage() {
       .catch(() => {});
   }, []);
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setSent(true);
+    const form = new FormData(e.currentTarget);
+    const guestCount = form.get("guestCount");
+    setSubmitting(true);
+    setError(null);
+    try {
+      await submitEnquiry({
+        name: String(form.get("name") ?? ""),
+        email: String(form.get("email") ?? ""),
+        weddingDate: String(form.get("weddingDate") ?? "") || undefined,
+        location: String(form.get("location") ?? "") || undefined,
+        guestCount: guestCount ? Number(guestCount) : undefined,
+        budget: String(form.get("budget") ?? "") || undefined,
+        message: String(form.get("message") ?? "") || undefined,
+      });
+      setSent(true);
+    } catch {
+      setError("Something went wrong sending your enquiry — please try again, or email us directly.");
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   return (
@@ -102,8 +130,9 @@ export default function ConnectWithUsPage() {
               <span className={LABEL_CLASS}>Your message</span>
               <textarea name="message" rows={4} className={FIELD_CLASS} />
             </label>
+            {error ? <p className="text-sm text-white sm:col-span-2">{error}</p> : null}
             <div className="sm:col-span-2">
-              <Button type="submit" className="w-full sm:w-auto">
+              <Button type="submit" className="w-full sm:w-auto" loading={submitting} loadingText="Sending…">
                 Send enquiry
               </Button>
             </div>

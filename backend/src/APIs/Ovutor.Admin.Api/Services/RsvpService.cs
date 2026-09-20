@@ -82,6 +82,22 @@ public class RsvpService(IRepository<RsvpGuest> rsvps, ILogger<RsvpService> logg
         }
     }
 
+    public async Task<IApiResponse<object>> DeleteAsync(Guid rsvpId, CancellationToken ct = default)
+    {
+        try
+        {
+            var rsvp = await rsvps.GetByIdAsync(rsvpId, ct) ?? throw new NotFoundException("We couldn't find that guest.");
+            await rsvps.RemoveAsync(rsvp, ct);
+            return new object().ToOkApiResponse("Guest deleted.");
+        }
+        catch (OvutorException) { throw; }
+        catch (Exception e)
+        {
+            logger.LogError(e, "[DeleteAsync] Failed to delete RSVP {RsvpId}", rsvpId);
+            return ApiResponseFactory.InternalError<object>("Failed to delete guest.");
+        }
+    }
+
     private static RsvpGuestResponse ToResponse(RsvpGuest r) => new(
         r.Id, r.ClientId, r.Household, r.Status, r.AttendanceCount, r.Dietary, r.PlannerNote,
         r.RespondedAtUtc?.ToString("yyyy-MM-dd"), r.Email, r.Mobile, r.NeedsAccommodation, r.NeedsTransportation);

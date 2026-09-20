@@ -99,7 +99,9 @@ export default function ClientBudgetPage() {
     if (!expense) return;
     try {
       await updateBudgetExpense(expenseId, {
+        title: expense.title,
         vendor: expense.vendor,
+        vendorId: expense.vendorId,
         description: expense.description,
         estimated: expense.estimated,
         actual: expense.actual,
@@ -125,6 +127,7 @@ export default function ClientBudgetPage() {
   async function saveExpense(categoryId: string, updated: BudgetExpense) {
     try {
       const saved = await updateBudgetExpense(updated.id, {
+        title: updated.title,
         vendor: updated.vendor.trim() || updated.vendor,
         vendorId: updated.vendorId,
         description: updated.description,
@@ -344,7 +347,8 @@ export default function ClientBudgetPage() {
                   {cat.expenses.map((e) => (
                     <div key={e.id} className="grid grid-cols-1 items-center gap-2 border-t border-[#eee] px-4 py-3 sm:grid-cols-[1fr_repeat(4,minmax(70px,1fr))]">
                       <button type="button" onClick={() => setEditingExpense({ categoryId: cat.id, expense: e })} className="text-left hover:text-primary">
-                        <p className="font-medium hover:underline">{e.vendor}</p>
+                        <p className="font-medium hover:underline">{e.title || e.vendor}</p>
+                        {e.title && e.vendor ? <p className="text-xs text-ink/50">{e.vendor}</p> : null}
                         {e.description ? <p className="text-xs text-ink/50">{e.description}</p> : null}
                         {e.nextDue ? <p className="text-xs text-ink/50">Next due {new Date(e.nextDue).toLocaleDateString(undefined, { month: "short", day: "numeric" })}</p> : null}
                       </button>
@@ -510,7 +514,7 @@ function ExpenseEditForm({
     e.preventDefault();
     setSaving(true);
     try {
-      await onSave({ ...form, vendor: form.vendor.trim() || expense.vendor });
+      await onSave({ ...form, title: form.title?.trim() || expense.title });
     } finally {
       setSaving(false);
     }
@@ -540,6 +544,14 @@ function ExpenseEditForm({
 
   return (
     <form onSubmit={handleSubmit}>
+      <Label htmlFor="expense-title">Title</Label>
+      <Input
+        id="expense-title"
+        value={form.title ?? ""}
+        onChange={(e) => setForm({ ...form, title: e.target.value })}
+        placeholder="e.g. Photography"
+      />
+
       <Label htmlFor="expense-vendor-select">Vendor</Label>
       <Select
         id="expense-vendor-select"
@@ -552,14 +564,14 @@ function ExpenseEditForm({
           }
           setShowNewVendor(false);
           if (value === CUSTOM_VENDOR_OPTION) {
-            setForm({ ...form, vendorId: undefined });
+            setForm({ ...form, vendor: "", vendorId: undefined });
             return;
           }
           const vendor = vendors.find((v) => v.id === value);
           if (vendor) setForm({ ...form, vendor: vendor.name, vendorId: vendor.id });
         }}
       >
-        <option value={CUSTOM_VENDOR_OPTION}>Custom title (no directory vendor)</option>
+        <option value={CUSTOM_VENDOR_OPTION}>No vendor assigned</option>
         {vendors.map((v) => (
           <option key={v.id} value={v.id}>
             {v.name} · {v.location}
@@ -579,15 +591,6 @@ function ExpenseEditForm({
           </Button>
         </div>
       ) : null}
-
-      <Label htmlFor="expense-vendor">Title</Label>
-      <Input
-        id="expense-vendor"
-        value={form.vendor}
-        onChange={(e) => setForm({ ...form, vendor: e.target.value, vendorId: undefined })}
-        disabled={!!form.vendorId}
-        className={form.vendorId ? "bg-bg-warm text-ink/50" : undefined}
-      />
 
       <Label htmlFor="expense-description">Description</Label>
       <Textarea

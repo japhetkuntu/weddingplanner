@@ -18,7 +18,7 @@ public record ChecklistTaskResponse(Guid Id, Guid PhaseId, string Title, string 
 
 public record ChecklistResponse(List<ChecklistPhaseResponse> Phases, List<ChecklistTaskResponse> Tasks);
 
-public record BudgetExpenseResponse(Guid Id, Guid CategoryId, string Vendor, string? Description, decimal Estimated, decimal Actual, decimal Paid, string? NextDue);
+public record BudgetExpenseResponse(Guid Id, Guid CategoryId, string? Title, string Vendor, string? Description, decimal Estimated, decimal Actual, decimal Paid, string? NextDue);
 
 public record BudgetCategoryResponse(Guid Id, string Name, decimal Estimated, decimal Actual, decimal Paid, List<BudgetExpenseResponse> Expenses);
 

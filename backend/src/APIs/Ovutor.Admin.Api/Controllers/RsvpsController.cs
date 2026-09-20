@@ -29,4 +29,11 @@ public class RsvpsController(IRsvpService rsvpService) : ControllerBase
         var response = await rsvpService.AddGuestsAsync(clientId, request, ct);
         return StatusCode(response.Code, response);
     }
+
+    [HttpDelete("api/rsvps/{rsvpId:guid}")]
+    public async Task<IActionResult> Delete(Guid rsvpId, CancellationToken ct)
+    {
+        var response = await rsvpService.DeleteAsync(rsvpId, ct);
+        return StatusCode(response.Code, response);
+    }
 }

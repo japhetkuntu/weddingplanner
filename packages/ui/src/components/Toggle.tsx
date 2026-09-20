@@ -14,7 +14,7 @@ export function Toggle({ checked, onChange, label }: ToggleProps) {
       aria-checked={checked}
       aria-label={label}
       onClick={() => onChange(!checked)}
-      className={cn("relative h-6 w-11 shrink-0 border transition-colors", checked ? "border-primary bg-primary" : "border-ink/30 bg-white")}
+      className={cn("relative h-6 w-11 shrink-0 border transition-colors", checked ? "border-gold bg-gold" : "border-ink/30 bg-white")}
     >
       <span
         className={cn(

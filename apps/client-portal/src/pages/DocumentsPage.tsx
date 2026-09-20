@@ -207,7 +207,7 @@ export default function DocumentsPage() {
                 onClick={() => setFilter(f)}
                 className={cn(
                   "border px-3 py-1.5 text-xs font-bold uppercase tracking-[.06em]",
-                  filter === f ? "border-primary bg-primary text-white" : "border-ink/20 text-ink/60 hover:border-ink/40",
+                  filter === f ? "border-gold bg-gold text-ink" : "border-ink/20 text-ink/60 hover:border-ink/40",
                 )}
               >
                 {f}
@@ -248,7 +248,7 @@ export default function DocumentsPage() {
               href={selected.url}
               target="_blank"
               rel="noreferrer"
-              className="block w-full border border-primary bg-primary px-4 py-3 text-center text-xs font-bold uppercase tracking-[.1em] text-white"
+              className="block w-full border border-gold bg-gold px-4 py-3 text-center text-xs font-bold uppercase tracking-[.1em] text-ink"
             >
               Download
             </a>

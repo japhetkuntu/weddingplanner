@@ -22,6 +22,7 @@ public class OvutorDbContext(DbContextOptions<OvutorDbContext> options) : DbCont
     public DbSet<Vendor> Vendors => Set<Vendor>();
     public DbSet<MarketingFixedContent> MarketingFixedContents => Set<MarketingFixedContent>();
     public DbSet<MarketingSection> MarketingSections => Set<MarketingSection>();
+    public DbSet<MarketingEnquiry> MarketingEnquiries => Set<MarketingEnquiry>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

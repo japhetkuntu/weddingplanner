@@ -14,9 +14,13 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variantClasses: Record<ButtonVariant, string> = {
-  primary: "bg-primary text-white border border-primary hover:brightness-110",
+  // Gold is the brand's primary, most-prominent fill — pairs with ink text, never white
+  // (white-on-gold fails contrast badly, ~1.6:1).
+  primary: "bg-gold text-ink border border-gold hover:brightness-90",
+  // The secondary/outlined style keeps the ruby-pink accent — gold text on white is nearly
+  // invisible (~1.4:1), so pink is what "colored text/border on a plain background" means here.
   outline: "bg-white text-primary border border-primary hover:bg-primary/5",
-  dark: "bg-gold text-ink border border-gold hover:brightness-90",
+  dark: "bg-primary text-ink border border-primary hover:brightness-90",
   ghost: "bg-transparent text-ink border border-transparent hover:bg-ink/5",
 };
 

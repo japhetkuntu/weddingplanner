@@ -68,9 +68,9 @@ public class ClientsController(IClientService clientService) : ControllerBase
     }
 
     [HttpPost("{id:guid}/portal-password/reset")]
-    public async Task<IActionResult> ResetPortalPassword(Guid id, CancellationToken ct)
+    public async Task<IActionResult> ResetPortalPassword(Guid id, [FromBody] ResetPortalPasswordRequest? request, CancellationToken ct)
     {
-        var response = await clientService.ResetPortalPasswordAsync(id, ct);
+        var response = await clientService.ResetPortalPasswordAsync(id, request ?? new ResetPortalPasswordRequest(null), ct);
         return StatusCode(response.Code, response);
     }
 

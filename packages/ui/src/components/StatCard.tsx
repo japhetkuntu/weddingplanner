@@ -14,7 +14,7 @@ export function StatCard({ label, value, hint, valueClassName, className }: Stat
   return (
     <Card className={cn("min-w-0", className)}>
       <div className="text-[13px] text-ink/70">{label}</div>
-      <div className={cn("my-1.5 font-display text-[27px] leading-none text-ink", valueClassName)}>{value}</div>
+      <div className={cn("my-1.5 break-words font-display text-xl leading-tight text-ink sm:text-[27px]", valueClassName)}>{value}</div>
       {hint ? <div className="text-xs text-ink/50">{hint}</div> : null}
     </Card>
   );

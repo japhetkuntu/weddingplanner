@@ -23,6 +23,10 @@ public record UpdateClientRequest(
 
 public record UpdatePortalEmailRequest(string PortalEmail);
 
+/// <summary>Password is optional — when the admin leaves it blank, the server generates one, same
+/// as before this could be typed in.</summary>
+public record ResetPortalPasswordRequest(string? Password);
+
 public record UpdateFullPaymentDueDateRequest(string? FullPaymentDueDate);
 
 public record NotifyCoupleRequest(string Message);

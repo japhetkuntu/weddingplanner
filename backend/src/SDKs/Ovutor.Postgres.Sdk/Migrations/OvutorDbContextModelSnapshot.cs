@@ -164,6 +164,9 @@ namespace Ovutor.Postgres.Sdk.Migrations
                     b.Property<decimal>("Paid")
                         .HasColumnType("numeric(14,2)");
 
+                    b.Property<string>("Title")
+                        .HasColumnType("text");
+
                     b.Property<DateTime?>("UpdatedAtUtc")
                         .HasColumnType("timestamp with time zone");
 
@@ -446,6 +449,52 @@ namespace Ovutor.Postgres.Sdk.Migrations
                     b.HasIndex("ClientId");
 
                     b.ToTable("DocumentFiles");
+                });
+
+            modelBuilder.Entity("Ovutor.Postgres.Sdk.Entities.MarketingEnquiry", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Budget")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int?>("GuestCount")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Location")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Message")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("WeddingDate")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("MarketingEnquiries");
                 });
 
             modelBuilder.Entity("Ovutor.Postgres.Sdk.Entities.MarketingFixedContent", b =>

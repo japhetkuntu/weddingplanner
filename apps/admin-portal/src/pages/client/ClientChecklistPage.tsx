@@ -322,7 +322,7 @@ export default function ClientChecklistPage() {
                         aria-label={t.status === "done" ? "Mark as incomplete" : "Mark as complete"}
                         className={clsx(
                           "mt-0.5 grid h-5 w-5 shrink-0 place-items-center border text-xs",
-                          t.status === "done" ? "border-primary bg-primary text-white" : "border-ink/30",
+                          t.status === "done" ? "border-gold bg-gold text-ink" : "border-ink/30",
                           t.status === "blocked" && "cursor-not-allowed opacity-45",
                         )}
                       >

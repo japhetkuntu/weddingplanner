@@ -28,6 +28,7 @@ import type {
   MarketingPosts,
   MarketingSection,
   MarketingSectionLayout,
+  MarketingSocial,
   MarketingStatement,
   MarketingStepItem,
   MarketingSteps,
@@ -163,6 +164,64 @@ function PageEditorSkeleton() {
   );
 }
 
+/** Page-independent studio settings — kept out of the per-page tab switcher below (a "Studio"
+ * tab would force an awkward Hero card with eyebrow/title fields that don't apply here) but
+ * stored the same way, under pageSlug "studio" so the generic content endpoints need no change.
+ * Shown in the wedding-website's nav and footer on every page. */
+function StudioProfileCard() {
+  const [social, setSocial] = useState<MarketingSocial>({});
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [toast, setToast] = useState<string | null>(null);
+
+  useEffect(() => {
+    getMarketingContent<MarketingSocial>("studio", "social")
+      .then((v) => setSocial(v ?? {}))
+      .finally(() => setLoading(false));
+  }, []);
+
+  async function save() {
+    setSaving(true);
+    try {
+      const saved = await updateMarketingContent("studio", "social", social);
+      setSocial(saved);
+      setToast("Saved");
+      window.setTimeout(() => setToast(null), 2200);
+    } catch (e) {
+      setToast(errorMessage(e, "Couldn't save — please try again."));
+      window.setTimeout(() => setToast(null), 3200);
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <div className="mt-4 border-t-[3px] border-gold bg-white p-5 shadow-card">
+      <h2 className="mb-1 font-display text-xl">Studio profile</h2>
+      <p className="mb-4 text-sm text-ink/60">Shown in the site's navigation and footer on every page.</p>
+      {loading ? (
+        <Skeleton className="h-11 w-full max-w-sm" />
+      ) : (
+        <div className="flex flex-wrap items-end gap-2">
+          <div className="flex-1 min-w-[220px] max-w-sm">
+            <Label htmlFor="studio-instagram">Instagram handle</Label>
+            <Input
+              id="studio-instagram"
+              placeholder="@ovutorweddings"
+              value={social.instagram ?? ""}
+              onChange={(e) => setSocial({ ...social, instagram: e.target.value })}
+            />
+          </div>
+          <Button onClick={save} loading={saving} loadingText="Saving…">
+            Save
+          </Button>
+        </div>
+      )}
+      <Toast open={!!toast}>{toast}</Toast>
+    </div>
+  );
+}
+
 export default function StudioWebsitePage() {
   const [selectedSlug, setSelectedSlug] = useState(PAGES[0].slug);
   const page = PAGES.find((p) => p.slug === selectedSlug) ?? PAGES[0];
@@ -280,7 +339,9 @@ export default function StudioWebsitePage() {
         <p className="text-sm text-ink/60">Every field falls back to our current live copy until you fill it in.</p>
       </div>
 
-      <div className="mt-4 flex flex-wrap gap-2">
+      <StudioProfileCard />
+
+      <div className="mt-6 flex flex-wrap gap-2">
         {PAGES.map((p) => (
           <button
             key={p.slug}
@@ -288,7 +349,7 @@ export default function StudioWebsitePage() {
             onClick={() => setSelectedSlug(p.slug)}
             className={clsx(
               "border px-3 py-1.5 text-xs font-bold uppercase tracking-[.06em]",
-              p.slug === selectedSlug ? "border-primary bg-primary text-white" : "border-[#8e8985] text-ink/70 hover:border-ink",
+              p.slug === selectedSlug ? "border-gold bg-gold text-ink" : "border-[#8e8985] text-ink/70 hover:border-ink",
             )}
           >
             {p.label}

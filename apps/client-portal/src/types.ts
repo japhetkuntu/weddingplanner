@@ -30,6 +30,7 @@ export interface ChecklistTask {
 export interface BudgetExpense {
   id: string;
   categoryId: string;
+  title?: string;
   vendor: string;
   description?: string;
   estimated: number;

@@ -82,7 +82,7 @@ public class MeService(
                 return new BudgetCategoryResponse(
                     c.Id, c.Name,
                     catExpenses.Sum(e => e.Estimated), catExpenses.Sum(e => e.Actual), catExpenses.Sum(e => e.Paid),
-                    catExpenses.Select(e => new BudgetExpenseResponse(e.Id, e.CategoryId, e.Vendor, e.Description, e.Estimated, e.Actual, e.Paid, e.NextDue?.ToString("yyyy-MM-dd"))).ToList());
+                    catExpenses.Select(e => new BudgetExpenseResponse(e.Id, e.CategoryId, e.Title, e.Vendor, e.Description, e.Estimated, e.Actual, e.Paid, e.NextDue?.ToString("yyyy-MM-dd"))).ToList());
             }).ToList();
 
             var totalEstimated = categoryResponses.Sum(c => c.Estimated);

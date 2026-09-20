@@ -107,7 +107,7 @@ export function OvutorLanding({ eyebrow, title, message }: { eyebrow: string; ti
 
       <footer className="border-t border-[#eee] px-6 py-8 text-center">
         <div className="flex justify-center">
-          <Logo className="text-2xl" />
+          <Logo className="h-6" />
         </div>
         <p className="mt-1 text-xs text-ink/40">Thoughtfully planned. Beautifully celebrated.</p>
       </footer>

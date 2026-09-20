@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Button, Card, Input, Label, Modal, Select, Toast } from "@ovutor/ui";
+import { Button, Card, Input, Label, Modal, PasswordInput, Select, Toast } from "@ovutor/ui";
 import { useCurrentClient } from "@/hooks/useCurrentClient";
 import { updateClient as apiUpdateClient, updatePortalEmail, resetPortalPassword, archiveClient, unarchiveClient, errorMessage } from "@/lib/api";
 import { useClientsStore } from "@/store/clientsStore";
@@ -18,6 +18,7 @@ export default function ClientSettingsPage() {
   const upsertClient = useClientsStore((s) => s.upsert);
   const [form, setForm] = useState<Client | undefined>(client);
   const [credentials, setCredentials] = useState<ClientCredentials | null>(null);
+  const [newPassword, setNewPassword] = useState("");
   const [resetting, setResetting] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -78,13 +79,18 @@ export default function ClientSettingsPage() {
   }
 
   async function handleResetPassword() {
+    if (newPassword && newPassword.length < 8) {
+      flashError("Password must be at least 8 characters.");
+      return;
+    }
     setResetting(true);
     try {
-      const creds = await resetPortalPassword(client!.id);
+      const creds = await resetPortalPassword(client!.id, newPassword);
       setCredentials(creds);
-      flashToast("New password generated — copy and share it with the couple");
+      setNewPassword("");
+      flashToast(newPassword ? "Password saved — copy and share it with the couple" : "New password generated — copy and share it with the couple");
     } catch (e) {
-      flashError(errorMessage(e, "Couldn't generate a new password — please try again."));
+      flashError(errorMessage(e, "Couldn't save that password — please try again."));
     } finally {
       setResetting(false);
     }
@@ -229,13 +235,22 @@ export default function ClientSettingsPage() {
             <p className="mt-4 text-sm text-ink/50">Generate a password to see it and share it with the couple.</p>
           )}
 
-          <div className="mt-5 flex flex-wrap gap-2 border-t border-[#eee] pt-4">
-            <Button variant="outline" onClick={handleResetPassword} loading={resetting} loadingText="Generating…">
-              Reset password
-            </Button>
-            <Button onClick={copyShareDetails} disabled={!credentials}>
-              Copy portal, email &amp; password
-            </Button>
+          <div className="mt-5 border-t border-[#eee] pt-4">
+            <Label htmlFor="newPassword">New password</Label>
+            <PasswordInput
+              id="newPassword"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              placeholder="Leave blank to auto-generate one"
+            />
+            <div className="mt-3 flex flex-wrap gap-2">
+              <Button variant="outline" onClick={handleResetPassword} loading={resetting} loadingText="Saving…">
+                {newPassword ? "Set password" : "Generate password"}
+              </Button>
+              <Button onClick={copyShareDetails} disabled={!credentials}>
+                Copy portal, email &amp; password
+              </Button>
+            </div>
           </div>
         </Card>
       </div>

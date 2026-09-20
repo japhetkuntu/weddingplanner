@@ -38,6 +38,7 @@ public static class ApplicationServiceExtensions
         services.AddScoped<IChecklistService, ChecklistService>();
         services.AddScoped<IBudgetService, BudgetService>();
         services.AddScoped<IRsvpService, RsvpService>();
+        services.AddScoped<IEnquiryService, EnquiryService>();
         services.AddScoped<IDocumentService, DocumentService>();
         services.AddScoped<IWebsiteService, WebsiteService>();
         services.AddScoped<IAdminUserService, AdminUserService>();

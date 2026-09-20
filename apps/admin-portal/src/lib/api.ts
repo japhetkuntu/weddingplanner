@@ -18,6 +18,7 @@ import type {
   ChecklistPhase,
   ChecklistTask,
   DocumentFile,
+  Enquiry,
   MarketingContentBlock,
   MarketingSection,
   MilestoneItem,
@@ -148,8 +149,8 @@ export async function updatePortalEmail(id: string, portalEmail: string): Promis
   return toClient(await api.put<ClientResponse>(`/api/clients/${id}/portal-email`, { portalEmail }));
 }
 
-export function resetPortalPassword(id: string) {
-  return api.post<ClientCredentials>(`/api/clients/${id}/portal-password/reset`);
+export function resetPortalPassword(id: string, password?: string) {
+  return api.post<ClientCredentials>(`/api/clients/${id}/portal-password/reset`, { password: password || undefined });
 }
 
 export async function archiveClient(id: string): Promise<Client> {
@@ -299,7 +300,7 @@ export function addBudgetExpense(categoryId: string) {
 
 export function updateBudgetExpense(
   expenseId: string,
-  patch: Pick<BudgetExpense, "vendor" | "vendorId" | "description" | "estimated" | "actual" | "paid" | "nextDue">,
+  patch: Pick<BudgetExpense, "title" | "vendor" | "vendorId" | "description" | "estimated" | "actual" | "paid" | "nextDue">,
 ) {
   return api.put<BudgetExpense>(`/api/budget/expenses/${expenseId}`, patch);
 }
@@ -367,6 +368,10 @@ export interface GuestEntry {
 
 export function addGuests(clientId: string, guests: GuestEntry[]) {
   return api.post<RsvpGuest[]>(`/api/clients/${clientId}/rsvps`, { guests });
+}
+
+export function deleteRsvp(rsvpId: string) {
+  return api.delete(`/api/rsvps/${rsvpId}`);
 }
 
 // ---------- Documents ----------
@@ -485,6 +490,20 @@ export async function uploadMarketingImage(pageSlug: string, file: File): Promis
   form.append("file", file);
   const result = await api.post<{ url: string }>(`/api/marketing/pages/${pageSlug}/images`, form, { isFormData: true });
   return result.url;
+}
+
+// ---------- Enquiries (studio-wide leads from the wedding-website's Connect with Us form) ----------
+
+export function getEnquiries(): Promise<Enquiry[]> {
+  return api.get<Enquiry[]>("/api/marketing/enquiries");
+}
+
+export function setEnquiryRead(id: string, isRead: boolean): Promise<Enquiry> {
+  return api.patch<Enquiry>(`/api/marketing/enquiries/${id}/read`, { isRead });
+}
+
+export function deleteEnquiry(id: string): Promise<void> {
+  return api.delete(`/api/marketing/enquiries/${id}`);
 }
 
 // ---------- Team ----------

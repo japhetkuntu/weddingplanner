@@ -89,7 +89,7 @@ export default function ChecklistPage() {
                   <span
                     className={cn(
                       "mt-0.5 grid h-5 w-5 shrink-0 place-items-center border text-xs",
-                      task.status === "done" ? "border-primary bg-primary text-white" : "border-ink/30",
+                      task.status === "done" ? "border-gold bg-gold text-ink" : "border-ink/30",
                     )}
                   >
                     {task.status === "done" ? "✓" : ""}

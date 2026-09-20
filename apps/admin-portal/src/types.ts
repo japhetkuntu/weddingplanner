@@ -73,6 +73,7 @@ export interface ChecklistTask {
 export interface BudgetExpense {
   id: string;
   categoryId: string;
+  title?: string;
   vendor: string;
   vendorId?: string;
   description?: string;
@@ -356,4 +357,23 @@ export interface MilestoneItem {
   title: string;
   dueDate: string;
   tag: string;
+}
+
+/** The studio's social links — a page-independent block (pageSlug "studio") shown in the
+ * wedding-website's nav and footer on every page. */
+export interface MarketingSocial {
+  instagram?: string;
+}
+
+export interface Enquiry {
+  id: string;
+  name: string;
+  email: string;
+  weddingDate?: string;
+  location?: string;
+  guestCount?: number;
+  budget?: string;
+  message?: string;
+  submittedAt: string;
+  isRead: boolean;
 }

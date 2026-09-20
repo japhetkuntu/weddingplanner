@@ -207,17 +207,23 @@ public class ClientService(
         }
     }
 
-    public async Task<IApiResponse<ClientCredentialsResponse>> ResetPortalPasswordAsync(Guid id, CancellationToken ct = default)
+    public async Task<IApiResponse<ClientCredentialsResponse>> ResetPortalPasswordAsync(Guid id, ResetPortalPasswordRequest request, CancellationToken ct = default)
     {
         try
         {
             var client = await clients.GetByIdAsync(id, ct) ?? throw new NotFoundException("We couldn't find that client.");
-            var password = CredentialGenerator.GeneratePassword();
+
+            var typedPassword = request.Password?.Trim();
+            if (!string.IsNullOrEmpty(typedPassword) && typedPassword.Length < 8)
+                return ApiResponseFactory.BadRequest<ClientCredentialsResponse>("Password must be at least 8 characters.");
+
+            var password = string.IsNullOrEmpty(typedPassword) ? CredentialGenerator.GeneratePassword() : typedPassword;
             client.PortalPasswordHash = PasswordHasher.Hash(password);
             await clients.UpdateAsync(client, ct);
 
             var portalUrl = $"{configuration["Frontend:ClientPortalUrl"] ?? "https://client.ovutor.com"}/{client.Slug}";
-            return new ClientCredentialsResponse(portalUrl, client.PortalEmail, password).ToOkApiResponse("New password generated — copy and share it with the couple.");
+            var message = string.IsNullOrEmpty(typedPassword) ? "New password generated — copy and share it with the couple." : "Password saved — copy and share it with the couple.";
+            return new ClientCredentialsResponse(portalUrl, client.PortalEmail, password).ToOkApiResponse(message);
         }
         catch (OvutorException) { throw; }
         catch (Exception e)

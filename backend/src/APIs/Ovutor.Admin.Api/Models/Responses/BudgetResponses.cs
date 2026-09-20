@@ -5,6 +5,7 @@ public record BudgetCategoryResponse(Guid Id, Guid ClientId, string Name, string
 public record BudgetExpenseResponse(
     Guid Id,
     Guid CategoryId,
+    string? Title,
     string Vendor,
     Guid? VendorId,
     string? Description,

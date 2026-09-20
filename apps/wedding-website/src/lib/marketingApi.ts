@@ -85,6 +85,22 @@ export interface MarketingParagraphsDto {
   formNote?: string | null;
 }
 
+/** The studio's social links — lives under the page-independent "studio" slug rather than any
+ * one real page, since the same handle is shown in the nav and footer on every page. */
+export interface MarketingSocialDto {
+  instagram?: string | null;
+}
+
+export interface SubmitEnquiryPayload {
+  name: string;
+  email: string;
+  weddingDate?: string;
+  location?: string;
+  guestCount?: number;
+  budget?: string;
+  message?: string;
+}
+
 export interface MarketingSectionDto {
   id: string;
   type: string;
@@ -118,4 +134,17 @@ export async function getMarketingPage(pageSlug: string): Promise<MarketingPageD
   const body: ApiEnvelope<MarketingPageDto> = await res.json();
   if (!res.ok || body.code >= 400 || !body.data) throw new ApiError(body.message, body.code);
   return body.data;
+}
+
+/** Sends a "Connect with Us" form submission to the studio — it shows up in the Admin Portal's
+ * Enquiries list. Throws on validation/network failure so the form can show an error instead of
+ * the fake "sent" confirmation. */
+export async function submitEnquiry(payload: SubmitEnquiryPayload): Promise<void> {
+  const res = await fetch(`${BASE_URL}/api/public/marketing/enquiries`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  const body: ApiEnvelope<object> = await res.json();
+  if (!res.ok || body.code >= 400) throw new ApiError(body.message, body.code);
 }

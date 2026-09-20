@@ -11,7 +11,7 @@ export function ProgressBar({ value, className, trackClassName, fillClassName }:
   const pct = Math.max(0, Math.min(100, value));
   return (
     <div className={cn("h-2 w-full bg-[#e7e4e0]", trackClassName, className)}>
-      <div className={cn("h-full bg-primary transition-all duration-300", fillClassName)} style={{ width: `${pct}%` }} />
+      <div className={cn("h-full bg-gold transition-all duration-300", fillClassName)} style={{ width: `${pct}%` }} />
     </div>
   );
 }

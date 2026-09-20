@@ -54,7 +54,7 @@ export default function OurJournalPage() {
             onClick={() => setFilter(c)}
             className={cn(
               "border px-4 py-2 text-xs font-bold uppercase tracking-[.06em]",
-              filter === c ? "border-primary bg-primary text-white" : "border-ink/15 text-ink/60 hover:border-ink/40",
+              filter === c ? "border-gold bg-gold text-ink" : "border-ink/15 text-ink/60 hover:border-ink/40",
             )}
           >
             {c}

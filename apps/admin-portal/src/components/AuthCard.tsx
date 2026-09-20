@@ -10,7 +10,7 @@ export function AuthCard({ children }: { children: ReactNode }) {
 }
 
 export function AuthLogo() {
-  return <Logo className="text-3xl" />;
+  return <Logo className="h-8" />;
 }
 
 export function AuthEyebrow({ children }: { children: ReactNode }) {
