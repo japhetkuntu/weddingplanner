@@ -310,7 +310,7 @@ export default function ClientBudgetPage() {
 
           return (
             <Card key={cat.id} className="p-0">
-              <div className="grid w-full grid-cols-[1fr_repeat(4,minmax(70px,1fr))] items-center gap-2 border-b border-[#eee] bg-bg-warm px-4 py-3 text-sm">
+              <div className="grid w-full grid-cols-[1fr_repeat(4,minmax(70px,1fr))] items-center gap-2 border-b border-ink/10 bg-gold px-4 py-3 text-sm">
                 <div>
                   <button type="button" onClick={() => setEditingCategory(cat)} className="text-left font-bold hover:text-primary hover:underline">
                     {cat.name}

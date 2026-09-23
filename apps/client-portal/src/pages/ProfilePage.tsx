@@ -54,7 +54,6 @@ export default function ProfilePage() {
           <h2 className="mb-4 font-display text-xl">Your planning team</h2>
           <div className="mb-4">
             <b className="block">{profile.planner.name}</b>
-            <small className="text-ink/50">{profile.planner.role}</small>
           </div>
           <div className="border-t border-[#eee] pt-4">
             <span className="text-sm text-ink/60">Planning status:</span>{" "}

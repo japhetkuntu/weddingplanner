@@ -81,7 +81,7 @@ It will prompt you for:
 - the Client API domain (e.g. `client-api.yourdomain.com`)
 - the Admin API domain (e.g. `admin-api.yourdomain.com`)
 - the admin-portal domain (e.g. `admin.yourdomain.com`)
-- the client-portal domain (e.g. `client.yourdomain.com`)
+- the client-portal domain (e.g. `couples.yourdomain.com`)
 - the wedding-website domain — the bare apex (e.g. `yourdomain.com`)
 - an email address for Let's Encrypt renewal notices
 - a password for the `ovutor` Postgres role — remember it, you need it in step 3
@@ -105,7 +105,7 @@ openssl rand -base64 48   # -> Jwt__SigningKey in admin-api.env
 ```
 
 `Cors__AllowedOrigins__*` in each file must be the exact origin(s) the frontends are
-served from (e.g. `https://client.yourdomain.com`, no trailing slash) — CORS rejects
+served from (e.g. `https://couples.yourdomain.com`, no trailing slash) — CORS rejects
 anything else. `client-api.env` needs two origins (client-portal and wedding-website
 both call this API); `admin-api.env` needs one (admin-portal). Storage keys are your
 DigitalOcean Spaces access/secret key pair — both env files must point
@@ -141,7 +141,7 @@ Then, once DNS has actually propagated (`dig` from step 1), get the certificate 
 ```bash
 sudo ufw enable   # if you haven't already
 sudo certbot --nginx -d client-api.ovutor.com -d admin-api.ovutor.com \
-  -d admin.ovutor.com -d client.ovutor.com \
+  -d admin.ovutor.com -d couples.ovutor.com \
   -d ovutor.com -d www.ovutor.com \
   -m japhetkuntublankson1@gmail.com --agree-tos -n --redirect
 ```
@@ -158,7 +158,7 @@ Verify:
 curl https://client-api.ovutor.com/health
 curl https://admin-api.ovutor.com/health
 curl -I https://admin.ovutor.com
-curl -I https://client.ovutor.com
+curl -I https://couples.ovutor.com
 curl -I https://ovutor.com
 ```
 

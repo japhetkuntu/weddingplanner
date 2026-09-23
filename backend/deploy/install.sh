@@ -26,7 +26,7 @@ read -rp "Admin API domain (e.g. admin-api.yourdomain.com) [${ADMIN_API_DOMAIN:-
 ADMIN_API_DOMAIN="${input:-${ADMIN_API_DOMAIN:-}}"
 read -rp "Admin portal domain (e.g. admin.yourdomain.com) [${ADMIN_PORTAL_DOMAIN:-}]: " input
 ADMIN_PORTAL_DOMAIN="${input:-${ADMIN_PORTAL_DOMAIN:-}}"
-read -rp "Client (couple) portal domain (e.g. client.yourdomain.com) [${CLIENT_PORTAL_DOMAIN:-}]: " input
+read -rp "Client (couple) portal domain (e.g. couples.yourdomain.com) [${CLIENT_PORTAL_DOMAIN:-}]: " input
 CLIENT_PORTAL_DOMAIN="${input:-${CLIENT_PORTAL_DOMAIN:-}}"
 read -rp "Wedding website domain — the bare apex, e.g. yourdomain.com [${WEDDING_WEBSITE_DOMAIN:-}]: " input
 WEDDING_WEBSITE_DOMAIN="${input:-${WEDDING_WEBSITE_DOMAIN:-}}"

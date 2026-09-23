@@ -91,7 +91,7 @@ export function MarketingNav({ dark = true }: { dark?: boolean }) {
           type="button"
           onClick={() => setOpen(false)}
           aria-label="Close menu"
-          className="absolute left-1/2 top-6 z-10 grid h-11 w-11 -translate-x-1/2 place-items-center border border-primary text-lg text-primary"
+          className="absolute left-1/2 top-6 z-10 grid h-11 w-11 -translate-x-1/2 place-items-center border border-primary bg-primary text-lg font-bold text-white shadow-md hover:brightness-110"
         >
           &#10005;
         </button>
@@ -114,10 +114,10 @@ export function MarketingNav({ dark = true }: { dark?: boolean }) {
               </Link>
             ))}
             <a
-              href="https://client.ovutor.com"
+              href="https://couples.ovutor.com"
               className="mt-6 border border-gold bg-gold px-6 py-3.5 text-xs font-bold uppercase tracking-[.12em] text-ink hover:brightness-90"
             >
-              Enquire now
+              Log in
             </a>
           </nav>
         </div>

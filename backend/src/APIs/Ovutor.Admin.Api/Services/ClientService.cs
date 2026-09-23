@@ -137,7 +137,7 @@ public class ClientService(
                 RsvpJson = JsonSerializer.Serialize(WebsiteContentTemplates.RsvpTemplate(), JsonOptions),
             }, ct);
 
-            var portalUrl = $"{configuration["Frontend:ClientPortalUrl"] ?? "https://client.ovutor.com"}/{client.Slug}";
+            var portalUrl = $"{configuration["Frontend:ClientPortalUrl"] ?? "https://couples.ovutor.com"}/{client.Slug}";
             var credentials = new ClientCredentialsResponse(portalUrl, client.PortalEmail, password);
             return new ClientWithCredentialsResponse(await BuildResponseAsync(client, ct), credentials).ToCreatedApiResponse("Client workspace created.");
         }
@@ -221,7 +221,7 @@ public class ClientService(
             client.PortalPasswordHash = PasswordHasher.Hash(password);
             await clients.UpdateAsync(client, ct);
 
-            var portalUrl = $"{configuration["Frontend:ClientPortalUrl"] ?? "https://client.ovutor.com"}/{client.Slug}";
+            var portalUrl = $"{configuration["Frontend:ClientPortalUrl"] ?? "https://couples.ovutor.com"}/{client.Slug}";
             var message = string.IsNullOrEmpty(typedPassword) ? "New password generated — copy and share it with the couple." : "Password saved — copy and share it with the couple.";
             return new ClientCredentialsResponse(portalUrl, client.PortalEmail, password).ToOkApiResponse(message);
         }
@@ -317,7 +317,7 @@ public class ClientService(
 
             await activityEvents.AddAsync(new ActivityEvent { ClientId = client.Id, Message = message, TimestampUtc = DateTime.UtcNow }, ct);
 
-            var portalUrl = $"{configuration["Frontend:ClientPortalUrl"] ?? "https://client.ovutor.com"}/dashboard";
+            var portalUrl = $"{configuration["Frontend:ClientPortalUrl"] ?? "https://couples.ovutor.com"}/dashboard";
             var emailResult = await emailService.SendAsync(
                 to: [new EmailContact(client.PortalEmail, client.CoupleNames)],
                 subject: $"An update on your wedding — {client.CoupleNames}",

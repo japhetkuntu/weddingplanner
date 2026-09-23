@@ -80,10 +80,10 @@ export default function BudgetPage() {
               <button
                 type="button"
                 onClick={() => setOpenId(isOpen ? null : cat.id)}
-                className="flex w-full flex-wrap items-center justify-between gap-2 border-b border-[#eee] bg-bg-warm px-4 py-3.5 text-left"
+                className="flex w-full flex-wrap items-center justify-between gap-2 border-b border-ink/10 bg-gold px-4 py-3.5 text-left"
               >
                 <span className="font-bold">{cat.name}</span>
-                <span className="text-sm text-ink/50">
+                <span className="text-sm text-ink/70">
                   {money(cat.estimated)} estimates · {money(cat.actual)} actual cost · {money(cat.paid)} paid
                 </span>
               </button>

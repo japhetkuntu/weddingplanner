@@ -43,6 +43,19 @@ if [[ -f "$NGINX_SITE" ]]; then
     sed -i.bak -E "s/client_max_body_size [^;]*;/${DESIRED_LIMIT}/" "$NGINX_SITE"
     nginx -t && systemctl reload nginx
   fi
+  # The client API's server block (proxying :5000) originally shipped with no
+  # client_max_body_size at all, so the sed above has nothing to patch there and nginx's
+  # 1MB default silently rejects couples' photo uploads. Add the directive to any
+  # :5000 server block that lacks it.
+  if [[ -n "${DESIRED_LIMIT:-}" ]]; then
+    awk -v limit="$DESIRED_LIMIT" '
+      function flush() { if (inblk) { if (blk ~ /127\.0\.0\.1:5000/ && blk !~ /client_max_body_size/) sub(/server_name[^\n]*\n/, "&\t" limit "\n", blk); printf "%s", blk; inblk=0; blk="" } }
+      /^server[ \t]*\{/ { flush(); inblk=1 }
+      { if (inblk) blk = blk $0 "\n"; else print }
+      END { flush() }
+    ' "$NGINX_SITE" > "$NGINX_SITE.new" && cp "$NGINX_SITE" "$NGINX_SITE.bak2" && mv "$NGINX_SITE.new" "$NGINX_SITE"
+    nginx -t && systemctl reload nginx
+  fi
 fi
 
 # Publishing into a directory the running app is still serving from can fail outright

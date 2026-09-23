@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { cn } from "@ovutor/ui";
+import { useSmartFit } from "@/components/useSmartFit";
 import type { MarketingMedia } from "@/content/marketing";
 
 const FOCAL_POSITION: Record<NonNullable<MarketingMedia["focalPoint"]>, string> = {
@@ -13,6 +14,7 @@ const SLIDE_DURATION_MS = 6000;
 function HeroSlide({ media, active }: { media: MarketingMedia; active: boolean }) {
   const position = FOCAL_POSITION[media.focalPoint ?? "center"];
   const videoRef = useRef<HTMLVideoElement>(null);
+  const { frameRef, onLoad, fit } = useSmartFit();
 
   // The <video> element is reused across a slide's active/inactive transitions (same key, so React
   // doesn't remount it) — toggling the `autoPlay` attribute after mount does NOT restart playback
@@ -27,7 +29,7 @@ function HeroSlide({ media, active }: { media: MarketingMedia; active: boolean }
   }, [active]);
 
   return (
-    <div className={cn("absolute inset-0 transition-opacity duration-1000 ease-in-out", active ? "opacity-100" : "opacity-0")} aria-hidden={!active}>
+    <div ref={frameRef} className={cn("absolute inset-0 transition-opacity duration-1000 ease-in-out", active ? "opacity-100" : "opacity-0")} aria-hidden={!active}>
       {media.video ? (
         <video
           ref={videoRef}
@@ -41,15 +43,32 @@ function HeroSlide({ media, active }: { media: MarketingMedia; active: boolean }
           playsInline
         />
       ) : media.src ? (
-        <img
-          src={media.src}
-          alt=""
-          className="h-full w-full object-cover"
-          style={{ objectPosition: position }}
-          loading={active ? "eager" : "lazy"}
-          decoding="async"
-          fetchPriority={active ? "high" : "low"}
-        />
+        <>
+          {fit === "contain" ? (
+            <>
+              <img
+                src={media.src}
+                alt=""
+                aria-hidden="true"
+                className="absolute inset-0 h-full w-full scale-110 object-cover blur-2xl"
+                style={{ objectPosition: position }}
+                loading="lazy"
+                decoding="async"
+              />
+              <div className="absolute inset-0 bg-ink/35" />
+            </>
+          ) : null}
+          <img
+            src={media.src}
+            alt=""
+            onLoad={onLoad}
+            className={cn("absolute inset-0 h-full w-full", fit === "contain" ? "object-contain" : "object-cover")}
+            style={{ objectPosition: position }}
+            loading={active ? "eager" : "lazy"}
+            decoding="async"
+            fetchPriority={active ? "high" : "low"}
+          />
+        </>
       ) : (
         <div className="flex h-full w-full items-end justify-end bg-gold p-6 text-right">
           <span className="font-display text-sm italic text-ink/40">{media.label}</span>

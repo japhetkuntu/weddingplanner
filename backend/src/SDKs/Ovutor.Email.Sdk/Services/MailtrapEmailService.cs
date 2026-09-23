@@ -14,7 +14,7 @@ namespace Ovutor.Email.Sdk.Services;
 /// mechanism, so every template lives in source control and can be edited like any other file — no
 /// separate dashboard step. Ovutor is single-brand, so unlike a multi-tenant SDK this doesn't need to
 /// derive a color palette per send; the brand colors are just baked into each template's CSS.</summary>
-public class MailtrapEmailService(
+public partial class MailtrapEmailService(
     IOptions<MailtrapConfig> options,
     IHttpClientFactory httpClientFactory,
     ILogger<MailtrapEmailService> logger) : IEmailService
@@ -98,12 +98,31 @@ public class MailtrapEmailService(
         return File.Exists(baseCandidate) ? baseCandidate : null;
     }
 
-    private static string ReplaceVariables(string templateText, Dictionary<string, string> variables)
+    /// <summary>Values every template can rely on without each caller passing them; a caller's own
+    /// variable of the same name wins.</summary>
+    private static readonly Dictionary<string, string> DefaultVariables = new(StringComparer.OrdinalIgnoreCase)
     {
-        foreach (var (key, value) in variables)
+        ["brand_name"] = "Ovutor",
+    };
+
+    private string ReplaceVariables(string templateText, Dictionary<string, string> variables)
+    {
+        var merged = new Dictionary<string, string>(DefaultVariables, StringComparer.OrdinalIgnoreCase);
+        foreach (var (key, value) in variables) merged[key] = value;
+
+        foreach (var (key, value) in merged)
             templateText = templateText.Replace($"{{{{{key}}}}}", Sanitize(value), StringComparison.OrdinalIgnoreCase);
-        return templateText;
+
+        // Never let a literal {{placeholder}} reach a recipient: blank anything still unresolved and log it.
+        return UnresolvedPlaceholder().Replace(templateText, m =>
+        {
+            logger.LogWarning("[MailtrapEmailService] Template placeholder '{Placeholder}' had no value — sent blank", m.Value);
+            return "";
+        });
     }
+
+    [System.Text.RegularExpressions.GeneratedRegex(@"\{\{\s*[A-Za-z0-9_]+\s*\}\}")]
+    private static partial System.Text.RegularExpressions.Regex UnresolvedPlaceholder();
 
     private static string BuildFallbackHtml(string templateId, Dictionary<string, string> variables)
     {
