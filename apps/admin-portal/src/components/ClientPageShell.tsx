@@ -63,13 +63,13 @@ function NoClientsYet({ section }: { section: string }) {
             />
           </svg>
         </div>
-        <h1 className="font-display text-3xl">No clients yet</h1>
+        <h1 className="font-display text-3xl">No couples yet</h1>
         <p className="mt-2.5 leading-relaxed text-ink/60">
           Add your first couple to start building their {section} — checklist, budget, guest list, and wedding website all live here once
           their workspace is set up.
         </p>
         <LinkButton to="/clients/new" className="mt-6 inline-flex">
-          + Add your first client
+          + Add your first couple
         </LinkButton>
       </div>
     </div>
@@ -86,12 +86,12 @@ function ClientNotFound() {
             <path d="M9.5 9.5l5 5m0-5l-5 5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" className="text-primary" />
           </svg>
         </div>
-        <h1 className="font-display text-3xl">We couldn't find that client</h1>
+        <h1 className="font-display text-3xl">We couldn't find that couple</h1>
         <p className="mt-2.5 leading-relaxed text-ink/60">
-          They may have been removed, or this link is out of date. Head back to your client list to pick up where you left off.
+          They may have been removed, or this link is out of date. Head back to your couples list to pick up where you left off.
         </p>
         <LinkButton to="/clients" className="mt-6 inline-flex">
-          View all clients
+          View all couples
         </LinkButton>
       </div>
     </div>

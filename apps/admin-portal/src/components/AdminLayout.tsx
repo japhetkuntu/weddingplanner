@@ -22,7 +22,7 @@ export function AdminLayout({ children }: { children: ReactNode }) {
 
   const items: SidebarNavItem[] = [
     { label: "Dashboard", to: "/dashboard" },
-    { label: "Clients", to: "/clients" },
+    { label: "Couples", to: "/clients" },
     { label: "Checklist", to: `/clients/${activeClientId}/checklist` },
     { label: "Budget", to: `/clients/${activeClientId}/budget` },
     { label: "Website", to: `/clients/${activeClientId}/website` },

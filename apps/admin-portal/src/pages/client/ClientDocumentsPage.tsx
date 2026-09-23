@@ -140,7 +140,7 @@ export default function ClientDocumentsPage() {
         <Input placeholder="Search files" value={search} onChange={(e) => setSearch(e.target.value)} className="min-w-[220px] flex-1" />
         <Select value={visibility} onChange={(e) => setVisibility(e.target.value as DocumentVisibility | "all")} className="w-auto">
           <option value="all">All visibility</option>
-          <option value="client">Visible to client</option>
+          <option value="client">Visible to couple</option>
           <option value="planner-only">Planner only</option>
         </Select>
       </div>
@@ -170,7 +170,7 @@ export default function ClientDocumentsPage() {
                 </p>
               </div>
               <Badge tone={doc.visibility === "client" ? "success" : "muted"}>
-                {doc.visibility === "client" ? "Visible to client" : "Planner only"}
+                {doc.visibility === "client" ? "Visible to couple" : "Planner only"}
               </Badge>
               <span className="shrink-0 text-xs font-bold uppercase tracking-[.06em] text-primary">View</span>
             </button>
@@ -375,7 +375,7 @@ function DocumentDetailForm({
 
         <Label htmlFor="doc-visibility-edit">Visibility</Label>
         <Select id="doc-visibility-edit" value={form.visibility} onChange={(e) => setForm({ ...form, visibility: e.target.value as DocumentVisibility })}>
-          <option value="client">Visible to client</option>
+          <option value="client">Visible to couple</option>
           <option value="planner-only">Planner only</option>
         </Select>
 
@@ -478,7 +478,7 @@ function UploadForm({
 
       <Label htmlFor="doc-visibility">Visibility</Label>
       <Select id="doc-visibility" value={visibility} onChange={(e) => setVisibility(e.target.value as DocumentVisibility)}>
-        <option value="client">Visible to client</option>
+        <option value="client">Visible to couple</option>
         <option value="planner-only">Planner only</option>
       </Select>
 

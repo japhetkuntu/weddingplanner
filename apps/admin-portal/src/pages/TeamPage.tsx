@@ -205,7 +205,7 @@ function AddTeamMemberForm({ onClose, onAdded }: { onClose: () => void; onAdded:
       <div className="mt-3">
         <Checkbox
           id="member-super-admin"
-          label="Super Admin — can see every client and manage the team"
+          label="Super Admin — can see every couple and manage the team"
           checked={isSuperAdmin}
           onChange={(e) => setIsSuperAdmin(e.target.checked)}
         />

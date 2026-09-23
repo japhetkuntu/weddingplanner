@@ -57,7 +57,7 @@ export default function ClientSettingsPage() {
         budgetTarget: form!.budgetTotal,
       });
       upsertClient(updated);
-      flashToast("Client details saved");
+      flashToast("Couple details saved");
     } catch (e) {
       flashError(errorMessage(e, "Couldn't save these details — please try again."));
     } finally {
@@ -102,9 +102,9 @@ export default function ClientSettingsPage() {
       const updated = await archiveClient(client!.id);
       upsertClient(updated);
       setConfirmArchive(false);
-      flashToast("Client archived — you can restore them anytime from the Clients list");
+      flashToast("Couple archived — you can restore them anytime from the Couples list");
     } catch (e) {
-      flashError(errorMessage(e, "Couldn't archive this client — please try again."));
+      flashError(errorMessage(e, "Couldn't archive this couple — please try again."));
     } finally {
       setArchiving(false);
     }
@@ -115,9 +115,9 @@ export default function ClientSettingsPage() {
     try {
       const updated = await unarchiveClient(client!.id);
       upsertClient(updated);
-      flashToast("Client restored to your active portfolio");
+      flashToast("Couple restored to your active portfolio");
     } catch (e) {
-      flashError(errorMessage(e, "Couldn't unarchive this client — please try again."));
+      flashError(errorMessage(e, "Couldn't unarchive this couple — please try again."));
     } finally {
       setArchiving(false);
     }
@@ -136,12 +136,12 @@ export default function ClientSettingsPage() {
 
   return (
     <div>
-      <h1 className="mb-1.5 font-display text-3xl">Client settings</h1>
+      <h1 className="mb-1.5 font-display text-3xl">Couple settings</h1>
       <p className="mb-6 text-ink/60">Update {client.coupleNames}'s details and manage their Couple Portal access.</p>
 
       <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-2">
         <Card>
-          <h2 className="mb-4 font-display text-xl">Client details</h2>
+          <h2 className="mb-4 font-display text-xl">Couple details</h2>
           <div className="grid grid-cols-1 gap-x-4 sm:grid-cols-2">
             <div>
               <Label htmlFor="partnerA">Partner one</Label>
@@ -256,14 +256,14 @@ export default function ClientSettingsPage() {
       </div>
 
       <Card className="mt-4">
-        <h2 className="mb-1 font-display text-xl">{client.isArchived ? "Archived" : "Archive this client"}</h2>
+        <h2 className="mb-1 font-display text-xl">{client.isArchived ? "Archived" : "Archive this couple"}</h2>
         {client.isArchived ? (
           <>
             <p className="mb-4 text-sm text-ink/60">
-              This client is archived — hidden from your active portfolio and dashboard, but nothing has been deleted. Restore them anytime.
+              This couple is archived — hidden from your active portfolio and dashboard, but nothing has been deleted. Restore them anytime.
             </p>
             <Button variant="outline" onClick={handleUnarchive} loading={archiving} loadingText="Restoring…">
-              Unarchive client
+              Unarchive couple
             </Button>
           </>
         ) : (
@@ -282,7 +282,7 @@ export default function ClientSettingsPage() {
       <Modal open={confirmArchive} onClose={() => setConfirmArchive(false)}>
         <h3 className="mb-2 font-display text-2xl">Archive {client.coupleNames}?</h3>
         <p className="mb-6 text-ink/60">
-          They'll be hidden from your active clients list and dashboard. Nothing is deleted — you can unarchive them anytime from the Clients
+          They'll be hidden from your active couples list and dashboard. Nothing is deleted — you can unarchive them anytime from the Couples
           list.
         </p>
         <div className="flex gap-2">

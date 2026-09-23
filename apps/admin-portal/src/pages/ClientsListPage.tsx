@@ -104,7 +104,7 @@ export default function ClientsListPage() {
       upsertClient(await archiveClient(c.id));
       flashToast(`${c.coupleNames} archived`);
     } catch (e) {
-      flashError(errorMessage(e, "Couldn't archive that client — please try again."));
+      flashError(errorMessage(e, "Couldn't archive that couple — please try again."));
     } finally {
       setWorkingId(null);
     }
@@ -114,9 +114,9 @@ export default function ClientsListPage() {
     setWorkingId(c.id);
     try {
       upsertClient(await unarchiveClient(c.id));
-      flashToast(`${c.coupleNames} restored to active clients`);
+      flashToast(`${c.coupleNames} restored to active couples`);
     } catch (e) {
-      flashError(errorMessage(e, "Couldn't unarchive that client — please try again."));
+      flashError(errorMessage(e, "Couldn't unarchive that couple — please try again."));
     } finally {
       setWorkingId(null);
     }
@@ -131,7 +131,7 @@ export default function ClientsListPage() {
       flashToast(`${confirmDelete.coupleNames} permanently deleted`);
       setConfirmDelete(null);
     } catch (e) {
-      flashError(errorMessage(e, "Couldn't delete that client — please try again."));
+      flashError(errorMessage(e, "Couldn't delete that couple — please try again."));
     } finally {
       setDeleting(false);
     }
@@ -218,7 +218,7 @@ export default function ClientsListPage() {
   return (
     <div className="ovutor-fade-in">
       <p className="text-[10px] font-bold uppercase tracking-[.12em] text-primary">Portfolio · {active.length} active weddings</p>
-      <h1 className="my-1.5 font-display text-4xl">Clients</h1>
+      <h1 className="my-1.5 font-display text-4xl">Couples</h1>
 
       <div className="mt-5 flex gap-4 border-b border-[#ddd]">
         <button
@@ -256,7 +256,7 @@ export default function ClientsListPage() {
           <option value="attention">Attention</option>
           <option value="early-planning">Early planning</option>
         </Select>
-        <LinkButton to="/clients/new">Add client</LinkButton>
+        <LinkButton to="/clients/new">Add couple</LinkButton>
       </div>
 
       <DataGrid
@@ -264,7 +264,7 @@ export default function ClientsListPage() {
         rows={filtered}
         rowKey={(c) => c.id}
         onRowClick={(c) => navigate(`/clients/${c.id}/overview`)}
-        emptyMessage={tab === "active" ? "No clients match your search." : "No archived clients."}
+        emptyMessage={tab === "active" ? "No couples match your search." : "No archived couples."}
       />
 
       <Modal open={!!confirmDelete} onClose={() => setConfirmDelete(null)}>
@@ -272,7 +272,7 @@ export default function ClientsListPage() {
           <div>
             <h3 className="mb-2 font-display text-2xl">Permanently delete {confirmDelete.coupleNames}?</h3>
             <p className="mb-6 text-ink/60">
-              This removes everything — checklist, budget, RSVPs, documents, and their wedding website — for good. Archived clients can only
+              This removes everything — checklist, budget, RSVPs, documents, and their wedding website — for good. Archived couples can only
               be deleted once they've been archived for 90 days.
             </p>
             <div className="flex gap-2">

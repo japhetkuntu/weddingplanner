@@ -123,7 +123,7 @@ export default function AddClientPage() {
       upsertClient(client);
       setCredentials({ clientId: client.id, creds });
     } catch (e) {
-      setBlockingError({ title: "Couldn't create this workspace", message: errorMessage(e, "Something went wrong creating this client. Please try again.") });
+      setBlockingError({ title: "Couldn't create this workspace", message: errorMessage(e, "Something went wrong creating this couple. Please try again.") });
     } finally {
       setSaving(false);
     }
@@ -131,9 +131,9 @@ export default function AddClientPage() {
 
   return (
     <div>
-      <p className="text-sm text-ink/50">Clients / Add client</p>
+      <p className="text-sm text-ink/50">Couples / Add couple</p>
       <p className="mt-3 text-[10px] font-bold uppercase tracking-[.12em] text-primary">New wedding workspace</p>
-      <h1 className="my-1.5 font-display text-4xl">Add client</h1>
+      <h1 className="my-1.5 font-display text-4xl">Add couple</h1>
 
       <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[1fr_320px]">
         <Card>

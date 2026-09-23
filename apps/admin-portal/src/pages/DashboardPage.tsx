@@ -71,7 +71,7 @@ export default function DashboardPage() {
           <h1 className="my-1.5 font-display text-4xl">Good morning, {admin?.name ?? "there"}</h1>
           <p className="text-ink/60">You have {dashboard.attentionItems.length} items that need attention today.</p>
         </div>
-        <LinkButton to="/clients/new">Add client</LinkButton>
+        <LinkButton to="/clients/new">Add couple</LinkButton>
       </div>
 
       <section className="my-6 grid grid-cols-2 gap-3 lg:grid-cols-5">
@@ -124,7 +124,7 @@ export default function DashboardPage() {
 
           <h2 className="mb-2.5 mt-6 font-display text-2xl">Recent activity</h2>
           {dashboard.recentActivity.length === 0 ? (
-            <EmptyState compact title="It's quiet" message="Activity from your clients will appear here." />
+            <EmptyState compact title="It's quiet" message="Activity from your couples will appear here." />
           ) : (
             dashboard.recentActivity.slice(0, 3).map((event, i) => (
               <div key={i} className="border-t border-[#ddd] py-3.5 first:border-t-0">

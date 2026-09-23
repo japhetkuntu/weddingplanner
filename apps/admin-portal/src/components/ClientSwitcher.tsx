@@ -56,7 +56,7 @@ export function ClientSwitcher({ clients, current }: { clients: Client[]; curren
         aria-expanded={open}
         className="flex items-center gap-2 border border-[#8e8985] bg-white px-3 py-2 text-xs font-bold uppercase tracking-[.05em] hover:border-ink"
       >
-        Switch client
+        Switch couple
         <span className={cn("text-primary transition-transform", open && "rotate-180")}>&#9662;</span>
       </button>
 
