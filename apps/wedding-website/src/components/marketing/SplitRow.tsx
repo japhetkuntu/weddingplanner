@@ -16,6 +16,7 @@ export function SplitRow({
   cta,
   reverse = false,
   minHeight = "min-h-[80vh]",
+  tone = "pink",
 }: {
   media: MarketingMedia;
   index?: string;
@@ -25,9 +26,12 @@ export function SplitRow({
   cta?: ReactNode;
   reverse?: boolean;
   minHeight?: string;
+  /** Panel color: pink (white text) or gold (ink text). */
+  tone?: "pink" | "gold";
 }) {
+  const gold = tone === "gold";
   return (
-    <div className={cn("grid grid-cols-1 lg:grid-cols-2", minHeight)}>
+    <div className={cn("grid grid-cols-1 lg:grid-cols-2", gold ? "bg-gold text-ink" : "bg-primary text-white", minHeight)}>
       <div className={cn("relative order-1 aspect-[4/3] lg:aspect-auto", reverse ? "lg:order-2" : "lg:order-1")}>
         <PlaceholderImage image={media} className="absolute inset-0" />
       </div>
@@ -37,12 +41,23 @@ export function SplitRow({
           reverse ? "lg:order-1" : "lg:order-2",
         )}
       >
-        {index ? <p className="font-display text-lg italic text-white/60">No. {index}</p> : null}
-        <h2 className="mt-2 whitespace-pre-line font-display text-3xl leading-[1.15] text-white sm:text-4xl">{title}</h2>
-        <div className="mt-4 max-w-md text-sm leading-relaxed text-white/75">{body}</div>
-        {meta ? <p className="mt-4 max-w-md font-display text-base italic text-white/60">{meta}</p> : null}
+        {index ? <p className="font-display text-lg italic opacity-60">No. {index}</p> : null}
+        <h2 className="mt-2 whitespace-pre-line font-display text-3xl leading-[1.15] sm:text-4xl">{title}</h2>
+        <div className="mt-4 max-w-md text-sm leading-relaxed opacity-80">{body}</div>
+        {meta ? <p className="mt-4 max-w-md font-display text-base italic opacity-60">{meta}</p> : null}
         {cta}
       </div>
     </div>
   );
+}
+
+/** Row colors for a run of SplitRows: mostly gold with pink mixed in, never starting gold when the
+ * section above is gold (`afterGold`) and never ending gold, since the footer below is gold. */
+export function splitTones(count: number, afterGold = false): ("gold" | "pink")[] {
+  return Array.from({ length: count }, (_, i) => {
+    let t: "gold" | "pink" = i % 3 === 2 ? "pink" : "gold";
+    if (i === 0 && afterGold) t = "pink";
+    if (i === count - 1) t = "pink";
+    return t;
+  });
 }

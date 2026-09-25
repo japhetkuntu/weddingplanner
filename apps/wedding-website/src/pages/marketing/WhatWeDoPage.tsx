@@ -3,7 +3,7 @@ import { MarketingNav } from "@/components/marketing/MarketingNav";
 import { MarketingFooter } from "@/components/marketing/MarketingFooter";
 import { HeroMedia } from "@/components/marketing/HeroMedia";
 import { StatementSection } from "@/components/marketing/StatementSection";
-import { SplitRow } from "@/components/marketing/SplitRow";
+import { SplitRow, splitTones } from "@/components/marketing/SplitRow";
 import { DynamicContentBlock } from "@/components/marketing/DynamicContentBlock";
 import { WHAT_WE_DO } from "@/content/marketing";
 import { mergeMediaHero, mergeStatement, pickList, toMarketingMedia } from "@/content/mergeMarketing";
@@ -64,7 +64,7 @@ export default function WhatWeDoPage() {
         <StatementSection heading={statement.heading} body={statement.body} script={statement.script} />
       </div>
 
-      <div className="bg-primary">
+      <div>
         {flow.map((row, i) => (
           <SplitRow
             key={row.index}
@@ -74,6 +74,7 @@ export default function WhatWeDoPage() {
             body={<p>{row.body}</p>}
             meta={row.meta}
             reverse={i % 2 === 1}
+            tone={splitTones(flow.length, true)[i]}
           />
         ))}
       </div>

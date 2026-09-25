@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { cn } from "@ovutor/ui";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
 import { MarketingFooter } from "@/components/marketing/MarketingFooter";
-import { SplitRow } from "@/components/marketing/SplitRow";
+import { SplitRow, splitTones } from "@/components/marketing/SplitRow";
 import { DynamicContentBlock } from "@/components/marketing/DynamicContentBlock";
 import { JOURNAL, JOURNAL_CATEGORIES, JOURNAL_POSTS } from "@/content/marketing";
 import { mergeJournalPosts, mergeTextHero } from "@/content/mergeMarketing";
@@ -62,7 +62,7 @@ export default function OurJournalPage() {
         ))}
       </div>
 
-      <div className="bg-primary">
+      <div className={posts.length === 0 ? "bg-primary" : undefined}>
         {posts.map((post, i) => (
           <Link key={post.slug} to={`/our-journal/${post.slug}`} className="block">
             <SplitRow
@@ -72,10 +72,11 @@ export default function OurJournalPage() {
               meta={post.location}
               reverse={i % 2 === 1}
               minHeight="min-h-[70vh]"
+              tone={splitTones(posts.length)[i]}
               body={
                 <>
                   <p>{post.excerpt}</p>
-                  <p className="mt-4 font-display text-base italic text-white/80 underline underline-offset-4">Read the story</p>
+                  <p className="mt-4 font-display text-base italic underline opacity-80 underline-offset-4">Read the story</p>
                 </>
               }
             />

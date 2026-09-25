@@ -31,17 +31,21 @@ export function StackedSection({
   title,
   children,
   className,
+  last = false,
 }: {
   index: number;
   title: ReactNode;
   children: ReactNode;
   className?: string;
+  /** The final card sits right above the gold footer, so it never takes the gold tone. */
+  last?: boolean;
 }) {
+  const tone = TONE_CLASSES[index % TONE_CLASSES.length];
   return (
     <div
       className={cn(
         "sticky flex min-h-screen flex-col overflow-hidden shadow-[0_-24px_48px_-16px_rgba(30,30,30,0.18)]",
-        TONE_CLASSES[index % TONE_CLASSES.length],
+        last && tone === "bg-gold" ? "bg-primary" : tone,
         className,
       )}
       style={{ top: index * HEADER_HEIGHT, zIndex: 10 + index }}

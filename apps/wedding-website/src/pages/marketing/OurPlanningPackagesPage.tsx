@@ -107,7 +107,7 @@ export default function OurPlanningPackagesPage() {
         </StackedSection>
 
         {categories.map((c, i) => (
-          <StackedSection key={c.name} index={i + 1} title={c.name}>
+          <StackedSection key={c.name} index={i + 1} last={i === categories.length - 1} title={c.name}>
             <ServiceCategoryBlock groups={c.groups} />
           </StackedSection>
         ))}

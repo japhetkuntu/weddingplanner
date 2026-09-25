@@ -68,7 +68,7 @@ export default function OurApproachPage() {
         </StackedSection>
 
         {steps.map((step, i) => (
-          <StackedSection key={step.index} index={i + 1} title={step.title}>
+          <StackedSection key={step.index} index={i + 1} last={i === steps.length - 1} title={step.title}>
             <div className="px-6 pb-16 pt-4 text-center sm:px-10 sm:pb-20">
               <p className="mx-auto max-w-2xl text-sm leading-relaxed text-ink/70 sm:text-base">{step.body}</p>
             </div>

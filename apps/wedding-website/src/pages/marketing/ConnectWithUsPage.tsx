@@ -69,30 +69,30 @@ export default function ConnectWithUsPage() {
   }
 
   return (
-    <div className="ovutor-fade-in bg-primary font-sans text-ink">
+    <div className="ovutor-fade-in bg-bg font-sans text-ink">
       <MarketingNav />
 
-      <div className="grid grid-cols-1 pt-24 lg:grid-cols-2 lg:pt-0">
+      <div className="grid grid-cols-1 bg-gold pt-24 lg:grid-cols-2 lg:pt-0">
         <div className="relative aspect-[4/3] lg:aspect-auto">
           <PlaceholderImage image={hero.media[0]} className="absolute inset-0" />
         </div>
         <div className="flex flex-col justify-center px-6 py-14 sm:px-12 sm:py-20 lg:px-16">
-          <p className="text-[10px] font-bold uppercase tracking-[.2em] text-white/60">{hero.eyebrow}</p>
-          <h1 className="mt-3 font-display text-4xl italic text-white sm:text-5xl">{hero.title}</h1>
+          <p className="text-[10px] font-bold uppercase tracking-[.2em] text-ink/60">{hero.eyebrow}</p>
+          <h1 className="mt-3 font-display text-4xl italic text-ink sm:text-5xl">{hero.title}</h1>
           {intro.paragraphs.map((p) => (
-            <p key={p} className="mt-4 max-w-md text-sm leading-relaxed text-white/75">
+            <p key={p} className="mt-4 max-w-md text-sm leading-relaxed text-ink/75">
               {p}
             </p>
           ))}
-          <p className="mt-6 text-sm text-white/70">
-            <a href={`mailto:${STUDIO.email}`} className="hover:text-white">
+          <p className="mt-6 text-sm text-ink/70">
+            <a href={`mailto:${STUDIO.email}`} className="hover:text-ink">
               {STUDIO.email}
             </a>
           </p>
         </div>
       </div>
 
-      <div className="border-t border-white/15 px-6 py-16 sm:px-10 sm:py-24">
+      <div className="bg-primary px-6 py-16 sm:px-10 sm:py-24">
         <h2 className="mb-3 text-center font-display text-3xl italic text-white sm:text-4xl">Enquiry Form</h2>
         {intro.formNote ? <p className="mx-auto mb-10 max-w-md text-center text-sm text-white/70">{intro.formNote}</p> : null}
 
