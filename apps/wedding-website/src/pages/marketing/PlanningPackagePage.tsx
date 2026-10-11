@@ -1,7 +1,9 @@
+import { useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
 import { cn } from "@ovutor/ui";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
 import { MarketingFooter } from "@/components/marketing/MarketingFooter";
+import { RichText } from "@/components/RichText";
 import { HeroMedia } from "@/components/marketing/HeroMedia";
 import type { PackageSection } from "@/components/marketing/PackageShowcase";
 import { formatPackagePrice } from "@/lib/formatPackagePrice";
@@ -24,6 +26,10 @@ export default function PlanningPackagePage() {
   const { packageSlug: slug } = useParams();
   const { categories, labels, loaded } = usePlanningPackages();
   const pkg = categories.find((c) => packageSlug(c.name) === slug);
+
+  useEffect(() => {
+    if (pkg?.name) document.title = `${pkg.name} — Ovutor`;
+  }, [pkg?.name]);
 
   if (!pkg) {
     return (
@@ -71,7 +77,7 @@ export default function PlanningPackagePage() {
 
       <section className="mt-16 bg-gold px-6 py-16 text-center sm:px-10 sm:py-20">
         <h2 className="font-display text-2xl italic text-ink/60">{labels.backgroundTitle}</h2>
-        <p className="mx-auto mt-5 max-w-2xl text-sm leading-relaxed text-ink/80 sm:text-base">{pkg.background || pkg.summary}</p>
+        <RichText html={pkg.background || pkg.summary} size="lg" align="center" className="mx-auto mt-5 max-w-3xl text-ink/85" />
       </section>
 
       {sections.length > 0 ? (
@@ -100,7 +106,7 @@ export default function PlanningPackagePage() {
                         {card.bullets.map((b) => (
                           <li key={b} className="flex gap-3">
                             <Tick />
-                            <span>{b}</span>
+                            <RichText html={b} className="!text-[inherit] !leading-[inherit]" />
                           </li>
                         ))}
                       </ul>

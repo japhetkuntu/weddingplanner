@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { cn } from "@ovutor/ui";
+import { useSiteSettings } from "@/lib/siteSettings";
 import { PlaceholderImage } from "@/components/PlaceholderImage";
 import type { MarketingMedia } from "@/content/marketing";
 
@@ -30,6 +31,7 @@ export function SplitRow({
   tone?: "pink" | "gold";
 }) {
   const gold = tone === "gold";
+  const numberPrefix = useSiteSettings().labels.numberPrefix;
   return (
     <div className={cn("grid grid-cols-1 lg:grid-cols-2", gold ? "bg-gold text-ink" : "bg-primary text-white", minHeight)}>
       <div className={cn("relative order-1 aspect-[4/3] lg:aspect-auto", reverse ? "lg:order-2" : "lg:order-1")}>
@@ -41,7 +43,7 @@ export function SplitRow({
           reverse ? "lg:order-1" : "lg:order-2",
         )}
       >
-        {index ? <p className="font-display text-lg italic opacity-60">No. {index}</p> : null}
+        {index ? <p className="font-display text-lg italic opacity-60">{numberPrefix} {index}</p> : null}
         <h2 className="mt-2 whitespace-pre-line font-display text-3xl leading-[1.15] sm:text-4xl">{title}</h2>
         <div className="mt-4 max-w-md text-sm leading-relaxed opacity-80">{body}</div>
         {meta ? <p className="mt-4 max-w-md font-display text-base italic opacity-60">{meta}</p> : null}

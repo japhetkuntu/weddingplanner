@@ -502,6 +502,10 @@ export function setEnquiryRead(id: string, isRead: boolean): Promise<Enquiry> {
   return api.patch<Enquiry>(`/api/marketing/enquiries/${id}/read`, { isRead });
 }
 
+export function replyToEnquiry(id: string, subject: string, message: string): Promise<void> {
+  return api.post(`/api/marketing/enquiries/${id}/reply`, { subject, message });
+}
+
 export function deleteEnquiry(id: string): Promise<void> {
   return api.delete(`/api/marketing/enquiries/${id}`);
 }

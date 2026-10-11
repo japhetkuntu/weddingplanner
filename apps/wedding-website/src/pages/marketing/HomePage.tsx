@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { RichText } from "@/components/RichText";
+import { usePageSeo } from "@/lib/siteSettings";
 import { Link } from "react-router-dom";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
 import { MarketingFooter } from "@/components/marketing/MarketingFooter";
@@ -15,6 +17,7 @@ import { getContentBlock, getMarketingPage, type MarketingHeroDto, type Marketin
  * any admin-authored content loads — see mergeHero. Admin-added extra sections, if any, render
  * after the hero. */
 export default function HomePage() {
+  usePageSeo("home", "Ovutor — Thoughtfully planned. Beautifully celebrated.", "A boutique studio designing intimate, unforgettable weddings.");
   const [hero, setHero] = useState(HOME.hero);
   const [sections, setSections] = useState<MarketingSectionDto[]>([]);
 
@@ -40,7 +43,7 @@ export default function HomePage() {
           <h1 className="mt-5 max-w-3xl whitespace-pre-line font-display text-5xl font-normal leading-[1.05] [text-shadow:0_2px_24px_rgba(0,0,0,0.5)] sm:text-7xl">
             {hero.title}
           </h1>
-          <p className="mt-6 max-w-md text-sm leading-relaxed text-white/80 sm:text-base">{hero.subtitle}</p>
+          <RichText html={hero.subtitle} className="mt-6 max-w-md !text-base text-white/85" />
           <Link
             to={hero.ctaTo}
             className="mt-9 border border-white px-8 py-4 text-xs font-bold uppercase tracking-[.14em] text-white hover:bg-white hover:text-ink"

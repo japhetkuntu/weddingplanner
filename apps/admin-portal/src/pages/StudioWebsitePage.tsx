@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import clsx from "clsx";
 import { Badge, Button, Input, Label, Select, Skeleton, Textarea, Toast, Toggle } from "@ovutor/ui";
 import {
@@ -14,6 +14,8 @@ import {
   errorMessage,
 } from "@/lib/api";
 import { CURRENCIES } from "@/lib/currency";
+import { RichTextEditor } from "@/components/RichTextEditor";
+import { SAMPLE_FLOW, SAMPLE_JOURNAL_CATEGORIES, SAMPLE_CONNECT_PARAGRAPHS, SAMPLE_PACKAGES, SAMPLE_POSTS, SAMPLE_STEPS } from "@/lib/samples";
 import type {
   MarketingCategories,
   MarketingCategoryGroup,
@@ -25,7 +27,13 @@ import type {
   MarketingHero,
   MarketingImage,
   MarketingImageBlock,
+  MarketingContactDetails,
+  MarketingNavigation,
+  MarketingSeo,
+  MarketingSiteLabels,
+  MarketingFeature,
   MarketingParagraphs,
+  MarketingStringList,
   MarketingPostItem,
   MarketingPackageLabels,
   MarketingPackageSection,
@@ -39,12 +47,14 @@ import type {
   MarketingText,
 } from "@/types";
 
-type ContentBlockKind = "text" | "heading-body" | "statement" | "image-block" | "paragraphs" | "flow-list" | "steps-list" | "categories-list" | "package-labels" | "posts-list";
+type ContentBlockKind = "text" | "heading-body" | "statement" | "image-block" | "paragraphs" | "flow-list" | "steps-list" | "categories-list" | "package-labels" | "seo" | "string-list" | "contact-details" | "feature" | "posts-list";
 
 interface ContentBlockConfig {
   key: string;
   label: string;
   kind: ContentBlockKind;
+  /** Shows a small title field above a "text" block (e.g. the label on Our Approach's first card). */
+  withTitle?: boolean;
 }
 
 interface PageConfig {
@@ -79,7 +89,7 @@ const PAGES: PageConfig[] = [
       ctaLabel: "Start planning your day",
       ctaTo: "/connect-with-us",
     },
-    contentBlocks: [],
+    contentBlocks: [{ key: "seo", label: "Browser tab title and search description", kind: "seo" }],
   },
   {
     slug: "what-we-do",
@@ -90,6 +100,7 @@ const PAGES: PageConfig[] = [
     hasMedia: true,
     placeholders: { eyebrow: "About Ovutor", title: "The studio behind\nyour wedding day" },
     contentBlocks: [
+      { key: "seo", label: "Browser tab title and search description", kind: "seo" },
       { key: "statement", label: "Statement", kind: "statement" },
       { key: "flow", label: "How we work", kind: "flow-list" },
     ],
@@ -103,8 +114,9 @@ const PAGES: PageConfig[] = [
     hasMedia: true,
     placeholders: { eyebrow: "Our planning packages", title: "Destination weddings,\ndesigned with intention" },
     contentBlocks: [
+      { key: "seo", label: "Browser tab title and search description", kind: "seo" },
       { key: "intro", label: "Intro text", kind: "text" },
-      { key: "divider", label: "Divider photo", kind: "image-block" },
+      { key: "divider", label: "Divider photo and overlay text", kind: "image-block" },
       { key: "heading", label: "Heading before the categories", kind: "heading-body" },
       { key: "categories", label: "Packages (cards and each package's own page)", kind: "categories-list" },
       { key: "package-labels", label: "Package wording (labels and button text)", kind: "package-labels" },
@@ -119,7 +131,8 @@ const PAGES: PageConfig[] = [
     hasMedia: true,
     placeholders: { eyebrow: "How we work", title: "A process built\naround you" },
     contentBlocks: [
-      { key: "intro", label: "Intro text", kind: "text" },
+      { key: "seo", label: "Browser tab title and search description", kind: "seo" },
+      { key: "intro", label: "Intro text", kind: "text", withTitle: true },
       { key: "steps", label: "Steps", kind: "steps-list" },
     ],
   },
@@ -135,7 +148,11 @@ const PAGES: PageConfig[] = [
       title: "From every wedding, a story worth telling.",
       subtitle: "Real weddings we've planned, destination guides, and the odd bit of planning advice — from us to you.",
     },
-    contentBlocks: [{ key: "posts", label: "Journal posts", kind: "posts-list" }],
+    contentBlocks: [
+      { key: "seo", label: "Browser tab title and search description", kind: "seo" },
+      { key: "posts", label: "Journal posts", kind: "posts-list" },
+      { key: "categories", label: "Categories (the filter tabs and the post category list)", kind: "string-list" },
+    ],
   },
   {
     slug: "connect-with-us",
@@ -145,7 +162,12 @@ const PAGES: PageConfig[] = [
     hasCta: false,
     hasMedia: true,
     placeholders: { eyebrow: "Get in touch", title: "Let's connect" },
-    contentBlocks: [{ key: "intro", label: "Intro paragraphs", kind: "paragraphs" }],
+    contentBlocks: [
+      { key: "seo", label: "Browser tab title and search description", kind: "seo" },
+      { key: "intro", label: "Top section text", kind: "paragraphs" },
+      { key: "details", label: "Top section contact details", kind: "contact-details" },
+      { key: "before-form", label: "Extra section before the enquiry form", kind: "feature" },
+    ],
   },
 ];
 
@@ -158,6 +180,63 @@ const LAYOUT_LABEL: Record<MarketingSectionLayout, string> = {
 
 const emptyBlock = (): MarketingContentBlock => ({ heading: "", body: "", image: undefined, layout: "text-only" });
 
+/** A list item that folds away to a one-line header, so long lists stay manageable. New (empty)
+ * items start open; everything else starts folded. */
+function Collapsible({
+  title,
+  hint,
+  onRemove,
+  removeLabel = "Remove",
+  defaultOpen = false,
+  actions,
+  children,
+  className,
+}: {
+  title: string;
+  hint?: string;
+  onRemove?: () => void;
+  removeLabel?: string;
+  defaultOpen?: boolean;
+  actions?: ReactNode;
+  children: ReactNode;
+  className?: string;
+}) {
+  const [open, setOpen] = useState(defaultOpen);
+  return (
+    <div className={clsx("border border-[#ddd] bg-white", className)}>
+      <div className="flex items-center gap-3 px-3 py-2.5">
+        <button type="button" onClick={() => setOpen((o) => !o)} aria-expanded={open} className="flex min-w-0 flex-1 items-center gap-2 text-left">
+          <span className={clsx("inline-block text-[10px] text-ink/50 transition-transform", open && "rotate-90")}>▶</span>
+          <span className="truncate text-sm font-bold">{title || "Untitled"}</span>
+          {hint ? <span className="hidden truncate text-xs text-ink/40 sm:inline">{hint}</span> : null}
+        </button>
+        {actions}
+        {onRemove ? (
+          <button type="button" onClick={onRemove} className="shrink-0 text-xs font-bold text-primary">
+            {removeLabel}
+          </button>
+        ) : null}
+      </div>
+      {open ? <div className="border-t border-[#eee] p-3">{children}</div> : null}
+    </div>
+  );
+}
+
+/** Shown while a list is empty: fills it with the copy the public site currently falls back to, so
+ * it can be edited, reordered or trimmed instead of retyped. Nothing is saved until Save is pressed. */
+function LoadSamples({ label, onLoad }: { label: string; onLoad: () => void }) {
+  return (
+    <div className="mb-3 border border-dashed border-[#ccc] bg-bg-warm p-3">
+      <p className="mb-2 text-xs text-ink/60">
+        This list is empty, so the website is showing its built-in content. Load that content here to edit it.
+      </p>
+      <Button type="button" variant="outline" size="sm" onClick={onLoad}>
+        {label}
+      </Button>
+    </div>
+  );
+}
+
 function PageEditorSkeleton() {
   return (
     <div className="ovutor-fade-in">
@@ -166,6 +245,140 @@ function PageEditorSkeleton() {
       <Skeleton className="mt-6 h-[380px] w-full" />
       <Skeleton className="mt-6 h-40 w-full" />
     </div>
+  );
+}
+
+/** Navigation, the Log in button and the wording used around the site (journal links, the enquiry
+ * form's labels and messages). Stored under the same page-independent "studio" slug. Blank fields
+ * keep the built-in wording. */
+function SiteSettingsCard() {
+  const [nav, setNav] = useState<MarketingNavigation>({});
+  const [labels, setLabels] = useState<MarketingSiteLabels>({});
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [toast, setToast] = useState<string | null>(null);
+
+  useEffect(() => {
+    Promise.all([getMarketingContent<MarketingNavigation>("studio", "navigation"), getMarketingContent<MarketingSiteLabels>("studio", "labels")])
+      .then(([n, l]) => {
+        setNav(n ?? {});
+        setLabels(l ?? {});
+      })
+      .finally(() => setLoading(false));
+  }, []);
+
+  async function save() {
+    setSaving(true);
+    try {
+      const cleanLinks = (nav.links ?? []).filter((l) => l.label?.trim() && l.to?.trim());
+      await updateMarketingContent("studio", "navigation", { ...nav, links: cleanLinks });
+      await updateMarketingContent("studio", "labels", labels);
+      setToast("Saved");
+    } catch (e) {
+      setToast(errorMessage(e, "Couldn't save — please try again."));
+    } finally {
+      setSaving(false);
+      window.setTimeout(() => setToast(null), 2400);
+    }
+  }
+
+  const links = nav.links ?? [];
+  const fields: { key: keyof MarketingSiteLabels; label: string; placeholder: string; long?: boolean }[] = [
+    { key: "readStory", label: "Journal: link under each post", placeholder: "Read the story" },
+    { key: "numberPrefix", label: "Numbering prefix (“No. 01” on posts, rows and steps)", placeholder: "No." },
+    { key: "backToJournal", label: "Journal post: back link", placeholder: "Back to Our Journal" },
+    { key: "noPosts", label: "Journal: no posts message", placeholder: "No posts in this category yet." },
+    { key: "enquiryHeading", label: "Enquiry form heading", placeholder: "Enquiry Form" },
+    { key: "name", label: "Form: name label", placeholder: "Name*" },
+    { key: "email", label: "Form: email label", placeholder: "Email*" },
+    { key: "weddingDate", label: "Form: wedding date label", placeholder: "Wedding date" },
+    { key: "location", label: "Form: location label", placeholder: "Wedding location" },
+    { key: "guests", label: "Form: guests label", placeholder: "Number of guests" },
+    { key: "budget", label: "Form: budget label", placeholder: "Budget" },
+    { key: "message", label: "Form: message label", placeholder: "Your message" },
+    { key: "send", label: "Form: send button", placeholder: "Send enquiry" },
+    { key: "sending", label: "Form: sending text", placeholder: "Sending…" },
+    { key: "success", label: "Form: thank-you message", placeholder: "Thank you — your enquiry has been received…", long: true },
+    { key: "error", label: "Form: error message", placeholder: "Something went wrong…", long: true },
+  ];
+
+  return (
+    <Collapsible title="Site settings — navigation, Log in button and interface wording" className="mt-4 border-t-[3px] border-gold shadow-card">
+      {loading ? (
+        <Skeleton className="h-24 w-full" />
+      ) : (
+        <>
+          <h3 className="mb-1 text-sm font-bold">Navigation links</h3>
+          <p className="mb-2 text-xs text-ink/50">Shown in the menu and the footer. Leave the list empty to keep the built-in links.</p>
+          <div className="space-y-2">
+            {links.map((l, i) => (
+              <div key={i} className="flex flex-wrap items-center gap-2">
+                <Input
+                  className="min-w-[160px] flex-1"
+                  placeholder="Label"
+                  value={l.label ?? ""}
+                  onChange={(e) => setNav({ ...nav, links: links.map((x, idx) => (idx === i ? { ...x, label: e.target.value } : x)) })}
+                />
+                <Input
+                  className="min-w-[160px] flex-1"
+                  placeholder="/page or https://…"
+                  value={l.to ?? ""}
+                  onChange={(e) => setNav({ ...nav, links: links.map((x, idx) => (idx === i ? { ...x, to: e.target.value } : x)) })}
+                />
+                <button
+                  type="button"
+                  disabled={i === 0}
+                  onClick={() => {
+                    const next = [...links];
+                    [next[i - 1], next[i]] = [next[i], next[i - 1]];
+                    setNav({ ...nav, links: next });
+                  }}
+                  className="text-xs font-bold text-ink/50 disabled:opacity-30"
+                >
+                  Up
+                </button>
+                <button type="button" onClick={() => setNav({ ...nav, links: links.filter((_, idx) => idx !== i) })} className="text-xs font-bold text-primary">
+                  Remove
+                </button>
+              </div>
+            ))}
+          </div>
+          <button type="button" onClick={() => setNav({ ...nav, links: [...links, { label: "", to: "" }] })} className="mt-2 text-xs font-bold uppercase tracking-[.06em] text-primary">
+            + Add link
+          </button>
+
+          <h3 className="mb-1 mt-6 text-sm font-bold">Log in button (in the menu)</h3>
+          <div className="grid grid-cols-1 gap-x-4 sm:grid-cols-2">
+            <div>
+              <Label>Button text</Label>
+              <Input value={nav.loginLabel ?? ""} placeholder="Log in" onChange={(e) => setNav({ ...nav, loginLabel: e.target.value })} />
+            </div>
+            <div>
+              <Label>Button link</Label>
+              <Input value={nav.loginUrl ?? ""} placeholder="https://couples.ovutor.com" onChange={(e) => setNav({ ...nav, loginUrl: e.target.value })} />
+            </div>
+          </div>
+
+          <h3 className="mb-1 mt-6 text-sm font-bold">Interface wording</h3>
+          <p className="mb-2 text-xs text-ink/50">Leave a field blank to keep the current wording (shown as the placeholder).</p>
+          <div className="grid grid-cols-1 gap-x-4 sm:grid-cols-2">
+            {fields.map((f) => (
+              <div key={f.key} className={f.long ? "sm:col-span-2" : undefined}>
+                <Label>{f.label}</Label>
+                <Input value={labels[f.key] ?? ""} placeholder={f.placeholder} onChange={(e) => setLabels({ ...labels, [f.key]: e.target.value })} />
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-5 flex items-center gap-3">
+            <Button onClick={save} loading={saving} loadingText="Saving…">
+              Save site settings
+            </Button>
+            {toast ? <span className="text-sm text-ink/60">{toast}</span> : null}
+          </div>
+        </>
+      )}
+    </Collapsible>
   );
 }
 
@@ -216,6 +429,12 @@ function StudioProfileCard() {
               value={social.instagram ?? ""}
               onChange={(e) => setSocial({ ...social, instagram: e.target.value })}
             />
+            <Label htmlFor="studio-email" className="mt-3">Studio email</Label>
+            <Input id="studio-email" placeholder="hello@ovutor.com" value={social.email ?? ""} onChange={(e) => setSocial({ ...social, email: e.target.value })} />
+            <Label htmlFor="studio-location" className="mt-3">Location line</Label>
+            <Input id="studio-location" value={social.location ?? ""} onChange={(e) => setSocial({ ...social, location: e.target.value })} />
+            <Label htmlFor="studio-tagline" className="mt-3">Tagline</Label>
+            <Input id="studio-tagline" value={social.tagline ?? ""} onChange={(e) => setSocial({ ...social, tagline: e.target.value })} />
           </div>
           <Button onClick={save} loading={saving} loadingText="Saving…">
             Save
@@ -345,6 +564,7 @@ export default function StudioWebsitePage() {
       </div>
 
       <StudioProfileCard />
+      <SiteSettingsCard />
 
       <div className="mt-6 flex flex-wrap gap-2">
         {PAGES.map((p) => (
@@ -508,12 +728,15 @@ function StringListEditor({
   placeholder,
   addLabel,
   multiline,
+  rich,
 }: {
   items: string[];
   onChange: (items: string[]) => void;
   placeholder?: string;
   addLabel: string;
   multiline?: boolean;
+  /** Each entry gets the rich-text editor (bold, links, lists…) instead of a plain box. */
+  rich?: boolean;
 }) {
   const Field = multiline ? Textarea : Input;
   return (
@@ -521,7 +744,13 @@ function StringListEditor({
       <div className="space-y-2">
         {items.map((value, i) => (
           <div key={i} className="flex gap-2">
-            <Field placeholder={placeholder} value={value} onChange={(e) => onChange(items.map((v, idx) => (idx === i ? e.target.value : v)))} className="flex-1" />
+            {rich ? (
+              <div className="flex-1">
+                <RichTextEditor minHeight={56} placeholder={placeholder} value={value} onChange={(v) => onChange(items.map((x, idx) => (idx === i ? v : x)))} />
+              </div>
+            ) : (
+              <Field placeholder={placeholder} value={value} onChange={(e) => onChange(items.map((v, idx) => (idx === i ? e.target.value : v)))} className="flex-1" />
+            )}
             <button type="button" onClick={() => onChange(items.filter((_, idx) => idx !== i))} className="text-xs font-bold text-primary" aria-label="Remove">
               &times;
             </button>
@@ -557,7 +786,7 @@ function HeroForm({ page, hero, onSave }: { page: PageConfig; hero: MarketingHer
       {page.hasSubtitle ? (
         <>
           <Label htmlFor="hero-subtitle">Subtitle</Label>
-          <Textarea id="hero-subtitle" placeholder={page.placeholders.subtitle} value={form.subtitle ?? ""} onChange={(e) => setForm({ ...form, subtitle: e.target.value })} />
+          <RichTextEditor minHeight={90} placeholder={page.placeholders.subtitle} value={form.subtitle ?? ""} onChange={(subtitle) => setForm({ ...form, subtitle })} />
         </>
       ) : null}
 
@@ -638,7 +867,7 @@ function ContentBlockForm({
 }) {
   switch (block.kind) {
     case "text":
-      return <TextForm value={value as MarketingText | null} onSave={onSave} />;
+      return <TextForm value={value as MarketingText | null} onSave={onSave} withTitle={block.withTitle} />;
     case "heading-body":
       return <HeadingBodyForm value={value as MarketingHeadingBody | null} onSave={onSave} />;
     case "statement":
@@ -650,9 +879,17 @@ function ContentBlockForm({
     case "flow-list":
       return <FlowListForm pageSlug={pageSlug} value={value as MarketingFlow | null} onSave={onSave} />;
     case "steps-list":
-      return <StepsListForm value={value as MarketingSteps | null} onSave={onSave} />;
+      return <StepsListForm pageSlug={pageSlug} value={value as MarketingSteps | null} onSave={onSave} />;
     case "categories-list":
       return <CategoriesListForm pageSlug={pageSlug} value={value as MarketingCategories | null} onSave={onSave} />;
+    case "seo":
+      return <SeoForm value={value as MarketingSeo | null} onSave={onSave} />;
+    case "string-list":
+      return <StringListForm value={value as MarketingStringList | null} onSave={onSave} />;
+    case "contact-details":
+      return <ContactDetailsForm value={value as MarketingContactDetails | null} onSave={onSave} />;
+    case "feature":
+      return <FeatureForm pageSlug={pageSlug} value={value as MarketingFeature | null} onSave={onSave} />;
     case "package-labels":
       return <PackageLabelsForm value={value as MarketingPackageLabels | null} onSave={onSave} />;
     case "posts-list":
@@ -670,7 +907,8 @@ function SaveButton({ saving }: { saving: boolean }) {
   );
 }
 
-function TextForm({ value, onSave }: { value: MarketingText | null; onSave: (v: MarketingText) => Promise<void> }) {
+function TextForm({ value, onSave, withTitle }: { value: MarketingText | null; onSave: (v: MarketingText) => Promise<void>; withTitle?: boolean }) {
+  const [title, setTitle] = useState(value?.title ?? "");
   const [text, setText] = useState(value?.text ?? "");
   const [saving, setSaving] = useState(false);
   return (
@@ -678,11 +916,18 @@ function TextForm({ value, onSave }: { value: MarketingText | null; onSave: (v: 
       onSubmit={async (e) => {
         e.preventDefault();
         setSaving(true);
-        await onSave({ text });
+        await onSave(withTitle ? { title, text } : { text });
         setSaving(false);
       }}
     >
-      <Textarea value={text} onChange={(e) => setText(e.target.value)} rows={4} />
+      {withTitle ? (
+        <>
+          <Label>Card title</Label>
+          <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Our approach" />
+          <Label className="mt-3">Text</Label>
+        </>
+      ) : null}
+      <RichTextEditor value={text} onChange={setText} minHeight={140} />
       <SaveButton saving={saving} />
     </form>
   );
@@ -704,7 +949,7 @@ function HeadingBodyForm({ value, onSave }: { value: MarketingHeadingBody | null
       <Label>Heading</Label>
       <Input value={heading} onChange={(e) => setHeading(e.target.value)} />
       <Label>Body</Label>
-      <Textarea value={body} onChange={(e) => setBody(e.target.value)} />
+      <RichTextEditor value={body} onChange={setBody} minHeight={140} />
       <SaveButton saving={saving} />
     </form>
   );
@@ -727,7 +972,7 @@ function StatementForm({ value, onSave }: { value: MarketingStatement | null; on
       <Label>Heading</Label>
       <Textarea value={heading} onChange={(e) => setHeading(e.target.value)} />
       <Label>Body</Label>
-      <Textarea value={body} onChange={(e) => setBody(e.target.value)} />
+      <RichTextEditor value={body} onChange={setBody} minHeight={140} />
       <Label>Script line</Label>
       <Input value={script} onChange={(e) => setScript(e.target.value)} />
       <SaveButton saving={saving} />
@@ -737,17 +982,20 @@ function StatementForm({ value, onSave }: { value: MarketingStatement | null; on
 
 function ImageBlockForm({ pageSlug, value, onSave }: { pageSlug: string; value: MarketingImageBlock | null; onSave: (v: MarketingImageBlock) => Promise<void> }) {
   const [image, setImage] = useState<MarketingImage>(value?.image ?? {});
+  const [title, setTitle] = useState(value?.title ?? "");
   const [saving, setSaving] = useState(false);
   return (
     <form
       onSubmit={async (e) => {
         e.preventDefault();
         setSaving(true);
-        await onSave({ image });
+        await onSave({ image, title });
         setSaving(false);
       }}
     >
       <ImageField pageSlug={pageSlug} idPrefix="image-block" image={image} onChange={setImage} />
+      <Label className="mt-3">Overlay text on the photo (optional)</Label>
+      <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Our Services" />
       <SaveButton saving={saving} />
     </form>
   );
@@ -766,8 +1014,23 @@ function ParagraphsForm({ value, onSave }: { value: MarketingParagraphs | null; 
         setSaving(false);
       }}
     >
-      <Label>Paragraphs</Label>
-      <StringListEditor items={paragraphs} onChange={setParagraphs} addLabel="Add paragraph" multiline />
+      {paragraphs.length === 0 ? (
+        <LoadSamples label="Load the current text" onLoad={() => setParagraphs(SAMPLE_CONNECT_PARAGRAPHS)} />
+      ) : null}
+      <Label>Text (each box is its own block — format freely)</Label>
+      <div className="space-y-3">
+        {paragraphs.map((p, i) => (
+          <div key={i}>
+            <RichTextEditor value={p} onChange={(v) => setParagraphs(paragraphs.map((x, idx) => (idx === i ? v : x)))} minHeight={110} />
+            <button type="button" onClick={() => setParagraphs(paragraphs.filter((_, idx) => idx !== i))} className="mt-1 text-xs font-bold text-primary">
+              Remove block
+            </button>
+          </div>
+        ))}
+      </div>
+      <button type="button" onClick={() => setParagraphs([...paragraphs, ""])} className="mt-2 text-xs font-bold uppercase tracking-[.06em] text-primary">
+        + Add block
+      </button>
       <Label className="mt-4">Note above the enquiry form</Label>
       <Input value={formNote} onChange={(e) => setFormNote(e.target.value)} />
       <SaveButton saving={saving} />
@@ -792,25 +1055,27 @@ function FlowListForm({ pageSlug, value, onSave }: { pageSlug: string; value: Ma
         setSaving(false);
       }}
     >
-      {items.length === 0 ? <p className="text-xs text-ink/50">No rows added yet — the current live steps will keep showing.</p> : null}
-      <div className="space-y-4">
+      {items.length === 0 ? (
+        <LoadSamples label="Load the current rows" onLoad={() => setItems(SAMPLE_FLOW as unknown as MarketingFlowItem[])} />
+      ) : null}
+      <div className="space-y-3">
         {items.map((item, i) => (
-          <div key={i} className="border border-[#eee] p-3">
-            <div className="mb-2 flex items-center justify-between">
-              <span className="text-xs font-bold uppercase tracking-[.06em] text-ink/50">Row {i + 1}</span>
-              <button type="button" onClick={() => setItems(items.filter((_, idx) => idx !== i))} className="text-xs font-bold text-primary">
-                Remove
-              </button>
-            </div>
+          <Collapsible
+            key={i}
+            title={item.title || `Row ${i + 1}`}
+            hint={`Row ${i + 1}`}
+            defaultOpen={!item.title}
+            onRemove={() => setItems(items.filter((_, idx) => idx !== i))}
+          >
             <Label>Title</Label>
             <Input value={item.title ?? ""} onChange={(e) => update(i, { title: e.target.value })} />
-            <Label>Body</Label>
-            <Textarea value={item.body ?? ""} onChange={(e) => update(i, { body: e.target.value })} />
+            <Label>Text</Label>
+            <RichTextEditor value={item.body ?? ""} onChange={(body) => update(i, { body })} minHeight={140} />
             <Label>Meta label</Label>
             <Input value={item.meta ?? ""} onChange={(e) => update(i, { meta: e.target.value })} />
             <Label>Photo</Label>
             <ImageField pageSlug={pageSlug} idPrefix={`flow-${i}`} image={item.image} onChange={(image) => update(i, { image })} />
-          </div>
+          </Collapsible>
         ))}
       </div>
       <button type="button" onClick={() => setItems([...items, { title: "", body: "", meta: "" }])} className="mt-3 text-xs font-bold uppercase tracking-[.06em] text-primary">
@@ -821,7 +1086,7 @@ function FlowListForm({ pageSlug, value, onSave }: { pageSlug: string; value: Ma
   );
 }
 
-function StepsListForm({ value, onSave }: { value: MarketingSteps | null; onSave: (v: MarketingSteps) => Promise<void> }) {
+function StepsListForm({ pageSlug, value, onSave }: { pageSlug: string; value: MarketingSteps | null; onSave: (v: MarketingSteps) => Promise<void> }) {
   const [items, setItems] = useState<MarketingStepItem[]>(value?.items ?? []);
   const [saving, setSaving] = useState(false);
 
@@ -838,26 +1103,136 @@ function StepsListForm({ value, onSave }: { value: MarketingSteps | null; onSave
         setSaving(false);
       }}
     >
-      {items.length === 0 ? <p className="text-xs text-ink/50">No steps added yet — the current live steps will keep showing.</p> : null}
-      <div className="space-y-4">
+      {items.length === 0 ? (
+        <LoadSamples label="Load the current steps" onLoad={() => setItems(SAMPLE_STEPS as unknown as MarketingStepItem[])} />
+      ) : null}
+      <p className="mb-3 text-xs text-ink/50">Each step shows its photo on alternating sides of the page (right, left, right…).</p>
+      <div className="space-y-3">
         {items.map((item, i) => (
-          <div key={i} className="border border-[#eee] p-3">
-            <div className="mb-2 flex items-center justify-between">
-              <span className="text-xs font-bold uppercase tracking-[.06em] text-ink/50">Step {i + 1}</span>
-              <button type="button" onClick={() => setItems(items.filter((_, idx) => idx !== i))} className="text-xs font-bold text-primary">
-                Remove
-              </button>
-            </div>
+          <Collapsible
+            key={i}
+            title={item.title || `Step ${i + 1}`}
+            hint={`Step ${i + 1}`}
+            defaultOpen={!item.title}
+            onRemove={() => setItems(items.filter((_, idx) => idx !== i))}
+          >
             <Label>Title</Label>
             <Input value={item.title ?? ""} onChange={(e) => update(i, { title: e.target.value })} />
-            <Label>Body</Label>
-            <Textarea value={item.body ?? ""} onChange={(e) => update(i, { body: e.target.value })} />
-          </div>
+            <Label>Text</Label>
+            <RichTextEditor value={item.body ?? ""} onChange={(body) => update(i, { body })} minHeight={160} />
+            <Label>Photo</Label>
+            <ImageField pageSlug={pageSlug} idPrefix={`step-${i}`} image={item.image} onChange={(image) => update(i, { image })} />
+          </Collapsible>
         ))}
       </div>
       <button type="button" onClick={() => setItems([...items, { title: "", body: "" }])} className="mt-3 text-xs font-bold uppercase tracking-[.06em] text-primary">
         + Add step
       </button>
+      <SaveButton saving={saving} />
+    </form>
+  );
+}
+
+function SeoForm({ value, onSave }: { value: MarketingSeo | null; onSave: (v: MarketingSeo) => Promise<void> }) {
+  const [v, setV] = useState<MarketingSeo>(value ?? {});
+  const [saving, setSaving] = useState(false);
+  return (
+    <form
+      onSubmit={async (e) => {
+        e.preventDefault();
+        setSaving(true);
+        await onSave(v);
+        setSaving(false);
+      }}
+    >
+      <Label>Browser tab title</Label>
+      <Input value={v.title ?? ""} placeholder="Leave blank to use the default" onChange={(e) => setV({ ...v, title: e.target.value })} />
+      <Label className="mt-3">Search description (shown under the title in Google)</Label>
+      <Textarea rows={3} value={v.description ?? ""} onChange={(e) => setV({ ...v, description: e.target.value })} />
+      <SaveButton saving={saving} />
+    </form>
+  );
+}
+
+function StringListForm({ value, onSave }: { value: MarketingStringList | null; onSave: (v: MarketingStringList) => Promise<void> }) {
+  const [items, setItems] = useState<string[]>(value?.items ?? []);
+  const [saving, setSaving] = useState(false);
+  return (
+    <form
+      onSubmit={async (e) => {
+        e.preventDefault();
+        setSaving(true);
+        await onSave({ items: items.map((x) => x.trim()).filter(Boolean) });
+        setSaving(false);
+      }}
+    >
+      {items.length === 0 ? <LoadSamples label="Load the current categories" onLoad={() => setItems(SAMPLE_JOURNAL_CATEGORIES)} /> : null}
+      <p className="mb-2 text-xs text-ink/50">"All Posts" is always shown first. Add, rename or remove categories freely; posts pick from this list.</p>
+      <StringListEditor items={items} onChange={setItems} addLabel="Add category" />
+      <SaveButton saving={saving} />
+    </form>
+  );
+}
+
+function ContactDetailsForm({ value, onSave }: { value: MarketingContactDetails | null; onSave: (v: MarketingContactDetails) => Promise<void> }) {
+  const [v, setV] = useState<MarketingContactDetails>(value ?? {});
+  const [saving, setSaving] = useState(false);
+  const field = (key: keyof MarketingContactDetails, label: string, placeholder: string) => (
+    <div key={key}>
+      <Label>{label}</Label>
+      <Input value={v[key] ?? ""} placeholder={placeholder} onChange={(e) => setV({ ...v, [key]: e.target.value })} />
+    </div>
+  );
+  return (
+    <form
+      onSubmit={async (e) => {
+        e.preventDefault();
+        setSaving(true);
+        await onSave(v);
+        setSaving(false);
+      }}
+    >
+      <div className="grid grid-cols-1 gap-x-4 sm:grid-cols-2">
+        {field("email", "Email", "hello@ovutor.com")}
+        {field("phone", "Phone / WhatsApp", "+233 …")}
+        {field("location", "Location", "Accra, Ghana")}
+        {field("hours", "Hours or response time", "We reply within two working days")}
+      </div>
+      <SaveButton saving={saving} />
+    </form>
+  );
+}
+
+function FeatureForm({ pageSlug, value, onSave }: { pageSlug: string; value: MarketingFeature | null; onSave: (v: MarketingFeature) => Promise<void> }) {
+  const [v, setV] = useState<MarketingFeature>(value ?? {});
+  const [saving, setSaving] = useState(false);
+  return (
+    <form
+      onSubmit={async (e) => {
+        e.preventDefault();
+        setSaving(true);
+        await onSave(v);
+        setSaving(false);
+      }}
+    >
+      <label className="mb-3 flex items-center gap-2 text-sm font-bold">
+        <input type="checkbox" checked={!v.hidden} onChange={(e) => setV({ ...v, hidden: !e.target.checked })} />
+        Show this section on the page
+      </label>
+      <p className="mb-2 text-xs text-ink/50">
+        Sits between the introduction and the enquiry form. Anything you leave empty keeps the built-in wording or photo.
+      </p>
+      <Label>Heading</Label>
+      <Input value={v.heading ?? ""} placeholder="Every love story begins with a conversation" onChange={(e) => setV({ ...v, heading: e.target.value })} />
+      <Label className="mt-3">Text</Label>
+      <RichTextEditor value={v.body ?? ""} onChange={(body) => setV({ ...v, body })} minHeight={180} placeholder="Tell us about the day you're imagining…" />
+      <Label className="mt-3">Image (leave empty to keep the built-in photo)</Label>
+      <ImageField pageSlug={pageSlug} idPrefix="feature" image={v.image} onChange={(image) => setV({ ...v, image })} />
+      {v.image?.url ? (
+        <button type="button" onClick={() => setV({ ...v, image: undefined })} className="mt-2 text-xs font-bold text-primary">
+          Remove image
+        </button>
+      ) : null}
       <SaveButton saving={saving} />
     </form>
   );
@@ -922,39 +1297,42 @@ function CategoriesListForm({ pageSlug, value, onSave }: { pageSlug: string; val
         setSaving(false);
       }}
     >
-      {items.length === 0 ? <p className="text-xs text-ink/50">No packages added yet — the current live packages will keep showing until you add one.</p> : null}
+      {items.length === 0 ? (
+        <LoadSamples label="Load the current packages" onLoad={() => setItems(SAMPLE_PACKAGES as unknown as MarketingCategoryItem[])} />
+      ) : null}
       <div className="space-y-6">
         {items.map((pkg, i) => {
           const sections = pkg.sections ?? [];
           return (
-            <div key={i} className="border border-[#ddd] p-4">
-              <div className="mb-3 flex items-center justify-between">
-                <span className="text-sm font-bold">{pkg.name || `Package ${i + 1}`}</span>
-                <div className="flex items-center gap-3">
-                  <button
-                    type="button"
-                    disabled={i === 0}
-                    onClick={() => {
-                      const next = [...items];
-                      [next[i - 1], next[i]] = [next[i], next[i - 1]];
-                      setItems(next);
-                    }}
-                    className="text-xs font-bold text-ink/50 disabled:opacity-30"
-                  >
-                    Move up
-                  </button>
-                  <button type="button" onClick={() => setItems(items.filter((_, idx) => idx !== i))} className="text-xs font-bold text-primary">
-                    Remove package
-                  </button>
-                </div>
-              </div>
+            <Collapsible
+              key={i}
+              title={pkg.name || `Package ${i + 1}`}
+              hint={pkg.currency && pkg.priceMin != null ? `${pkg.currency} ${pkg.priceMin}` : undefined}
+              defaultOpen={!pkg.name}
+              onRemove={() => setItems(items.filter((_, idx) => idx !== i))}
+              removeLabel="Remove package"
+              actions={
+                <button
+                  type="button"
+                  disabled={i === 0}
+                  onClick={() => {
+                    const next = [...items];
+                    [next[i - 1], next[i]] = [next[i], next[i - 1]];
+                    setItems(next);
+                  }}
+                  className="text-xs font-bold text-ink/50 disabled:opacity-30"
+                >
+                  Move up
+                </button>
+              }
+            >
 
               <p className="mb-2 text-[10px] font-bold uppercase tracking-[.1em] text-ink/40">On the packages list</p>
               <Label>Name</Label>
               <Input value={pkg.name ?? ""} onChange={(e) => updatePackage(i, { name: e.target.value })} />
 
               <Label className="mt-3">Short summary (about 3 sentences)</Label>
-              <Textarea value={pkg.summary ?? ""} onChange={(e) => updatePackage(i, { summary: e.target.value })} />
+              <RichTextEditor minHeight={90} value={pkg.summary ?? ""} onChange={(summary) => updatePackage(i, { summary })} />
 
               <Label className="mt-3">Card image</Label>
               <ImageField pageSlug={pageSlug} idPrefix={`package-${i}`} image={pkg.image} onChange={(image) => updatePackage(i, { image })} />
@@ -990,7 +1368,7 @@ function CategoriesListForm({ pageSlug, value, onSave }: { pageSlug: string; val
               <ImageField pageSlug={pageSlug} idPrefix={`package-banner-${i}`} image={pkg.banner} onChange={(banner) => updatePackage(i, { banner })} />
 
               <Label className="mt-3">Background information</Label>
-              <Textarea rows={5} value={pkg.background ?? ""} onChange={(e) => updatePackage(i, { background: e.target.value })} />
+              <RichTextEditor minHeight={180} value={pkg.background ?? ""} onChange={(background) => updatePackage(i, { background })} />
 
               <Label className="mt-3">What's included — sections</Label>
               <div className="space-y-4">
@@ -1029,6 +1407,7 @@ function CategoriesListForm({ pageSlug, value, onSave }: { pageSlug: string; val
                               items={card.bullets ?? []}
                               onChange={(bullets) => setCards(cards.map((c, idx) => (idx === ci ? { ...c, bullets } : c)))}
                               addLabel="Add item"
+                              rich
                             />
                           </div>
                         ))}
@@ -1051,7 +1430,7 @@ function CategoriesListForm({ pageSlug, value, onSave }: { pageSlug: string; val
               >
                 + Add section
               </button>
-            </div>
+            </Collapsible>
           );
         })}
       </div>
@@ -1066,6 +1445,14 @@ function CategoriesListForm({ pageSlug, value, onSave }: { pageSlug: string; val
 function PostsListForm({ pageSlug, value, onSave }: { pageSlug: string; value: MarketingPosts | null; onSave: (v: MarketingPosts) => Promise<void> }) {
   const [items, setItems] = useState<MarketingPostItem[]>(value?.items ?? []);
   const [saving, setSaving] = useState(false);
+  const [categoryOptions, setCategoryOptions] = useState<string[]>(["Real Weddings", "Destinations", "Planning Tips"]);
+
+  useEffect(() => {
+    getMarketingContent<MarketingStringList>(pageSlug, "categories").then((c) => {
+      const list = (c?.items ?? []).filter((x) => x.trim());
+      if (list.length) setCategoryOptions(list);
+    });
+  }, [pageSlug]);
 
   function update(i: number, patch: Partial<MarketingPostItem>) {
     setItems(items.map((it, idx) => (idx === i ? { ...it, ...patch } : it)));
@@ -1080,19 +1467,27 @@ function PostsListForm({ pageSlug, value, onSave }: { pageSlug: string; value: M
         setSaving(false);
       }}
     >
-      {items.length === 0 ? <p className="text-xs text-ink/50">No posts added yet — the current live posts will keep showing.</p> : null}
-      <div className="space-y-6">
+      {items.length === 0 ? (
+        <LoadSamples label="Load the current posts" onLoad={() => setItems(SAMPLE_POSTS as unknown as MarketingPostItem[])} />
+      ) : null}
+      <div className="space-y-3">
         {items.map((post, i) => {
           const photos = post.photos ?? [];
-          const body = post.body ?? [];
+          const blocks: { heading?: string; text?: string; image?: MarketingImage }[] = post.blocks?.length
+            ? post.blocks
+            : (post.body ?? []).map((text) => ({ text }));
+          const setBlocks = (next: { heading?: string; text?: string; image?: MarketingImage }[]) =>
+            update(i, { blocks: next, body: next.map((b) => b.text ?? "") });
+          const categoryList = post.category && !categoryOptions.includes(post.category) ? [...categoryOptions, post.category] : categoryOptions;
           return (
-            <div key={i} className="border border-[#ddd] p-4">
-              <div className="mb-2 flex items-center justify-between">
-                <span className="text-sm font-bold">{post.title || `Post ${i + 1}`}</span>
-                <button type="button" onClick={() => setItems(items.filter((_, idx) => idx !== i))} className="text-xs font-bold text-primary">
-                  Remove post
-                </button>
-              </div>
+            <Collapsible
+              key={i}
+              title={post.title || `Post ${i + 1}`}
+              hint={[post.category, post.date].filter(Boolean).join(" · ")}
+              defaultOpen={!post.title}
+              onRemove={() => setItems(items.filter((_, idx) => idx !== i))}
+              removeLabel="Remove post"
+            >
 
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
@@ -1109,7 +1504,7 @@ function PostsListForm({ pageSlug, value, onSave }: { pageSlug: string; value: M
               <Input value={post.location ?? ""} onChange={(e) => update(i, { location: e.target.value })} />
 
               <Label>Excerpt</Label>
-              <Textarea value={post.excerpt ?? ""} onChange={(e) => update(i, { excerpt: e.target.value })} />
+              <RichTextEditor minHeight={90} value={post.excerpt ?? ""} onChange={(excerpt) => update(i, { excerpt })} />
 
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
@@ -1118,10 +1513,12 @@ function PostsListForm({ pageSlug, value, onSave }: { pageSlug: string; value: M
                 </div>
                 <div>
                   <Label>Category</Label>
-                  <Select value={post.category ?? "Real Weddings"} onChange={(e) => update(i, { category: e.target.value })}>
-                    <option value="Real Weddings">Real Weddings</option>
-                    <option value="Destinations">Destinations</option>
-                    <option value="Planning Tips">Planning Tips</option>
+                  <Select value={post.category ?? categoryList[0]} onChange={(e) => update(i, { category: e.target.value })}>
+                    {categoryList.map((c) => (
+                      <option key={c} value={c}>
+                        {c}
+                      </option>
+                    ))}
                   </Select>
                 </div>
               </div>
@@ -1129,8 +1526,64 @@ function PostsListForm({ pageSlug, value, onSave }: { pageSlug: string; value: M
               <Label>Cover photo</Label>
               <ImageField pageSlug={pageSlug} idPrefix={`post-${i}-media`} image={post.media} onChange={(media) => update(i, { media })} />
 
-              <Label className="mt-3">Body paragraphs</Label>
-              <StringListEditor items={body} onChange={(b) => update(i, { body: b })} addLabel="Add paragraph" multiline />
+              <Label className="mt-3">Story — sections of text, each with an optional heading and image</Label>
+              <p className="mb-2 text-xs text-ink/50">
+                Format each part freely: headings, bold, bullet lists, alignment. Give each part of a long story its own section so you can place an image after it.
+              </p>
+              <div className="space-y-3">
+                {blocks.map((block, bi) => (
+                  <Collapsible
+                    key={bi}
+                    className="bg-bg-warm"
+                    title={block.heading || `Part ${bi + 1}`}
+                    hint={(block.text ?? "").replace(/<[^>]+>/g, " ").slice(0, 60)}
+                    defaultOpen={!block.text}
+                    onRemove={() => setBlocks(blocks.filter((_, idx) => idx !== bi))}
+                    actions={
+                      <button
+                        type="button"
+                        disabled={bi === 0}
+                        onClick={() => {
+                          const next = [...blocks];
+                          [next[bi - 1], next[bi]] = [next[bi], next[bi - 1]];
+                          setBlocks(next);
+                        }}
+                        className="text-xs font-bold text-ink/50 disabled:opacity-30"
+                      >
+                        Move up
+                      </button>
+                    }
+                  >
+                    <Label>Section heading (optional)</Label>
+                    <Input value={block.heading ?? ""} onChange={(e) => setBlocks(blocks.map((b, idx) => (idx === bi ? { ...b, heading: e.target.value } : b)))} />
+                    <Label className="mt-3">Text</Label>
+                    <RichTextEditor
+                      value={block.text ?? ""}
+                      onChange={(text) => setBlocks(blocks.map((b, idx) => (idx === bi ? { ...b, text } : b)))}
+                      minHeight={220}
+                    />
+                    <Label className="mt-3">Image after this section (optional)</Label>
+                    <ImageField
+                      pageSlug={pageSlug}
+                      idPrefix={`post-${i}-block-${bi}`}
+                      image={block.image}
+                      onChange={(image) => setBlocks(blocks.map((b, idx) => (idx === bi ? { ...b, image } : b)))}
+                    />
+                    {block.image?.url ? (
+                      <button
+                        type="button"
+                        onClick={() => setBlocks(blocks.map((b, idx) => (idx === bi ? { ...b, image: undefined } : b)))}
+                        className="mt-2 text-xs font-bold text-primary"
+                      >
+                        Remove image
+                      </button>
+                    ) : null}
+                  </Collapsible>
+                ))}
+              </div>
+              <button type="button" onClick={() => setBlocks([...blocks, { text: "" }])} className="mt-2 text-xs font-bold uppercase tracking-[.06em] text-primary">
+                + Add section
+              </button>
 
               <Label className="mt-3">Photo gallery</Label>
               <div className="space-y-3">
@@ -1158,13 +1611,13 @@ function PostsListForm({ pageSlug, value, onSave }: { pageSlug: string; value: M
               <button type="button" onClick={() => update(i, { photos: [...photos, {}] })} className="mt-2 text-xs font-bold uppercase tracking-[.06em] text-primary">
                 + Add photo
               </button>
-            </div>
+            </Collapsible>
           );
         })}
       </div>
       <button
         type="button"
-        onClick={() => setItems([...items, { title: "", slug: "", location: "", excerpt: "", date: "", category: "Real Weddings", body: [], photos: [] }])}
+        onClick={() => setItems([...items, { title: "", slug: "", location: "", excerpt: "", date: "", category: categoryOptions[0], body: [], photos: [] }])}
         className="mt-3 text-xs font-bold uppercase tracking-[.06em] text-primary"
       >
         + Add post
@@ -1195,12 +1648,16 @@ function SectionEditor({
   const [content, setContent] = useState<MarketingContentBlock>(section.content);
   const [saving, setSaving] = useState(false);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [open, setOpen] = useState(!section.content.heading && !section.content.body);
 
   return (
     <div className="border border-[#ddd] bg-white p-4">
-      <div className="mb-3 flex flex-wrap items-center gap-2">
+      <div className={clsx("flex flex-wrap items-center gap-2", open && "mb-3")}>
         <Badge tone={section.isEnabled ? "success" : "muted"}>{section.isEnabled ? "Enabled" : "Disabled"}</Badge>
-        <span className="mr-auto text-sm font-bold">{section.title}</span>
+        <button type="button" onClick={() => setOpen((o) => !o)} aria-expanded={open} className="mr-auto flex min-w-0 items-center gap-2 text-left">
+          <span className={clsx("inline-block text-[10px] text-ink/50 transition-transform", open && "rotate-90")}>▶</span>
+          <span className="truncate text-sm font-bold">{section.title}</span>
+        </button>
         {onMoveUp ? (
           <button type="button" onClick={onMoveUp} className="text-xs font-bold uppercase tracking-[.06em] text-ink/60 hover:text-ink" aria-label="Move up">
             ↑
@@ -1214,6 +1671,7 @@ function SectionEditor({
         <Toggle checked={section.isEnabled} onChange={onToggle} label="Enabled" />
       </div>
 
+      {open ? (
       <form
         onSubmit={async (e) => {
           e.preventDefault();
@@ -1228,8 +1686,8 @@ function SectionEditor({
         <Label htmlFor={`section-${section.id}-heading`}>Heading</Label>
         <Input id={`section-${section.id}-heading`} value={content.heading ?? ""} onChange={(e) => setContent({ ...content, heading: e.target.value })} />
 
-        <Label htmlFor={`section-${section.id}-body`}>Body</Label>
-        <Textarea id={`section-${section.id}-body`} value={content.body ?? ""} onChange={(e) => setContent({ ...content, body: e.target.value })} />
+        <Label>Text</Label>
+        <RichTextEditor value={content.body ?? ""} onChange={(body) => setContent({ ...content, body })} minHeight={180} />
 
         <Label htmlFor={`section-${section.id}-layout`}>Layout</Label>
         <Select
@@ -1249,6 +1707,90 @@ function SectionEditor({
             <Label>Image</Label>
             <ImageField pageSlug={pageSlug} idPrefix={`section-${section.id}-image`} image={content.image} onChange={(image) => setContent({ ...content, image })} />
           </>
+        ) : null}
+
+        <p className="mb-1 mt-5 text-[10px] font-bold uppercase tracking-[.1em] text-ink/40">How it looks</p>
+        <div className="grid grid-cols-1 gap-x-4 sm:grid-cols-2">
+          <div>
+            <Label>Background</Label>
+            <Select value={content.background ?? "light-gold"} onChange={(e) => setContent({ ...content, background: e.target.value as MarketingContentBlock["background"] })}>
+              <option value="light-gold">Light gold</option>
+              <option value="gold">Gold</option>
+              <option value="pink">Pink</option>
+              <option value="cream">Cream</option>
+              <option value="white">White</option>
+            </Select>
+          </div>
+          <div>
+            <Label>Text alignment</Label>
+            <Select value={content.align ?? ""} onChange={(e) => setContent({ ...content, align: (e.target.value || undefined) as MarketingContentBlock["align"] })}>
+              <option value="">Automatic (centred, or left beside a photo)</option>
+              <option value="left">Left</option>
+              <option value="center">Centred</option>
+            </Select>
+          </div>
+          <div>
+            <Label>Text width</Label>
+            <Select value={content.width ?? "medium"} onChange={(e) => setContent({ ...content, width: e.target.value as MarketingContentBlock["width"] })}>
+              <option value="narrow">Narrow</option>
+              <option value="medium">Medium</option>
+              <option value="wide">Wide</option>
+              <option value="full">Full width</option>
+            </Select>
+          </div>
+          <div>
+            <Label>Text columns</Label>
+            <Select value={String(content.columns ?? 1)} onChange={(e) => setContent({ ...content, columns: Number(e.target.value) })}>
+              <option value="1">One column</option>
+              <option value="2">Two columns (long text)</option>
+            </Select>
+          </div>
+          {content.layout === "image-left" || content.layout === "image-right" ? (
+            <div>
+              <Label>Photo shape</Label>
+              <Select value={content.imageRatio ?? "landscape"} onChange={(e) => setContent({ ...content, imageRatio: e.target.value as MarketingContentBlock["imageRatio"] })}>
+                <option value="landscape">Landscape</option>
+                <option value="portrait">Portrait</option>
+                <option value="square">Square</option>
+              </Select>
+            </div>
+          ) : null}
+        </div>
+
+        <p className="mb-1 mt-5 text-[10px] font-bold uppercase tracking-[.1em] text-ink/40">Button (optional)</p>
+        <div className="grid grid-cols-1 gap-x-4 sm:grid-cols-2">
+          <div>
+            <Label>Button text</Label>
+            <Input value={content.buttonLabel ?? ""} placeholder="Inquire for availability" onChange={(e) => setContent({ ...content, buttonLabel: e.target.value })} />
+          </div>
+          <div>
+            <Label>Button link</Label>
+            <Input value={content.buttonUrl ?? ""} placeholder="/connect-with-us or https://…" onChange={(e) => setContent({ ...content, buttonUrl: e.target.value })} />
+          </div>
+        </div>
+
+        <p className="mb-1 mt-5 text-[10px] font-bold uppercase tracking-[.1em] text-ink/40">Extra photos under the text (optional, up to 3)</p>
+        <div className="space-y-2">
+          {(content.gallery ?? []).map((g, gi) => (
+            <div key={gi} className="flex items-start gap-2">
+              <div className="flex-1">
+                <ImageField
+                  pageSlug={pageSlug}
+                  idPrefix={`section-${section.id}-gallery-${gi}`}
+                  image={g}
+                  onChange={(img) => setContent({ ...content, gallery: (content.gallery ?? []).map((x, idx) => (idx === gi ? img : x)) })}
+                />
+              </div>
+              <button type="button" onClick={() => setContent({ ...content, gallery: (content.gallery ?? []).filter((_, idx) => idx !== gi) })} className="text-xs font-bold text-primary">
+                Remove
+              </button>
+            </div>
+          ))}
+        </div>
+        {(content.gallery ?? []).length < 3 ? (
+          <button type="button" onClick={() => setContent({ ...content, gallery: [...(content.gallery ?? []), {}] })} className="mt-2 text-xs font-bold uppercase tracking-[.06em] text-primary">
+            + Add photo
+          </button>
         ) : null}
 
         <div className="mt-5 flex flex-wrap gap-2">
@@ -1271,6 +1813,7 @@ function SectionEditor({
           )}
         </div>
       </form>
+      ) : null}
     </div>
   );
 }

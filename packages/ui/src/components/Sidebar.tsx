@@ -1,3 +1,4 @@
+import { Logo } from "./Logo";
 import { useState } from "react";
 import type { ReactNode } from "react";
 import { NavLink } from "react-router-dom";
@@ -46,9 +47,7 @@ export function Sidebar({ portalLabel, items, footer, topContent }: SidebarProps
     <>
       {/* Mobile top bar */}
       <div className="flex items-center justify-between border-b border-[#bbb] bg-white px-4 py-3 lg:hidden">
-        <div className="font-display text-xl">
-          Ovutor <span className="text-primary">&#9825;</span>
-        </div>
+        <Logo className="h-9" />
         <button
           type="button"
           aria-label="Toggle navigation"
@@ -63,9 +62,7 @@ export function Sidebar({ portalLabel, items, footer, topContent }: SidebarProps
         <div className="fixed inset-0 z-40 lg:hidden">
           <div className="absolute inset-0 bg-ink/40" onClick={() => setOpen(false)} />
           <aside className="absolute inset-y-0 left-0 w-[260px] overflow-y-auto bg-white p-4">
-            <div className="font-display text-2xl">
-              Ovutor <span className="text-primary">&#9825;</span>
-            </div>
+            <Logo className="h-12" />
             <p className="mt-1 text-xs font-bold text-ink/60">{portalLabel}</p>
             {topContent}
             <NavList items={items} onNavigate={() => setOpen(false)} />
@@ -76,9 +73,7 @@ export function Sidebar({ portalLabel, items, footer, topContent }: SidebarProps
 
       {/* Desktop sidebar — sticky to the viewport so only the main content scrolls. */}
       <aside className="hidden w-[225px] shrink-0 overflow-y-auto border-r border-[#bbb] bg-white px-4 py-6 lg:sticky lg:top-0 lg:flex lg:h-screen lg:flex-col">
-        <div className="font-display text-[26px] leading-none">
-          Ovutor <span className="text-primary">&#9825;</span>
-        </div>
+        <Logo className="-ml-1 h-14 self-start" />
         <p className="mt-2 text-xs font-bold text-ink/60">{portalLabel}</p>
         {topContent}
         <NavList items={items} />

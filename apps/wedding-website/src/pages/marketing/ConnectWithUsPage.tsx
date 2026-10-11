@@ -1,15 +1,19 @@
 import { useEffect, useState } from "react";
+import { usePageSeo, useSiteSettings } from "@/lib/siteSettings";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
 import { MarketingFooter } from "@/components/marketing/MarketingFooter";
 import { PlaceholderImage } from "@/components/PlaceholderImage";
+import { RichText } from "@/components/RichText";
 import { DynamicContentBlock } from "@/components/marketing/DynamicContentBlock";
-import { Button } from "@ovutor/ui";
+import { Button, cn } from "@ovutor/ui";
 import { CONNECT, STUDIO } from "@/content/marketing";
-import { mergeMediaHero, mergeParagraphs } from "@/content/mergeMarketing";
+import { mergeMediaHero, mergeParagraphs, pick } from "@/content/mergeMarketing";
 import {
   getContentBlock,
   getMarketingPage,
   submitEnquiry,
+  type MarketingContactDetailsDto,
+  type MarketingFeatureDto,
   type MarketingHeroDto,
   type MarketingParagraphsDto,
   type MarketingSectionDto,
@@ -27,18 +31,33 @@ const LABEL_CLASS = "block text-[10px] font-bold uppercase tracking-[.12em] text
  * CONNECT.media is a single photo rather than a carousel, so it's merged as a one-item array and
  * read back out below. */
 export default function ConnectWithUsPage() {
+  const site = useSiteSettings();
+  const L = site.labels;
+  usePageSeo("connect-with-us", "Connect with Us — Ovutor", "Tell us about your wedding and we'll be in touch.");
   const [sent, setSent] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hero, setHero] = useState({ eyebrow: CONNECT.eyebrow, title: CONNECT.title, media: [CONNECT.media] });
   const [intro, setIntro] = useState({ paragraphs: CONNECT.paragraphs, formNote: CONNECT.formNote });
   const [sections, setSections] = useState<MarketingSectionDto[]>([]);
+  const [details, setDetails] = useState<MarketingContactDetailsDto>({});
+  const [feature, setFeature] = useState<MarketingFeatureDto | null>(null);
+  const featureView = {
+    show: !feature?.hidden,
+    heading: pick(feature?.heading, CONNECT.feature.heading),
+    body: pick(feature?.body, CONNECT.feature.body),
+    image: feature?.image?.url
+      ? { src: feature.image.url, label: feature.image.label ?? "", focalPoint: "center" as const }
+      : CONNECT.feature.media,
+  };
 
   useEffect(() => {
     getMarketingPage("connect-with-us")
       .then((data) => {
         setHero(mergeMediaHero(getContentBlock<MarketingHeroDto>(data, "hero"), { eyebrow: CONNECT.eyebrow, title: CONNECT.title, media: [CONNECT.media] }));
         setIntro(mergeParagraphs(getContentBlock<MarketingParagraphsDto>(data, "intro"), CONNECT.paragraphs, CONNECT.formNote));
+        setDetails(getContentBlock<MarketingContactDetailsDto>(data, "details") ?? {});
+        setFeature(getContentBlock<MarketingFeatureDto>(data, "before-form"));
         setSections(data.sections);
       })
       .catch(() => {});
@@ -62,7 +81,7 @@ export default function ConnectWithUsPage() {
       });
       setSent(true);
     } catch {
-      setError("Something went wrong sending your enquiry — please try again, or email us directly.");
+      setError(L.error);
     } finally {
       setSubmitting(false);
     }
@@ -79,61 +98,81 @@ export default function ConnectWithUsPage() {
         <div className="flex flex-col justify-center px-6 py-14 sm:px-12 sm:py-20 lg:px-16">
           <p className="text-[10px] font-bold uppercase tracking-[.2em] text-ink/60">{hero.eyebrow}</p>
           <h1 className="mt-3 font-display text-4xl italic text-ink sm:text-5xl">{hero.title}</h1>
-          {intro.paragraphs.map((p) => (
-            <p key={p} className="mt-4 max-w-md text-sm leading-relaxed text-ink/75">
-              {p}
-            </p>
+          {intro.paragraphs.map((p, i) => (
+            <RichText key={i} html={p} className="mt-4 max-w-lg text-ink/80" />
           ))}
-          <p className="mt-6 text-sm text-ink/70">
-            <a href={`mailto:${STUDIO.email}`} className="hover:text-ink">
-              {STUDIO.email}
-            </a>
-          </p>
+          <div className="mt-8 space-y-1.5 text-sm text-ink/80">
+            <p>
+              <a href={`mailto:${details.email || STUDIO.email}`} className="font-semibold underline underline-offset-4 hover:text-ink">
+                {details.email || STUDIO.email}
+              </a>
+            </p>
+            {details.phone ? <p>{details.phone}</p> : null}
+            {details.location ? <p>{details.location}</p> : null}
+            {details.hours ? <p className="text-ink/60">{details.hours}</p> : null}
+          </div>
         </div>
       </div>
 
+      {featureView.show ? (
+        <section className={cn("grid grid-cols-1 bg-bg", featureView.image && "lg:grid-cols-2")}>
+          {featureView.image ? (
+            <div className="relative aspect-[4/3] w-full lg:order-2 lg:aspect-auto lg:min-h-[480px]">
+              <PlaceholderImage image={featureView.image} className="absolute inset-0" />
+            </div>
+          ) : null}
+          <div className="flex items-center px-6 py-16 sm:px-12 sm:py-20 lg:order-1 lg:px-20">
+            <div className={cn("w-full", !featureView.image && "mx-auto max-w-3xl text-center")}>
+              <span className={cn("mb-5 block h-[3px] w-12 bg-gold", !featureView.image && "mx-auto")} />
+              {featureView.heading ? <h2 className="font-display text-3xl leading-tight sm:text-4xl">{featureView.heading}</h2> : null}
+              <RichText html={featureView.body} size="lg" className="mt-5 text-ink/80" align={featureView.image ? undefined : "center"} />
+            </div>
+          </div>
+        </section>
+      ) : null}
+
       <div className="bg-primary px-6 py-16 sm:px-10 sm:py-24">
-        <h2 className="mb-3 text-center font-display text-3xl italic text-white sm:text-4xl">Enquiry Form</h2>
+        <h2 className="mb-3 text-center font-display text-3xl italic text-white sm:text-4xl">{L.enquiryHeading}</h2>
         {intro.formNote ? <p className="mx-auto mb-10 max-w-md text-center text-sm text-white/70">{intro.formNote}</p> : null}
 
         {sent ? (
           <p className="mx-auto max-w-md text-center leading-relaxed text-white/80">
-            Thank you — your enquiry has been received. We'll be in touch within a few days.
+            {L.success}
           </p>
         ) : (
           <form onSubmit={handleSubmit} className="mx-auto grid max-w-2xl grid-cols-1 gap-6 sm:grid-cols-2">
             <label className="sm:col-span-2">
-              <span className={LABEL_CLASS}>Name*</span>
+              <span className={LABEL_CLASS}>{L.name}</span>
               <input required name="name" className={FIELD_CLASS} />
             </label>
             <label>
-              <span className={LABEL_CLASS}>Email*</span>
+              <span className={LABEL_CLASS}>{L.email}</span>
               <input required type="email" name="email" className={FIELD_CLASS} />
             </label>
             <label>
-              <span className={LABEL_CLASS}>Wedding date</span>
+              <span className={LABEL_CLASS}>{L.weddingDate}</span>
               <input type="date" name="weddingDate" className={FIELD_CLASS} />
             </label>
             <label>
-              <span className={LABEL_CLASS}>Wedding location</span>
+              <span className={LABEL_CLASS}>{L.location}</span>
               <input name="location" className={FIELD_CLASS} />
             </label>
             <label>
-              <span className={LABEL_CLASS}>Number of guests</span>
+              <span className={LABEL_CLASS}>{L.guests}</span>
               <input type="number" min={0} name="guestCount" className={FIELD_CLASS} />
             </label>
             <label className="sm:col-span-2">
-              <span className={LABEL_CLASS}>Budget</span>
+              <span className={LABEL_CLASS}>{L.budget}</span>
               <input name="budget" className={FIELD_CLASS} />
             </label>
             <label className="sm:col-span-2">
-              <span className={LABEL_CLASS}>Your message</span>
+              <span className={LABEL_CLASS}>{L.message}</span>
               <textarea name="message" rows={4} className={FIELD_CLASS} />
             </label>
             {error ? <p className="text-sm text-white sm:col-span-2">{error}</p> : null}
             <div className="sm:col-span-2">
-              <Button type="submit" className="w-full sm:w-auto" loading={submitting} loadingText="Sending…">
-                Send enquiry
+              <Button type="submit" className="w-full sm:w-auto" loading={submitting} loadingText={L.sending}>
+                {L.send}
               </Button>
             </div>
           </form>

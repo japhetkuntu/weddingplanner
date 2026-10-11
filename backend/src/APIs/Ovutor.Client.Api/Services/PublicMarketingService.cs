@@ -37,7 +37,11 @@ public class PublicMarketingService(
             var publicSections = sectionEntities.Select(s =>
             {
                 var block = JsonSerializer.Deserialize<MarketingContentBlock>(s.ContentJson, JsonOptions)!;
-                return new PublicMarketingSection(s.Id, s.Type, block.Heading, block.Body, ToPublicImage(block.Image), block.Layout);
+                return new PublicMarketingSection(
+                    s.Id, s.Type, block.Heading, block.Body, ToPublicImage(block.Image), block.Layout,
+                    block.Background, block.Align, block.Width, block.ImageRatio, block.Columns,
+                    block.ButtonLabel, block.ButtonUrl,
+                    block.Gallery?.Where(g => !string.IsNullOrWhiteSpace(g.Url)).Select(g => ToPublicImage(g)!).ToList());
             }).ToList();
 
             return new PublicMarketingPageResponse(content, publicSections).ToOkApiResponse();

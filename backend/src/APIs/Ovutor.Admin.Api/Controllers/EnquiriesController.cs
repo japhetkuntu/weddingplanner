@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Ovutor.Admin.Api.Common;
 using Ovutor.Admin.Api.Interfaces;
 using Ovutor.Admin.Api.Models.Requests;
 
@@ -9,6 +10,7 @@ namespace Ovutor.Admin.Api.Controllers;
 /// not scoped to a client, unlike RsvpsController.</summary>
 [ApiController]
 [Authorize]
+[SuperAdminOnly]
 [Route("api/marketing/enquiries")]
 public class EnquiriesController(IEnquiryService enquiryService) : ControllerBase
 {
@@ -23,6 +25,13 @@ public class EnquiriesController(IEnquiryService enquiryService) : ControllerBas
     public async Task<IActionResult> SetRead(Guid id, SetEnquiryReadRequest request, CancellationToken ct)
     {
         var response = await enquiryService.SetReadAsync(id, request, ct);
+        return StatusCode(response.Code, response);
+    }
+
+    [HttpPost("{id:guid}/reply")]
+    public async Task<IActionResult> Reply(Guid id, ReplyToEnquiryRequest request, CancellationToken ct)
+    {
+        var response = await enquiryService.ReplyAsync(id, ClaimsReader.GetAdminId(User), request, ct);
         return StatusCode(response.Code, response);
     }
 

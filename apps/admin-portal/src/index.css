@@ -1,1 +1,10 @@
 @import "@ovutor/design-system/styles.css";
+
+.rt-editor:empty:before { content: attr(data-placeholder); color: rgba(30,30,30,.35); }
+.rt-editor h2 { font-size: 1.4em; font-weight: 600; margin: .6em 0 .3em; }
+.rt-editor h3 { font-size: 1.15em; font-weight: 600; margin: .6em 0 .3em; }
+.rt-editor ul { list-style: disc; padding-left: 1.4em; margin: .5em 0; }
+.rt-editor ol { list-style: decimal; padding-left: 1.4em; margin: .5em 0; }
+.rt-editor blockquote { border-left: 3px solid #E0115F; padding-left: .8em; font-style: italic; margin: .6em 0; }
+.rt-editor a { color: #E0115F; text-decoration: underline; }
+.rt-editor p { margin: 0 0 .6em; }

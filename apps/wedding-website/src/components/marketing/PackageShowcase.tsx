@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { cn } from "@ovutor/ui";
+import { RichText } from "@/components/RichText";
 import { PlaceholderImage } from "@/components/PlaceholderImage";
 import type { MarketingMedia } from "@/content/marketing";
 import { packageSlug } from "@/lib/packageSlug";
@@ -75,7 +76,7 @@ export function PackageShowcase({
               </div>
             </div>
             <div className={cn("flex flex-1 flex-col items-center px-5 py-6 text-center", featured && "justify-center md:w-1/2 md:px-10")}>
-              <p className={cn("text-sm leading-relaxed text-ink/75", !featured && "flex-1")}>{pkg.summary}</p>
+              <RichText html={pkg.summary} className={cn("!text-sm !leading-relaxed text-ink/75", !featured && "flex-1")} />
               {formatPackagePrice(pkg) ? (
                 <div className="mt-4 w-full border-t border-ink/10 pt-3">
                   <p className="text-[10px] font-bold uppercase tracking-[.16em] text-primary">{startingFromLabel}</p>

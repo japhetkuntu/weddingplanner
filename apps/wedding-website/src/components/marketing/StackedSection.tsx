@@ -41,15 +41,19 @@ export function StackedSection({
   last?: boolean;
 }) {
   const tone = TONE_CLASSES[index % TONE_CLASSES.length];
+  const offset = index * HEADER_HEIGHT;
   return (
-    <div
-      className={cn(
-        "sticky flex min-h-screen flex-col overflow-hidden shadow-[0_-24px_48px_-16px_rgba(30,30,30,0.18)]",
-        last && tone === "bg-gold" ? "bg-primary" : tone,
-        className,
-      )}
-      style={{ top: index * HEADER_HEIGHT, zIndex: 10 + index }}
-    >
+    <>
+      <div
+        className={cn(
+          "flex flex-col overflow-hidden shadow-[0_-24px_48px_-16px_rgba(30,30,30,0.18)] lg:sticky",
+          last && tone === "bg-gold" ? "bg-primary" : tone,
+          className,
+        )}
+        // The card is exactly as tall as the room left under the headers already pinned above it,
+        // so everything inside is on screen while it's pinned — nothing hangs off the bottom.
+        style={{ top: offset, zIndex: 10 + index, minHeight: `calc(100vh - ${offset}px)` }}
+      >
       <div
         className="flex shrink-0 items-center justify-center px-6 text-center"
         style={{ height: HEADER_HEIGHT }}
@@ -58,6 +62,12 @@ export function StackedSection({
       </div>
 
       <div className="flex flex-1 flex-col justify-center overflow-y-auto">{children}</div>
-    </div>
+      </div>
+
+      {/* Dwell: scroll distance during which this card stays pinned and fully readable before the
+          next one starts sliding over it. Not needed after the last card, or on phones where the
+          cards simply stack in normal flow. */}
+      {last ? null : <div className="hidden lg:block" style={{ height: "45vh" }} aria-hidden="true" />}
+    </>
   );
 }

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { Button, DataGrid, Drawer, Modal, Skeleton, StatCard, Toast, type DataGridColumn } from "@ovutor/ui";
-import { getEnquiries, setEnquiryRead, deleteEnquiry, errorMessage } from "@/lib/api";
+import { Button, DataGrid, Drawer, Input, Label, Modal, Skeleton, StatCard, Textarea, Toast, type DataGridColumn } from "@ovutor/ui";
+import { getEnquiries, setEnquiryRead, deleteEnquiry, replyToEnquiry, errorMessage } from "@/lib/api";
 import type { Enquiry } from "@/types";
 
 function EnquiriesSkeleton() {
@@ -31,6 +31,10 @@ export default function EnquiriesPage() {
   const [selected, setSelected] = useState<Enquiry | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<Enquiry | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [replyTo, setReplyTo] = useState<Enquiry | null>(null);
+  const [subject, setSubject] = useState("");
+  const [message, setMessage] = useState("");
+  const [sending, setSending] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -58,6 +62,28 @@ export default function EnquiriesPage() {
       setSelected(saved);
     } catch {
       // Not marking as read is harmless — the admin can still read the drawer that's already open.
+    }
+  }
+
+  function openReply(enquiry: Enquiry) {
+    setReplyTo(enquiry);
+    setSubject("Re: Your enquiry to Ovutor");
+    setMessage("");
+  }
+
+  async function sendReply() {
+    if (!replyTo) return;
+    setSending(true);
+    try {
+      await replyToEnquiry(replyTo.id, subject, message);
+      setEnquiries((prev) => prev.map((e) => (e.id === replyTo.id ? { ...e, isRead: true } : e)));
+      setToast(`Reply sent to ${replyTo.email}`);
+      window.setTimeout(() => setToast(null), 2600);
+      setReplyTo(null);
+    } catch (e) {
+      flashError(errorMessage(e, "Couldn't send that reply — please try again."));
+    } finally {
+      setSending(false);
     }
   }
 
@@ -174,8 +200,8 @@ export default function EnquiriesPage() {
             ) : null}
 
             <div className="mt-6 flex gap-2 border-t border-[#eee] pt-4">
-              <Button className="flex-1" onClick={() => (window.location.href = `mailto:${selected.email}`)}>
-                Reply by email
+              <Button className="flex-1" onClick={() => openReply(selected)}>
+                Reply
               </Button>
               <Button variant="outline" onClick={() => setConfirmDelete(selected)}>
                 Delete
@@ -184,6 +210,27 @@ export default function EnquiriesPage() {
           </div>
         ) : null}
       </Drawer>
+
+      <Modal open={!!replyTo} onClose={() => (sending ? null : setReplyTo(null))}>
+        {replyTo ? (
+          <div>
+            <h3 className="mb-1 font-display text-2xl">Reply to {replyTo.name}</h3>
+            <p className="mb-4 text-sm text-ink/60">Sent from Ovutor to {replyTo.email}.</p>
+            <Label htmlFor="reply-subject">Subject</Label>
+            <Input id="reply-subject" value={subject} onChange={(e) => setSubject(e.target.value)} />
+            <Label htmlFor="reply-message">Message</Label>
+            <Textarea id="reply-message" rows={8} value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Write your reply…" />
+            <div className="mt-5 flex gap-2">
+              <Button className="flex-1" onClick={sendReply} loading={sending} loadingText="Sending…" disabled={!subject.trim() || !message.trim()}>
+                Send reply
+              </Button>
+              <Button variant="outline" onClick={() => setReplyTo(null)} disabled={sending}>
+                Cancel
+              </Button>
+            </div>
+          </div>
+        ) : null}
+      </Modal>
 
       <Modal open={!!confirmDelete} onClose={() => setConfirmDelete(null)}>
         {confirmDelete ? (

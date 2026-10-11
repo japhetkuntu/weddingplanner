@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Ovutor.Admin.Api.Common;
 using Ovutor.Admin.Api.Interfaces;
 using Ovutor.Admin.Api.Models.Requests;
 
@@ -9,6 +10,7 @@ namespace Ovutor.Admin.Api.Controllers;
 /// client, unlike WebsiteController which edits a couple's site.</summary>
 [ApiController]
 [Authorize]
+[SuperAdminOnly]
 public class MarketingController(IMarketingService marketingService) : ControllerBase
 {
     [HttpGet("api/marketing/pages/{pageSlug}/content/{key}")]

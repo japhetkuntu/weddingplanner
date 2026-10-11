@@ -8,5 +8,6 @@ public interface IEnquiryService
 {
     Task<IApiResponse<List<EnquiryResponse>>> GetAllAsync(CancellationToken ct = default);
     Task<IApiResponse<EnquiryResponse>> SetReadAsync(Guid id, SetEnquiryReadRequest request, CancellationToken ct = default);
+    Task<IApiResponse<object>> ReplyAsync(Guid id, Guid adminId, ReplyToEnquiryRequest request, CancellationToken ct = default);
     Task<IApiResponse<object>> DeleteAsync(Guid id, CancellationToken ct = default);
 }

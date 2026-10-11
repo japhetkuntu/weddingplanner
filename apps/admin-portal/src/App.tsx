@@ -36,6 +36,15 @@ function RequireAuth({ children }: { children: ReactNode }) {
   return <AdminLayout>{children}</AdminLayout>;
 }
 
+function SuperAdminRoute({ children }: { children: ReactNode }) {
+  const user = useAuthStore((s) => s.user);
+  const initializing = useAuthStore((s) => s.initializing);
+  if (initializing) return <PageLoader label="Loading your workspace" />;
+  if (!user) return <Navigate to="/login" replace />;
+  if (!user.isSuperAdmin) return <Navigate to="/dashboard" replace />;
+  return <AdminLayout>{children}</AdminLayout>;
+}
+
 function ClientRoute({ children }: { children: ReactNode }) {
   return (
     <RequireAuth>
@@ -66,8 +75,8 @@ export default function App() {
         <Route path="/settings" element={<RequireAuth><SettingsPage /></RequireAuth>} />
         <Route path="/team" element={<RequireAuth><TeamPage /></RequireAuth>} />
         <Route path="/vendors" element={<RequireAuth><VendorsPage /></RequireAuth>} />
-        <Route path="/studio-website" element={<RequireAuth><StudioWebsitePage /></RequireAuth>} />
-        <Route path="/enquiries" element={<RequireAuth><EnquiriesPage /></RequireAuth>} />
+        <Route path="/studio-website" element={<SuperAdminRoute><StudioWebsitePage /></SuperAdminRoute>} />
+        <Route path="/enquiries" element={<SuperAdminRoute><EnquiriesPage /></SuperAdminRoute>} />
 
         <Route path="/clients/:clientId" element={<Navigate to="overview" replace />} />
         <Route path="/clients/:clientId/overview" element={<ClientRoute><ClientOverviewPage /></ClientRoute>} />

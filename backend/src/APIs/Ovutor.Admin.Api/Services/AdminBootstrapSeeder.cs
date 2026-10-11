@@ -11,6 +11,7 @@ public class AdminBootstrapEntry
     public string Password { get; set; } = "";
     public string Name { get; set; } = "";
     public string Role { get; set; } = "Lead Planner";
+    public bool IsSuperAdmin { get; set; }
 }
 
 /// <summary>Seeds one or more admin accounts from configuration on every startup, since this API has
@@ -43,10 +44,24 @@ public static class AdminBootstrapSeeder
                 Email = email,
                 PasswordHash = PasswordHasher.Hash(entry.Password),
                 Role = string.IsNullOrWhiteSpace(entry.Role) ? "Lead Planner" : entry.Role,
+                IsSuperAdmin = entry.IsSuperAdmin,
             });
             logger.LogInformation("[AdminBootstrapSeeder] Seeded admin account for {Email}", email);
         }
 
         if (entries.Count > 0) await db.SaveChangesAsync(ct);
+
+        // A deployment must always have someone who can reach the Super Admin areas (Studio Website,
+        // Enquiries, Team) — if none exists yet, the first configured admin becomes one.
+        if (!await db.AdminUsers.AnyAsync(u => u.IsSuperAdmin, ct))
+        {
+            var first = await db.AdminUsers.OrderBy(u => u.CreatedAtUtc).FirstOrDefaultAsync(ct);
+            if (first is not null)
+            {
+                first.IsSuperAdmin = true;
+                await db.SaveChangesAsync(ct);
+                logger.LogInformation("[AdminBootstrapSeeder] No Super Admin existed — promoted {Email}", first.Email);
+            }
+        }
     }
 }

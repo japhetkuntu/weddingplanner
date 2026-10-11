@@ -1,9 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { cn, Logo } from "@ovutor/ui";
-import { NAV_LINKS, STUDIO } from "@/content/marketing";
-import { pick } from "@/content/mergeMarketing";
-import { getContentBlock, getMarketingPage, type MarketingSocialDto } from "@/lib/marketingApi";
+import { useSiteSettings } from "@/lib/siteSettings";
 import overlayImage from "@/assets/photos/couple-trad-portrait-gold.jpg";
 
 /** Fixed top bar (icon / centered logo / bare hamburger, no "Menu" label — transparent so it sits
@@ -18,16 +16,10 @@ import overlayImage from "@/assets/photos/couple-trad-portrait-gold.jpg";
  * (Journal's masthead has no hero image behind it), or the white default becomes unreadable. */
 export function MarketingNav({ dark = true }: { dark?: boolean }) {
   const [open, setOpen] = useState(false);
-  const [instagram, setInstagram] = useState(STUDIO.instagram);
   const location = useLocation();
+  const site = useSiteSettings();
 
   useEffect(() => setOpen(false), [location.pathname]);
-
-  useEffect(() => {
-    getMarketingPage("studio")
-      .then((data) => setInstagram(pick(getContentBlock<MarketingSocialDto>(data, "social")?.instagram, STUDIO.instagram)))
-      .catch(() => {});
-  }, []);
 
   useEffect(() => {
     if (!open) return;
@@ -48,23 +40,11 @@ export function MarketingNav({ dark = true }: { dark?: boolean }) {
           dark ? "text-white" : "text-ink",
         )}
       >
-        <a
-          href={`https://instagram.com/${instagram.replace("@", "")}`}
-          target="_blank"
-          rel="noreferrer"
-          aria-label="Ovutor on Instagram"
-          className="justify-self-start opacity-80 hover:opacity-100"
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true">
-            <rect x="3" y="3" width="18" height="18" rx="5" />
-            <circle cx="12" cy="12" r="4" />
-            <circle cx="17.2" cy="6.8" r="1" fill="currentColor" stroke="none" />
-          </svg>
-        </a>
-
-        <Link to="/" className="justify-self-center">
-          <Logo className="h-8 sm:h-10" invert={dark} />
+        <Link to="/" className="justify-self-start" aria-label="Ovutor home">
+          <Logo className="h-14 sm:h-[72px]" invert={dark} />
         </Link>
+
+        <span aria-hidden="true" />
 
         <div className="flex items-center justify-self-end gap-4">
           <button
@@ -101,7 +81,7 @@ export function MarketingNav({ dark = true }: { dark?: boolean }) {
             <img src={overlayImage} alt="" className="h-full w-full object-cover" />
           </div>
           <nav className="flex flex-col items-start justify-center gap-3 px-8 py-24 sm:gap-4 sm:px-16">
-            {NAV_LINKS.map((link) => (
+            {site.links.map((link) => (
               <Link
                 key={link.to}
                 to={link.to}
@@ -114,10 +94,10 @@ export function MarketingNav({ dark = true }: { dark?: boolean }) {
               </Link>
             ))}
             <a
-              href="https://couples.ovutor.com"
+              href={site.loginUrl}
               className="mt-6 border border-gold bg-gold px-6 py-3.5 text-xs font-bold uppercase tracking-[.12em] text-ink hover:brightness-90"
             >
-              Log in
+              {site.loginLabel}
             </a>
           </nav>
         </div>

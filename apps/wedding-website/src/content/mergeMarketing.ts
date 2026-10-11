@@ -117,7 +117,10 @@ export function mergeJournalPosts(admin: MarketingPostsDto["items"], staticPosts
     date: item.date ?? "",
     category: item.category ?? "Real Weddings",
     media: item.media?.url ? toMarketingMedia(item.media) : { label: item.title ?? "" },
-    body: item.body?.length ? item.body : [],
+    body: item.body?.length ? item.body : (item.blocks ?? []).map((b) => b.text ?? ""),
+    blocks: item.blocks?.length
+      ? item.blocks.map((b) => ({ heading: b.heading ?? "", text: b.text ?? "", image: b.image?.url ? toMarketingMedia(b.image) : undefined }))
+      : undefined,
     photos: item.photos?.length ? item.photos.map(toMarketingMedia) : undefined,
   }));
 }

@@ -38,12 +38,14 @@ export interface MarketingFlowDto {
 
 /** A single block of plain text — Our Planning Packages' and Our Approach's intro paragraphs. */
 export interface MarketingTextDto {
+  title?: string | null;
   text?: string | null;
 }
 
 /** A single { image } block — Our Planning Packages' divider photo. */
 export interface MarketingImageBlockDto {
   image?: MarketingImageDto | null;
+  title?: string | null;
 }
 
 /** A heading + body pair — Our Planning Packages' pre-category heading. */
@@ -85,7 +87,7 @@ export interface MarketingPackageLabelsDto {
 
 /** Our Approach's 4-step list. */
 export interface MarketingStepsDto {
-  items?: { title?: string | null; body?: string | null }[] | null;
+  items?: { title?: string | null; body?: string | null; image?: MarketingImageDto | null }[] | null;
 }
 
 /** Our Journal's entire post list, photo galleries included. */
@@ -100,9 +102,52 @@ export interface MarketingPostsDto {
         category?: string | null;
         media?: MarketingImageDto | null;
         body?: string[] | null;
+        blocks?: { heading?: string | null; text?: string | null; image?: MarketingImageDto | null }[] | null;
         photos?: MarketingImageDto[] | null;
       }[]
     | null;
+}
+
+/** Header navigation (also reused by the footer) and the Log in button. */
+export interface MarketingNavigationDto {
+  links?: { label?: string | null; to?: string | null }[] | null;
+  loginLabel?: string | null;
+  loginUrl?: string | null;
+}
+
+/** Interface wording shared across pages; every key is optional. */
+export type MarketingSiteLabelsDto = Partial<Record<
+  | "readStory" | "numberPrefix" | "backToJournal" | "noPosts" | "enquiryHeading" | "name" | "email" | "weddingDate"
+  | "location" | "guests" | "budget" | "message" | "send" | "sending" | "success" | "error",
+  string | null
+>>;
+
+/** A page's browser tab title and search description. */
+export interface MarketingSeoDto {
+  title?: string | null;
+  description?: string | null;
+}
+
+/** Connect with Us: the contact details in the top section. */
+export interface MarketingContactDetailsDto {
+  email?: string | null;
+  phone?: string | null;
+  location?: string | null;
+  hours?: string | null;
+}
+
+/** A free-standing section: heading, rich body and an optional image. */
+export interface MarketingFeatureDto {
+  /** True when the admin has switched the section off. */
+  hidden?: boolean | null;
+  heading?: string | null;
+  body?: string | null;
+  image?: MarketingImageDto | null;
+}
+
+/** Editable journal category tabs. */
+export interface MarketingJournalCategoriesDto {
+  items?: string[] | null;
 }
 
 /** Connect with Us's intro paragraphs and the note above the enquiry form. */
@@ -115,6 +160,9 @@ export interface MarketingParagraphsDto {
  * one real page, since the same handle is shown in the nav and footer on every page. */
 export interface MarketingSocialDto {
   instagram?: string | null;
+  email?: string | null;
+  location?: string | null;
+  tagline?: string | null;
 }
 
 export interface SubmitEnquiryPayload {
@@ -134,6 +182,14 @@ export interface MarketingSectionDto {
   body?: string | null;
   image?: MarketingImageDto | null;
   layout: "text-only" | "image-left" | "image-right" | "image-full";
+  background?: "gold" | "light-gold" | "pink" | "cream" | "white" | null;
+  align?: "left" | "center" | null;
+  width?: "narrow" | "medium" | "wide" | "full" | null;
+  imageRatio?: "landscape" | "portrait" | "square" | null;
+  columns?: number | null;
+  buttonLabel?: string | null;
+  buttonUrl?: string | null;
+  gallery?: MarketingImageDto[] | null;
 }
 
 export interface MarketingPageDto {
@@ -155,11 +211,23 @@ export function getContentBlock<T>(page: MarketingPageDto, key: string): T | nul
  * Never throws for "nothing admin-authored yet" (the backend returns an empty/null shape, which is
  * a normal state); throws only on a genuine network/server failure, which callers should treat the
  * same way as "nothing admin-authored" — fall back to static content, never break the page. */
-export async function getMarketingPage(pageSlug: string): Promise<MarketingPageDto> {
-  const res = await fetch(`${BASE_URL}/api/public/marketing/pages/${pageSlug}`);
-  const body: ApiEnvelope<MarketingPageDto> = await res.json();
-  if (!res.ok || body.code >= 400 || !body.data) throw new ApiError(body.message, body.code);
-  return body.data;
+const PAGE_CACHE_MS = 5000;
+const pageCache = new Map<string, { at: number; promise: Promise<MarketingPageDto> }>();
+
+/** Several components on one page (nav, footer, the page itself, its SEO) ask for the same slug, so
+ * requests made within a few seconds share one network call. */
+export function getMarketingPage(pageSlug: string): Promise<MarketingPageDto> {
+  const hit = pageCache.get(pageSlug);
+  if (hit && Date.now() - hit.at < PAGE_CACHE_MS) return hit.promise;
+  const promise = (async () => {
+    const res = await fetch(`${BASE_URL}/api/public/marketing/pages/${pageSlug}`);
+    const body: ApiEnvelope<MarketingPageDto> = await res.json();
+    if (!res.ok || body.code >= 400 || !body.data) throw new ApiError(body.message, body.code);
+    return body.data;
+  })();
+  promise.catch(() => pageCache.delete(pageSlug));
+  pageCache.set(pageSlug, { at: Date.now(), promise });
+  return promise;
 }
 
 /** Sends a "Connect with Us" form submission to the studio — it shows up in the Admin Portal's

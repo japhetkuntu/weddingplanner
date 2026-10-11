@@ -259,6 +259,14 @@ export interface MarketingContentBlock {
   body?: string;
   image?: MarketingImage;
   layout: MarketingSectionLayout;
+  background?: "gold" | "light-gold" | "pink" | "cream" | "white";
+  align?: "left" | "center";
+  width?: "narrow" | "medium" | "wide" | "full";
+  imageRatio?: "landscape" | "portrait" | "square";
+  columns?: number;
+  buttonLabel?: string;
+  buttonUrl?: string;
+  gallery?: MarketingImage[];
 }
 
 export interface MarketingSection {
@@ -295,11 +303,13 @@ export interface MarketingFlow {
 }
 
 export interface MarketingText {
+  title?: string;
   text?: string;
 }
 
 export interface MarketingImageBlock {
   image?: MarketingImage;
+  title?: string;
 }
 
 export interface MarketingHeadingBody {
@@ -348,6 +358,7 @@ export interface MarketingCategories {
 export interface MarketingStepItem {
   title?: string;
   body?: string;
+  image?: MarketingImage;
 }
 
 export interface MarketingSteps {
@@ -363,11 +374,47 @@ export interface MarketingPostItem {
   category?: string;
   media?: MarketingImage;
   body?: string[];
+  blocks?: { heading?: string; text?: string; image?: MarketingImage }[];
   photos?: MarketingImage[];
 }
 
 export interface MarketingPosts {
   items?: MarketingPostItem[];
+}
+
+export interface MarketingNavigation {
+  links?: { label?: string; to?: string }[];
+  loginLabel?: string;
+  loginUrl?: string;
+}
+
+export type MarketingSiteLabels = Partial<Record<
+  | "readStory" | "numberPrefix" | "backToJournal" | "noPosts" | "enquiryHeading" | "name" | "email" | "weddingDate"
+  | "location" | "guests" | "budget" | "message" | "send" | "sending" | "success" | "error",
+  string
+>>;
+
+export interface MarketingSeo {
+  title?: string;
+  description?: string;
+}
+
+export interface MarketingContactDetails {
+  email?: string;
+  phone?: string;
+  location?: string;
+  hours?: string;
+}
+
+export interface MarketingFeature {
+  hidden?: boolean;
+  heading?: string;
+  body?: string;
+  image?: MarketingImage;
+}
+
+export interface MarketingStringList {
+  items?: string[];
 }
 
 export interface MarketingParagraphs {
@@ -387,6 +434,9 @@ export interface MilestoneItem {
  * wedding-website's nav and footer on every page. */
 export interface MarketingSocial {
   instagram?: string;
+  email?: string;
+  location?: string;
+  tagline?: string;
 }
 
 export interface Enquiry {

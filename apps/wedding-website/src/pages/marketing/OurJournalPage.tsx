@@ -1,13 +1,15 @@
 import { useEffect, useMemo, useState } from "react";
+import { usePageSeo, useSiteSettings } from "@/lib/siteSettings";
 import { Link } from "react-router-dom";
 import { cn } from "@ovutor/ui";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
 import { MarketingFooter } from "@/components/marketing/MarketingFooter";
+import { RichText } from "@/components/RichText";
 import { SplitRow, splitTones } from "@/components/marketing/SplitRow";
 import { DynamicContentBlock } from "@/components/marketing/DynamicContentBlock";
 import { JOURNAL, JOURNAL_CATEGORIES, JOURNAL_POSTS } from "@/content/marketing";
 import { mergeJournalPosts, mergeTextHero } from "@/content/mergeMarketing";
-import { getContentBlock, getMarketingPage, type MarketingHeroDto, type MarketingPostsDto, type MarketingSectionDto } from "@/lib/marketingApi";
+import { getContentBlock, getMarketingPage, type MarketingJournalCategoriesDto, type MarketingHeroDto, type MarketingPostsDto, type MarketingSectionDto } from "@/lib/marketingApi";
 
 const ALL = "All Posts";
 
@@ -16,9 +18,12 @@ const ALL = "All Posts";
  * editorial layout from juliaandevita.com/galleries instead of a small grid card. The masthead
  * text and the post list are both admin-editable — see mergeMarketing.ts. */
 export default function OurJournalPage() {
+  const site = useSiteSettings();
+  usePageSeo("our-journal", "Our Journal — Ovutor", "Real weddings, destination guides and planning advice.");
   const [filter, setFilter] = useState(ALL);
   const [masthead, setMasthead] = useState(JOURNAL.masthead);
   const [journalPosts, setJournalPosts] = useState(JOURNAL_POSTS);
+  const [categories, setCategories] = useState<string[]>(JOURNAL_CATEGORIES);
   const [sections, setSections] = useState<MarketingSectionDto[]>([]);
   const posts = useMemo(() => (filter === ALL ? journalPosts : journalPosts.filter((p) => p.category === filter)), [filter, journalPosts]);
 
@@ -27,6 +32,8 @@ export default function OurJournalPage() {
       .then((data) => {
         setMasthead(mergeTextHero(getContentBlock<MarketingHeroDto>(data, "hero"), JOURNAL.masthead));
         setJournalPosts(mergeJournalPosts(getContentBlock<MarketingPostsDto>(data, "posts")?.items, JOURNAL_POSTS));
+        const cats = getContentBlock<MarketingJournalCategoriesDto>(data, "categories")?.items?.filter((c) => c.trim());
+        if (cats?.length) setCategories([ALL, ...cats.filter((c) => c !== ALL)]);
         setSections(data.sections);
       })
       .catch(() => {});
@@ -39,7 +46,7 @@ export default function OurJournalPage() {
       <section className="px-6 pb-14 pt-32 text-center sm:px-10 sm:pt-40">
         <p className="text-[10px] font-bold uppercase tracking-[.2em] text-primary">{masthead.eyebrow}</p>
         <h1 className="mx-auto mt-3 max-w-2xl font-display text-4xl leading-tight sm:text-5xl">{masthead.title}</h1>
-        <p className="mx-auto mt-4 max-w-lg leading-relaxed text-ink/60">{masthead.subtitle}</p>
+        <RichText html={masthead.subtitle} align="center" className="mx-auto mt-4 max-w-xl text-ink/60" />
       </section>
 
       {sections.map((section) => (
@@ -47,7 +54,7 @@ export default function OurJournalPage() {
       ))}
 
       <div className="flex flex-wrap justify-center gap-2 border-b border-[#e6e2dc] px-6 pb-8 sm:px-10">
-        {JOURNAL_CATEGORIES.map((c) => (
+        {categories.map((c) => (
           <button
             key={c}
             type="button"
@@ -75,14 +82,14 @@ export default function OurJournalPage() {
               tone={splitTones(posts.length)[i]}
               body={
                 <>
-                  <p>{post.excerpt}</p>
-                  <p className="mt-4 font-display text-base italic underline opacity-80 underline-offset-4">Read the story</p>
+                  <RichText html={post.excerpt} className="!text-[inherit] !leading-[inherit]" />
+                  <p className="mt-4 font-display text-base italic underline opacity-80 underline-offset-4">{site.labels.readStory}</p>
                 </>
               }
             />
           </Link>
         ))}
-        {posts.length === 0 ? <p className="px-6 py-24 text-center text-white/60">No posts in this category yet.</p> : null}
+        {posts.length === 0 ? <p className="px-6 py-24 text-center text-white/60">{site.labels.noPosts}</p> : null}
       </div>
 
       <MarketingFooter />

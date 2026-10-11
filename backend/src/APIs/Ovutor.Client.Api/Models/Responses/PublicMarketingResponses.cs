@@ -4,7 +4,21 @@ namespace Ovutor.Client.Api.Models.Responses;
 
 public record PublicMarketingImage(string? Url, string? Label, string? FocalPoint);
 
-public record PublicMarketingSection(Guid Id, string Type, string? Heading, string? Body, PublicMarketingImage? Image, string Layout);
+public record PublicMarketingSection(
+    Guid Id,
+    string Type,
+    string? Heading,
+    string? Body,
+    PublicMarketingImage? Image,
+    string Layout,
+    string? Background,
+    string? Align,
+    string? Width,
+    string? ImageRatio,
+    int? Columns,
+    string? ButtonLabel,
+    string? ButtonUrl,
+    List<PublicMarketingImage>? Gallery);
 
 /// <summary>Every named fixed-content block saved for this page (keyed by the same "hero" |
 /// "statement" | "categories" | ... names the admin editor uses), plus the admin-added extra

@@ -9,5 +9,21 @@ public record MarketingImage(string? Url, string? Label, string? FocalPoint);
 
 public record MarketingHero(string? Eyebrow, string? Title, string? Subtitle, string? CtaLabel, string? CtaTo, List<MarketingImage>? Media);
 
-/// <summary>Layout is "text-only" | "image-left" | "image-right" | "image-full".</summary>
-public record MarketingContentBlock(string? Heading, string? Body, MarketingImage? Image, string Layout);
+/// <summary>An admin-added section. <c>Layout</c> is "text-only" | "image-left" | "image-right" |
+/// "image-full". Everything after it is optional presentation the admin can choose per section, and
+/// is null for sections saved before these options existed: <c>Background</c> "gold" | "light-gold" |
+/// "pink" | "cream" | "white"; <c>Align</c> "left" | "center"; <c>Width</c> "narrow" | "medium" |
+/// "wide" | "full"; <c>ImageRatio</c> "landscape" | "portrait" | "square"; <c>Columns</c> 1 | 2.</summary>
+public record MarketingContentBlock(
+    string? Heading,
+    string? Body,
+    MarketingImage? Image,
+    string Layout,
+    string? Background = null,
+    string? Align = null,
+    string? Width = null,
+    string? ImageRatio = null,
+    int? Columns = null,
+    string? ButtonLabel = null,
+    string? ButtonUrl = null,
+    List<MarketingImage>? Gallery = null);

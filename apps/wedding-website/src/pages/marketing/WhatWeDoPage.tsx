@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
+import { usePageSeo } from "@/lib/siteSettings";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
 import { MarketingFooter } from "@/components/marketing/MarketingFooter";
 import { HeroMedia } from "@/components/marketing/HeroMedia";
 import { StatementSection } from "@/components/marketing/StatementSection";
+import { RichText } from "@/components/RichText";
 import { SplitRow, splitTones } from "@/components/marketing/SplitRow";
 import { DynamicContentBlock } from "@/components/marketing/DynamicContentBlock";
 import { WHAT_WE_DO } from "@/content/marketing";
@@ -22,6 +24,7 @@ import {
  * Every block on this page starts as its static WHAT_WE_DO copy and upgrades in place, field by
  * field, once any admin-authored content loads — see mergeMarketing.ts. */
 export default function WhatWeDoPage() {
+  usePageSeo("what-we-do", "What We Do — Ovutor", "The studio behind your wedding day.");
   const [hero, setHero] = useState(WHAT_WE_DO.hero);
   const [statement, setStatement] = useState(WHAT_WE_DO.statement);
   const [flow, setFlow] = useState(WHAT_WE_DO.flow);
@@ -71,7 +74,7 @@ export default function WhatWeDoPage() {
             media={row.media}
             index={row.index}
             title={row.title}
-            body={<p>{row.body}</p>}
+            body={<RichText html={row.body} className="!text-[16px] !leading-[1.8]" />}
             meta={row.meta}
             reverse={i % 2 === 1}
             tone={splitTones(flow.length, true)[i]}
