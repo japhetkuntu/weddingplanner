@@ -8,7 +8,7 @@ export function MarketingFooter() {
   const info = { email: site.email, location: site.location, tagline: site.tagline };
 
   return (
-    <footer className="bg-gold px-6 py-16 text-center text-ink sm:px-10">
+    <footer className="border-t-[6px] border-primary bg-gold px-6 py-16 text-center text-ink sm:px-10">
       <div className="flex justify-center">
         <Logo className="h-20 sm:h-24" />
       </div>

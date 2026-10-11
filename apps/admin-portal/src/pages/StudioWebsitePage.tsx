@@ -8,7 +8,6 @@ import {
   createMarketingSection,
   updateMarketingSection,
   setMarketingSectionEnabled,
-  reorderMarketingSections,
   deleteMarketingSection,
   uploadMarketingImage,
   errorMessage,
@@ -59,6 +58,8 @@ interface ContentBlockConfig {
 
 interface PageConfig {
   slug: string;
+  /** Public path on the website, for the "View live page" link. */
+  path: string;
   label: string;
   description: string;
   hasSubtitle: boolean;
@@ -77,6 +78,7 @@ interface PageConfig {
 const PAGES: PageConfig[] = [
   {
     slug: "home",
+    path: "/",
     label: "Home",
     description: "The full-bleed hero carousel — nothing else on this page by design.",
     hasSubtitle: true,
@@ -93,6 +95,7 @@ const PAGES: PageConfig[] = [
   },
   {
     slug: "what-we-do",
+    path: "/what-we-do",
     label: "What We Do",
     description: "The hero, the black-and-white statement, and the how-we-work flow.",
     hasSubtitle: false,
@@ -107,6 +110,7 @@ const PAGES: PageConfig[] = [
   },
   {
     slug: "our-planning-packages",
+    path: "/our-planning-packages",
     label: "Our Planning Packages",
     description: "The hero, intro text, divider photo, heading, and the category list.",
     hasSubtitle: false,
@@ -124,6 +128,7 @@ const PAGES: PageConfig[] = [
   },
   {
     slug: "our-approach",
+    path: "/our-approach",
     label: "Our Approach",
     description: "The hero, intro text, and the four steps.",
     hasSubtitle: false,
@@ -138,6 +143,7 @@ const PAGES: PageConfig[] = [
   },
   {
     slug: "our-journal",
+    path: "/our-journal",
     label: "Our Journal",
     description: "The masthead text and the entire post list.",
     hasSubtitle: true,
@@ -156,6 +162,7 @@ const PAGES: PageConfig[] = [
   },
   {
     slug: "connect-with-us",
+    path: "/connect-with-us",
     label: "Connect with Us",
     description: "The intro eyebrow, title and photo, plus the intro paragraphs.",
     hasSubtitle: false,
@@ -170,6 +177,171 @@ const PAGES: PageConfig[] = [
     ],
   },
 ];
+
+/** The movable built-in blocks of each page, in their built-in order — "sections" stands for the
+ * admin-added extra sections. Must match the `defaults` each website page passes to orderPage().
+ * The hero/top banner is not movable: it always comes first. */
+const PAGE_LAYOUTS: Record<string, (string | { id: string; label: string })[]> = {
+  home: ["sections"],
+  "what-we-do": [{ id: "statement", label: "Statement" }, { id: "flow", label: "How we work" }, "sections"],
+  "our-planning-packages": [
+    { id: "intro", label: "Intro text" },
+    { id: "divider", label: "Divider photo" },
+    { id: "heading", label: "Heading before the packages" },
+    { id: "packages", label: "Packages" },
+    "sections",
+  ],
+  "our-approach": [{ id: "steps", label: "Intro and the stacked steps" }, "sections"],
+  "our-journal": ["sections", { id: "posts", label: "Category tabs and the post list" }],
+  "connect-with-us": [{ id: "feature", label: "Image-and-text section" }, { id: "form", label: "Enquiry form" }, "sections"],
+};
+
+/** Same resolution rule as the website's orderPage(): the saved order wins, anything missing goes to the
+ * end, unknown ids are dropped. */
+function resolveLayout(slug: string, sections: MarketingSection[], saved: string[]) {
+  const labels = new Map<string, string>();
+  const defaults: string[] = [];
+  (PAGE_LAYOUTS[slug] ?? ["sections"]).forEach((d) => {
+    if (d === "sections") {
+      sections.forEach((s) => {
+        const id = `section:${s.id}`;
+        defaults.push(id);
+        labels.set(id, `Extra section: ${s.content.heading || s.title || "Untitled"}`);
+      });
+    } else if (typeof d !== "string") {
+      defaults.push(d.id);
+      labels.set(d.id, d.label);
+    }
+  });
+  const result = saved.filter((id, i) => defaults.includes(id) && saved.indexOf(id) === i);
+  defaults.forEach((id) => {
+    if (!result.includes(id)) result.push(id);
+  });
+  return { order: result, labels, defaults };
+}
+
+/** Which content blocks each movable built-in block of a page edits, and which blocks live in the
+ * fixed banner card or the fixed cards at the bottom. Keys refer to PAGES[].contentBlocks. */
+const PAGE_STRUCTURE: Record<
+  string,
+  { top: string[]; blocks: Record<string, { title: string; keys: string[]; note?: string }>; bottom: string[] }
+> = {
+  home: { top: [], blocks: {}, bottom: ["seo"] },
+  "what-we-do": {
+    top: [],
+    blocks: { statement: { title: "Statement", keys: ["statement"] }, flow: { title: "How we work", keys: ["flow"] } },
+    bottom: ["seo"],
+  },
+  "our-planning-packages": {
+    top: [],
+    blocks: {
+      intro: { title: "Introduction", keys: ["intro"] },
+      divider: { title: "Divider photo", keys: ["divider"] },
+      heading: { title: "Heading before the packages", keys: ["heading"] },
+      packages: { title: "Packages", keys: ["categories"] },
+    },
+    bottom: ["package-labels", "seo"],
+  },
+  "our-approach": { top: [], blocks: { steps: { title: "Introduction and steps", keys: ["intro", "steps"] } }, bottom: ["seo"] },
+  "our-journal": { top: [], blocks: { posts: { title: "Posts and categories", keys: ["posts", "categories"] } }, bottom: ["seo"] },
+  "connect-with-us": {
+    top: ["intro", "details"],
+    blocks: {
+      feature: { title: "Image-and-text section", keys: ["before-form"] },
+      form: {
+        title: "Enquiry form",
+        keys: [],
+        note: "The form's labels, button and messages are edited under Whole site → Navigation and wording.",
+      },
+    },
+    bottom: ["seo"],
+  },
+};
+
+/** A one-line summary shown on a collapsed card, so the list is scannable without opening anything. */
+function blockHint(key: string, value: unknown): string {
+  const v = (value ?? {}) as Record<string, unknown>;
+  const n = (x: unknown) => (Array.isArray(x) ? x.length : 0);
+  const plural = (c: number, word: string) => `${c} ${word}${c === 1 ? "" : "s"}`;
+  switch (key) {
+    case "steps":
+      return n(v.items) ? plural(n(v.items), "step") : "Using built-in steps";
+    case "flow":
+      return n(v.items) ? plural(n(v.items), "row") : "Using built-in rows";
+    case "posts":
+      return n(v.items) ? plural(n(v.items), "post") : "Using built-in posts";
+    case "categories":
+      return n(v.items) ? plural(n(v.items), "item") : "Using built-in list";
+    case "statement":
+    case "heading":
+      return String(v.heading ?? "") || "Using built-in text";
+    case "details":
+      return [v.email, v.phone].filter(Boolean).join(" · ") || "Using built-in details";
+    case "before-form":
+      return v.hidden ? "Hidden" : String(v.heading ?? "") || "Using built-in section";
+    case "divider":
+      return String(v.title ?? "") || ((v.image as { url?: string } | undefined)?.url ? "Custom photo" : "Using built-in photo");
+    case "intro": {
+      const text = String(v.title ?? v.text ?? (Array.isArray(v.paragraphs) ? (v.paragraphs as string[])[0] : "") ?? "");
+      return text.replace(/<[^>]+>/g, " ").trim().slice(0, 60) || "Using built-in text";
+    }
+    case "seo":
+      return String(v.title ?? "") || "Using the default title";
+    default:
+      return "";
+  }
+}
+
+/** A fold-away card in the page editor. Header shows the title, a one-line hint, and the order
+ * controls; only one card is open at a time (the page owns `open`). */
+function BlockCard({
+  title,
+  hint,
+  open,
+  onToggle,
+  onMoveUp,
+  onMoveDown,
+  accent = "primary",
+  badge,
+  children,
+}: {
+  title: string;
+  hint?: string;
+  open: boolean;
+  onToggle: () => void;
+  onMoveUp?: () => void;
+  onMoveDown?: () => void;
+  accent?: "primary" | "gold" | "ink";
+  badge?: ReactNode;
+  children: ReactNode;
+}) {
+  return (
+    <div className={clsx("border-l-[3px] bg-white shadow-card", accent === "gold" ? "border-gold" : accent === "ink" ? "border-ink/30" : "border-primary")}>
+      <div className="flex items-center gap-2 px-4 py-3">
+        <button type="button" onClick={onToggle} aria-expanded={open} className="flex min-w-0 flex-1 items-center gap-3 text-left">
+          <span className={clsx("inline-block text-[10px] text-ink/40 transition-transform", open && "rotate-90")}>▶</span>
+          <span className="min-w-0">
+            <span className="block truncate font-display text-lg leading-tight">{title}</span>
+            {hint ? <span className="block truncate text-xs text-ink/50">{hint}</span> : null}
+          </span>
+        </button>
+        {badge}
+        {onMoveUp || onMoveDown ? (
+          <span className="flex shrink-0 items-center">
+            <button type="button" disabled={!onMoveUp} onClick={onMoveUp} aria-label="Move up" className="px-2 py-1 text-sm font-bold text-ink/60 hover:text-ink disabled:opacity-20">
+              ↑
+            </button>
+            <button type="button" disabled={!onMoveDown} onClick={onMoveDown} aria-label="Move down" className="px-2 py-1 text-sm font-bold text-ink/60 hover:text-ink disabled:opacity-20">
+              ↓
+            </button>
+          </span>
+        ) : null}
+      </div>
+      {/* Kept mounted while folded so half-typed edits survive closing the card. */}
+      <div className={clsx("border-t border-[#eee] px-4 pb-5 pt-4", !open && "hidden")}>{children}</div>
+    </div>
+  );
+}
 
 const LAYOUT_LABEL: Record<MarketingSectionLayout, string> = {
   "text-only": "Text only",
@@ -447,22 +619,32 @@ function StudioProfileCard() {
 }
 
 export default function StudioWebsitePage() {
-  const [selectedSlug, setSelectedSlug] = useState(PAGES[0].slug);
+  const SITE = "__site";
+  const [selectedSlug, setSelectedSlug] = useState<string>(PAGES[0].slug);
+  const [openId, setOpenId] = useState<string | null>("hero");
   const page = PAGES.find((p) => p.slug === selectedSlug) ?? PAGES[0];
   const [hero, setHero] = useState<MarketingHero | null>(null);
   const [blockValues, setBlockValues] = useState<Record<string, unknown>>({});
+  const [savedLayout, setSavedLayout] = useState<string[]>([]);
   const [sections, setSections] = useState<MarketingSection[]>([]);
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (selectedSlug === SITE) {
+      setLoading(false);
+      return;
+    }
+    setOpenId("hero");
     setLoading(true);
     setHero(null);
     setBlockValues({});
+    setSavedLayout([]);
     Promise.all([
       getMarketingContent<MarketingHero>(selectedSlug, "hero").then((h) => setHero(h ?? {})),
       getMarketingSections(selectedSlug).then(setSections),
+      getMarketingContent<{ order?: string[] }>(selectedSlug, "layout").then((l) => setSavedLayout(l?.order ?? [])),
       Promise.all(page.contentBlocks.map((b) => getMarketingContent(selectedSlug, b.key).then((v) => [b.key, v] as const))).then((pairs) =>
         setBlockValues(Object.fromEntries(pairs)),
       ),
@@ -504,6 +686,7 @@ export default function StudioWebsitePage() {
     try {
       const created = await createMarketingSection(selectedSlug, "New section", emptyBlock());
       setSections((prev) => [...prev, created]);
+      setOpenId(`section:${created.id}`);
       flashToast("Section added");
     } catch (e) {
       flashError(errorMessage(e, "Couldn't add a new section — please try again."));
@@ -539,22 +722,36 @@ export default function StudioWebsitePage() {
     }
   }
 
-  async function moveSection(index: number, direction: -1 | 1) {
+  async function moveItem(order: string[], index: number, direction: -1 | 1) {
     const target = index + direction;
-    if (target < 0 || target >= sections.length) return;
-    const next = [...sections];
+    if (target < 0 || target >= order.length) return;
+    const next = [...order];
     [next[index], next[target]] = [next[target], next[index]];
-    setSections(next);
+    setSavedLayout(next);
     try {
-      const saved = await reorderMarketingSections(
-        selectedSlug,
-        next.map((s) => s.id),
-      );
-      setSections(saved);
+      const saved = await updateMarketingContent(selectedSlug, "layout", { order: next });
+      setSavedLayout(saved.order ?? next);
+      flashToast("Order saved");
     } catch (e) {
+      setSavedLayout(order);
       flashError(errorMessage(e, "Couldn't save the new order — please try again."));
     }
   }
+
+  const structure = PAGE_STRUCTURE[selectedSlug] ?? { top: [], blocks: {}, bottom: ["seo"] };
+  const blockConfig = (key: string) => page.contentBlocks.find((b) => b.key === key);
+  const renderBlockForm = (key: string) => {
+    const block = blockConfig(key);
+    if (!block) return null;
+    return (
+      <div key={key} className="mt-5 first:mt-0">
+        <h3 className="mb-2 text-xs font-bold uppercase tracking-[.08em] text-ink/50">{block.label}</h3>
+        <ContentBlockForm pageSlug={selectedSlug} block={block} value={blockValues[key]} onSave={(v) => saveBlock(key, v)} />
+      </div>
+    );
+  };
+  const { order: layoutOrder } = resolveLayout(selectedSlug, sections, savedLayout);
+  const siteBase = (import.meta.env.VITE_WEDDING_WEBSITE_URL as string | undefined) ?? "";
 
   return (
     <div className="ovutor-fade-in">
@@ -563,72 +760,154 @@ export default function StudioWebsitePage() {
         <p className="text-sm text-ink/60">Every field falls back to our current live copy until you fill it in.</p>
       </div>
 
-      <StudioProfileCard />
-      <SiteSettingsCard />
-
-      <div className="mt-6 flex flex-wrap gap-2">
-        {PAGES.map((p) => (
+      <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[220px_minmax(0,1fr)]">
+        <nav aria-label="Website pages" className="lg:sticky lg:top-6 lg:self-start">
+          <p className="mb-2 text-[10px] font-bold uppercase tracking-[.14em] text-ink/40">Pages</p>
+          <div className="flex flex-wrap gap-2 lg:flex-col lg:gap-1">
+            {PAGES.map((p) => (
+              <button
+                key={p.slug}
+                type="button"
+                onClick={() => setSelectedSlug(p.slug)}
+                className={clsx(
+                  "border-l-[3px] px-3 py-2 text-left text-sm font-bold",
+                  p.slug === selectedSlug ? "border-gold bg-gold/25 text-ink" : "border-transparent text-ink/70 hover:bg-bg-warm",
+                )}
+              >
+                {p.label}
+              </button>
+            ))}
+          </div>
+          <p className="mb-2 mt-5 text-[10px] font-bold uppercase tracking-[.14em] text-ink/40">Whole site</p>
           <button
-            key={p.slug}
             type="button"
-            onClick={() => setSelectedSlug(p.slug)}
+            onClick={() => setSelectedSlug(SITE)}
             className={clsx(
-              "border px-3 py-1.5 text-xs font-bold uppercase tracking-[.06em]",
-              p.slug === selectedSlug ? "border-gold bg-gold text-ink" : "border-[#8e8985] text-ink/70 hover:border-ink",
+              "w-full border-l-[3px] px-3 py-2 text-left text-sm font-bold",
+              selectedSlug === SITE ? "border-gold bg-gold/25 text-ink" : "border-transparent text-ink/70 hover:bg-bg-warm",
             )}
           >
-            {p.label}
+            Brand, navigation and wording
           </button>
-        ))}
-      </div>
-      <p className="mt-2 text-xs text-ink/50">{page.description}</p>
+        </nav>
 
-      {loading || !hero ? (
-        <PageEditorSkeleton />
-      ) : (
-        <>
-          <div className="mt-6 border-t-[3px] border-primary bg-white p-5 shadow-card">
-            <h2 className="mb-4 font-display text-xl">Hero</h2>
-            <HeroForm key={selectedSlug} page={page} hero={hero} onSave={saveHero} />
-          </div>
-
-          {page.contentBlocks.map((block) => (
-            <div key={block.key} className="mt-6 border-t-[3px] border-primary bg-white p-5 shadow-card">
-              <h2 className="mb-4 font-display text-xl">{block.label}</h2>
-              <ContentBlockForm pageSlug={selectedSlug} block={block} value={blockValues[block.key]} onSave={(v) => saveBlock(block.key, v)} />
-            </div>
-          ))}
-
-          <div className="mt-6">
-            <div className="mb-3 flex items-center justify-between">
-              <h2 className="font-display text-xl">Extra sections</h2>
-              <Button size="sm" variant="outline" onClick={addSection}>
-                + Add section
-              </Button>
-            </div>
-            {sections.length === 0 ? (
-              <p className="border border-dashed border-[#ccc] p-6 text-center text-sm text-ink/50">
-                Nothing here yet — add a section to show extra content below the hero.
-              </p>
-            ) : (
-              <div className="space-y-4">
-                {sections.map((section, i) => (
-                  <SectionEditor
-                    key={section.id}
-                    pageSlug={selectedSlug}
-                    section={section}
-                    onSave={(title, content) => saveSection(section.id, title, content)}
-                    onToggle={(enabled) => toggleSection(section.id, enabled)}
-                    onDelete={() => removeSection(section.id)}
-                    onMoveUp={i > 0 ? () => moveSection(i, -1) : undefined}
-                    onMoveDown={i < sections.length - 1 ? () => moveSection(i, 1) : undefined}
-                  />
-                ))}
+        <div className="min-w-0">
+          {selectedSlug === SITE ? (
+            <>
+              <div className="mb-1">
+                <h2 className="font-display text-2xl">Brand, navigation and wording</h2>
+                <p className="text-sm text-ink/60">Things that appear on every page — the menu, footer details and the words around the site.</p>
               </div>
-            )}
-          </div>
-        </>
-      )}
+              <StudioProfileCard />
+              <SiteSettingsCard />
+            </>
+          ) : (
+            <>
+              <div className="flex flex-wrap items-end justify-between gap-3">
+                <div>
+                  <h2 className="font-display text-2xl">{page.label}</h2>
+                  <p className="text-sm text-ink/60">{page.description}</p>
+                </div>
+                {siteBase ? (
+                  <a
+                    href={`${siteBase.replace(/\/$/, "")}${page.path}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="shrink-0 border border-ink/30 px-3 py-2 text-xs font-bold uppercase tracking-[.08em] hover:border-ink"
+                  >
+                    View live page ↗
+                  </a>
+                ) : null}
+              </div>
+              <p className="mb-4 mt-2 text-xs text-ink/50">
+                Blocks are listed in the order they appear on the page. Use the arrows to reorder; anything left empty keeps the built-in wording.
+              </p>
+
+              {loading || !hero ? (
+                <PageEditorSkeleton />
+              ) : (
+                <div className="space-y-3">
+                  <BlockCard
+                    title="Top banner"
+                    hint={hero.title ? hero.title.replace(/\n/g, " ") : page.placeholders.title.replace(/\n/g, " ")}
+                    open={openId === "hero"}
+                    onToggle={() => setOpenId(openId === "hero" ? null : "hero")}
+                    accent="ink"
+                    badge={<span className="hidden shrink-0 text-[10px] font-bold uppercase tracking-[.1em] text-ink/40 sm:inline">Always first</span>}
+                  >
+                    <HeroForm key={selectedSlug} page={page} hero={hero} onSave={saveHero} />
+                    {structure.top.map(renderBlockForm)}
+                  </BlockCard>
+
+                  {layoutOrder.map((id, i) => {
+                    const up = i > 0 ? () => moveItem(layoutOrder, i, -1) : undefined;
+                    const down = i < layoutOrder.length - 1 ? () => moveItem(layoutOrder, i, 1) : undefined;
+                    if (id.startsWith("section:")) {
+                      const section = sections.find((s) => `section:${s.id}` === id);
+                      if (!section) return null;
+                      return (
+                        <SectionEditor
+                          key={id}
+                          pageSlug={selectedSlug}
+                          section={section}
+                          open={openId === id}
+                          onOpenChange={(o) => setOpenId(o ? id : null)}
+                          onSave={(title, content) => saveSection(section.id, title, content)}
+                          onToggle={(enabled) => toggleSection(section.id, enabled)}
+                          onDelete={() => removeSection(section.id)}
+                          onMoveUp={up}
+                          onMoveDown={down}
+                        />
+                      );
+                    }
+                    const def = structure.blocks[id];
+                    if (!def) return null;
+                    return (
+                      <BlockCard
+                        key={id}
+                        title={def.title}
+                        hint={def.keys.map((k) => blockHint(k, blockValues[k])).filter(Boolean).join(" · ")}
+                        open={openId === id}
+                        onToggle={() => setOpenId(openId === id ? null : id)}
+                        onMoveUp={up}
+                        onMoveDown={down}
+                      >
+                        {def.note ? <p className="text-sm text-ink/60">{def.note}</p> : null}
+                        {def.keys.map(renderBlockForm)}
+                      </BlockCard>
+                    );
+                  })}
+
+                  <button
+                    type="button"
+                    onClick={addSection}
+                    className="flex w-full items-center justify-center gap-2 border border-dashed border-[#bbb] bg-white px-4 py-4 text-sm font-bold text-ink/60 hover:border-ink hover:text-ink"
+                  >
+                    + Add a section to this page
+                  </button>
+
+                  {structure.bottom.map((key) => {
+                    const block = blockConfig(key);
+                    if (!block) return null;
+                    return (
+                      <BlockCard
+                        key={key}
+                        accent="gold"
+                        title={key === "seo" ? "Search and browser tab" : block.label}
+                        hint={blockHint(key, blockValues[key])}
+                        open={openId === key}
+                        onToggle={() => setOpenId(openId === key ? null : key)}
+                      >
+                        <ContentBlockForm pageSlug={selectedSlug} block={block} value={blockValues[key]} onSave={(v) => saveBlock(key, v)} />
+                      </BlockCard>
+                    );
+                  })}
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      </div>
 
       <Toast open={!!toast}>{toast}</Toast>
       <Toast open={!!error} tone="error">
@@ -1635,9 +1914,13 @@ function SectionEditor({
   onDelete,
   onMoveUp,
   onMoveDown,
+  open: openProp,
+  onOpenChange,
 }: {
   pageSlug: string;
   section: MarketingSection;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
   onSave: (title: string, content: MarketingContentBlock) => void;
   onToggle: (enabled: boolean) => void;
   onDelete: () => void;
@@ -1648,10 +1931,16 @@ function SectionEditor({
   const [content, setContent] = useState<MarketingContentBlock>(section.content);
   const [saving, setSaving] = useState(false);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
-  const [open, setOpen] = useState(!section.content.heading && !section.content.body);
+  const [openLocal, setOpenLocal] = useState(!section.content.heading && !section.content.body);
+  const open = openProp ?? openLocal;
+  const setOpen = (fn: (o: boolean) => boolean) => {
+    const next = fn(open);
+    if (onOpenChange) onOpenChange(next);
+    else setOpenLocal(next);
+  };
 
   return (
-    <div className="border border-[#ddd] bg-white p-4">
+    <div className="border-l-[3px] border-gold bg-white p-4 shadow-card">
       <div className={clsx("flex flex-wrap items-center gap-2", open && "mb-3")}>
         <Badge tone={section.isEnabled ? "success" : "muted"}>{section.isEnabled ? "Enabled" : "Disabled"}</Badge>
         <button type="button" onClick={() => setOpen((o) => !o)} aria-expanded={open} className="mr-auto flex min-w-0 items-center gap-2 text-left">
@@ -1671,8 +1960,8 @@ function SectionEditor({
         <Toggle checked={section.isEnabled} onChange={onToggle} label="Enabled" />
       </div>
 
-      {open ? (
       <form
+        className={clsx(!open && "hidden")}
         onSubmit={async (e) => {
           e.preventDefault();
           setSaving(true);
@@ -1813,7 +2102,6 @@ function SectionEditor({
           )}
         </div>
       </form>
-      ) : null}
     </div>
   );
 }

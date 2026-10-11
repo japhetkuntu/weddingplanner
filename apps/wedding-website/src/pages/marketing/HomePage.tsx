@@ -5,6 +5,8 @@ import { Link } from "react-router-dom";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
 import { MarketingFooter } from "@/components/marketing/MarketingFooter";
 import { HeroMedia } from "@/components/marketing/HeroMedia";
+import { orderPage } from "@/lib/pageLayout";
+import type { MarketingPageDto } from "@/lib/marketingApi";
 import { DynamicContentBlock } from "@/components/marketing/DynamicContentBlock";
 import { HOME } from "@/content/marketing";
 import { mergeHero } from "@/content/mergeMarketing";
@@ -20,11 +22,13 @@ export default function HomePage() {
   usePageSeo("home", "Ovutor — Thoughtfully planned. Beautifully celebrated.", "A boutique studio designing intimate, unforgettable weddings.");
   const [hero, setHero] = useState(HOME.hero);
   const [sections, setSections] = useState<MarketingSectionDto[]>([]);
+  const [layoutPage, setLayoutPage] = useState<MarketingPageDto | null>(null);
 
   useEffect(() => {
     getMarketingPage("home")
       .then((data) => {
         setHero(mergeHero(getContentBlock<MarketingHeroDto>(data, "hero"), HOME.hero));
+        setLayoutPage(data);
         setSections(data.sections);
       })
       .catch(() => {
@@ -53,9 +57,9 @@ export default function HomePage() {
         </div>
       </HeroMedia>
 
-      {sections.map((section) => (
-        <DynamicContentBlock key={section.id} section={section} />
-      ))}
+      {orderPage(layoutPage, sections, ["sections"]).map((item) =>
+        item.section ? <DynamicContentBlock key={item.id} section={item.section} /> : null,
+      )}
 
       <MarketingFooter />
     </div>

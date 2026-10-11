@@ -6,6 +6,9 @@ import { HeroMedia } from "@/components/marketing/HeroMedia";
 import { StatementSection } from "@/components/marketing/StatementSection";
 import { RichText } from "@/components/RichText";
 import { SplitRow, splitTones } from "@/components/marketing/SplitRow";
+import { Fragment, type ReactNode } from "react";
+import { orderPage } from "@/lib/pageLayout";
+import type { MarketingPageDto } from "@/lib/marketingApi";
 import { DynamicContentBlock } from "@/components/marketing/DynamicContentBlock";
 import { WHAT_WE_DO } from "@/content/marketing";
 import { mergeMediaHero, mergeStatement, pickList, toMarketingMedia } from "@/content/mergeMarketing";
@@ -29,6 +32,7 @@ export default function WhatWeDoPage() {
   const [statement, setStatement] = useState(WHAT_WE_DO.statement);
   const [flow, setFlow] = useState(WHAT_WE_DO.flow);
   const [sections, setSections] = useState<MarketingSectionDto[]>([]);
+  const [layoutPage, setLayoutPage] = useState<MarketingPageDto | null>(null);
 
   useEffect(() => {
     getMarketingPage("what-we-do")
@@ -44,10 +48,35 @@ export default function WhatWeDoPage() {
             media: item.image?.url ? toMarketingMedia(item.image) : (WHAT_WE_DO.flow[i]?.media ?? { label: item.title ?? "" }),
           })),
         );
+        setLayoutPage(data);
         setSections(data.sections);
       })
       .catch(() => {});
   }, []);
+
+  const blocks: Record<string, ReactNode> = {
+    statement: (
+      <div className="pt-16 sm:pt-20">
+          <StatementSection heading={statement.heading} body={statement.body} script={statement.script} />
+        </div>
+    ),
+    flow: (
+      <div>
+          {flow.map((row, i) => (
+            <SplitRow
+              key={row.index}
+              media={row.media}
+              index={row.index}
+              title={row.title}
+              body={<RichText html={row.body} className="!text-[16px] !leading-[1.8]" />}
+              meta={row.meta}
+              reverse={i % 2 === 1}
+              tone={splitTones(flow.length, true)[i]}
+            />
+          ))}
+        </div>
+    ),
+  };
 
   return (
     <div className="ovutor-fade-in bg-bg font-sans text-ink">
@@ -63,28 +92,9 @@ export default function WhatWeDoPage() {
         </div>
       </div>
 
-      <div className="pt-16 sm:pt-20">
-        <StatementSection heading={statement.heading} body={statement.body} script={statement.script} />
-      </div>
-
-      <div>
-        {flow.map((row, i) => (
-          <SplitRow
-            key={row.index}
-            media={row.media}
-            index={row.index}
-            title={row.title}
-            body={<RichText html={row.body} className="!text-[16px] !leading-[1.8]" />}
-            meta={row.meta}
-            reverse={i % 2 === 1}
-            tone={splitTones(flow.length, true)[i]}
-          />
-        ))}
-      </div>
-
-      {sections.map((section) => (
-        <DynamicContentBlock key={section.id} section={section} />
-      ))}
+      {orderPage(layoutPage, sections, ["statement", "flow", "sections"]).map((item) =>
+        item.section ? <DynamicContentBlock key={item.id} section={item.section} /> : <Fragment key={item.id}>{blocks[item.id]}</Fragment>,
+      )}
 
       <MarketingFooter />
     </div>

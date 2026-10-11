@@ -7,6 +7,9 @@ import { RichText } from "@/components/RichText";
 import { PlaceholderImage } from "@/components/PlaceholderImage";
 import { PackageShowcase } from "@/components/marketing/PackageShowcase";
 import { usePlanningPackages } from "@/lib/usePlanningPackages";
+import { Fragment, type ReactNode } from "react";
+import { orderPage } from "@/lib/pageLayout";
+import type { MarketingPageDto } from "@/lib/marketingApi";
 import { DynamicContentBlock } from "@/components/marketing/DynamicContentBlock";
 import { PLANNING_PACKAGES } from "@/content/marketing";
 import { pick, mergeHeadingBody, mergeImageBlock, mergeMediaHero, mergeText } from "@/content/mergeMarketing";
@@ -35,6 +38,7 @@ export default function OurPlanningPackagesPage() {
   const [headingBlock, setHeadingBlock] = useState({ heading: PLANNING_PACKAGES.heading, body: PLANNING_PACKAGES.body });
   const { categories, labels } = usePlanningPackages();
   const [sections, setSections] = useState<MarketingSectionDto[]>([]);
+  const [layoutPage, setLayoutPage] = useState<MarketingPageDto | null>(null);
 
   useEffect(() => {
     getMarketingPage("our-planning-packages")
@@ -49,10 +53,37 @@ export default function OurPlanningPackagesPage() {
             body: PLANNING_PACKAGES.body,
           }),
         );
+        setLayoutPage(data);
         setSections(data.sections);
       })
       .catch(() => {});
   }, []);
+
+  const blocks: Record<string, ReactNode> = {
+    intro: (
+      <div className="px-6 pb-16 pt-16 text-center sm:px-10 sm:pb-20 sm:pt-20">
+          <RichText html={intro} size="lg" align="center" className="mx-auto max-w-3xl text-ink/75" />
+        </div>
+    ),
+    divider: (
+      <div className="relative aspect-[16/10] w-full overflow-hidden sm:aspect-[21/9]">
+          <PlaceholderImage image={dividerPhoto} className="absolute inset-0" />
+          <div className="absolute inset-0 bg-ink/20" />
+          <div className="absolute inset-0 flex items-end justify-center pb-6 sm:pb-10">
+            <p className="font-display text-5xl italic text-white sm:text-7xl">{dividerTitle}</p>
+          </div>
+        </div>
+    ),
+    heading: (
+      <div className="bg-bg px-6 py-16 text-center sm:px-10 sm:py-20">
+          <h2 className="mx-auto max-w-3xl font-display text-3xl leading-snug sm:text-4xl">{headingBlock.heading}</h2>
+          <RichText html={headingBlock.body} size="lg" align="center" className="mx-auto mt-5 max-w-3xl text-ink/75" />
+        </div>
+    ),
+    packages: (
+      <PackageShowcase packages={categories} startingFromLabel={labels.startingFromLabel} moreLabel={labels.moreLabel} />
+    ),
+  };
 
   return (
     <div className="ovutor-fade-in bg-bg font-sans text-ink">
@@ -68,28 +99,9 @@ export default function OurPlanningPackagesPage() {
         </div>
       </div>
 
-      <div className="px-6 pb-16 pt-16 text-center sm:px-10 sm:pb-20 sm:pt-20">
-        <RichText html={intro} size="lg" align="center" className="mx-auto max-w-3xl text-ink/75" />
-      </div>
-
-      <div className="relative aspect-[16/10] w-full overflow-hidden sm:aspect-[21/9]">
-        <PlaceholderImage image={dividerPhoto} className="absolute inset-0" />
-        <div className="absolute inset-0 bg-ink/20" />
-        <div className="absolute inset-0 flex items-end justify-center pb-6 sm:pb-10">
-          <p className="font-display text-5xl italic text-white sm:text-7xl">{dividerTitle}</p>
-        </div>
-      </div>
-
-      <div className="bg-bg px-6 py-16 text-center sm:px-10 sm:py-20">
-        <h2 className="mx-auto max-w-3xl font-display text-3xl leading-snug sm:text-4xl">{headingBlock.heading}</h2>
-        <RichText html={headingBlock.body} size="lg" align="center" className="mx-auto mt-5 max-w-3xl text-ink/75" />
-      </div>
-
-      <PackageShowcase packages={categories} startingFromLabel={labels.startingFromLabel} moreLabel={labels.moreLabel} />
-
-      {sections.map((section) => (
-        <DynamicContentBlock key={section.id} section={section} />
-      ))}
+      {orderPage(layoutPage, sections, ["intro", "divider", "heading", "packages", "sections"]).map((item) =>
+        item.section ? <DynamicContentBlock key={item.id} section={item.section} /> : <Fragment key={item.id}>{blocks[item.id]}</Fragment>,
+      )}
 
       <MarketingFooter />
     </div>
