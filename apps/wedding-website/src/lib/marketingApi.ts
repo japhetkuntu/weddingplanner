@@ -54,7 +54,33 @@ export interface MarketingHeadingBodyDto {
 
 /** Our Planning Packages' category list, each with its own bulleted sub-groups. */
 export interface MarketingCategoriesDto {
-  items?: { name?: string | null; groups?: { title?: string | null; bullets?: string[] | null }[] | null }[] | null;
+  items?:
+    | {
+        name?: string | null;
+        summary?: string | null;
+        priceRange?: string | null;
+        priceMin?: number | null;
+        currency?: string | null;
+        image?: MarketingImageDto | null;
+        banner?: MarketingImageDto | null;
+        background?: string | null;
+        /** Package page: titled sections (Design, Planning, ...), each a row of tick-list cards. */
+        sections?: { title?: string | null; cards?: { title?: string | null; bullets?: string[] | null }[] | null }[] | null;
+        /** Older shape — a flat list of cards, shown as one untitled section when `sections` is empty. */
+        groups?: { title?: string | null; bullets?: string[] | null }[] | null;
+      }[]
+    | null;
+}
+
+/** Editable wording shared by the packages listing and every package's own page. */
+export interface MarketingPackageLabelsDto {
+  startingFromLabel?: string | null;
+  moreLabel?: string | null;
+  backgroundTitle?: string | null;
+  includedTitle?: string | null;
+  ctaTitle?: string | null;
+  ctaLabel?: string | null;
+  allPackagesLabel?: string | null;
 }
 
 /** Our Approach's 4-step list. */

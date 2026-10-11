@@ -312,8 +312,32 @@ export interface MarketingCategoryGroup {
   bullets?: string[];
 }
 
+export interface MarketingPackageSection {
+  title?: string;
+  cards?: MarketingCategoryGroup[];
+}
+
+/** Wording shared by the packages listing and every package page. */
+export interface MarketingPackageLabels {
+  startingFromLabel?: string;
+  moreLabel?: string;
+  backgroundTitle?: string;
+  includedTitle?: string;
+  ctaTitle?: string;
+  ctaLabel?: string;
+  allPackagesLabel?: string;
+}
+
 export interface MarketingCategoryItem {
   name?: string;
+  summary?: string;
+  priceRange?: string;
+  priceMin?: number;
+  currency?: string;
+  image?: MarketingImage;
+  banner?: MarketingImage;
+  background?: string;
+  sections?: MarketingPackageSection[];
   groups?: MarketingCategoryGroup[];
 }
 

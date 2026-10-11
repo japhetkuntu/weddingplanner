@@ -157,7 +157,119 @@ export const PLANNING_PACKAGES = {
   body: "As your planner and designer, we oversee every step of your wedding. Together, we imagine and bring to life an elegant, timeless event tailored to your story — from selecting inspired vendors to designing a cohesive atmosphere for every moment.",
   categories: [
     {
+      name: "Full Service Planning",
+      currency: "GHS",
+      priceMin: 60000,
+      summary: "From the first idea to the last dance, we plan, design and run your entire wedding so you can simply enjoy it.",
+      media: { label: "A bride by the window", src: brideWindowFulllength, focalPoint: "center" } as MarketingMedia,
+      background:
+        "Full Service Planning is for couples who want a partner for every detail. From your first conversation to the final goodbye, we shape the vision, manage the budget and vendors, design every moment and run the day itself — so the only thing left for you to do is be present. We embrace quiet luxury: refined, personal and entirely yours.",
+      sections: [
+        {
+          title: "Design",
+          cards: [
+            {
+              title: "Styling & Creative Direction",
+              bullets: [
+                "Moodboards built around your palette and atmosphere.",
+                "Furniture, lighting and décor selection.",
+                "Guidance on fashion and beauty styling.",
+              ],
+            },
+            {
+              title: "Production",
+              bullets: [
+                "Collaboration with trusted vendors to bring the design to life.",
+                "Floorplans to visualise the event.",
+                "Sourcing of unique props, favours and design elements.",
+              ],
+            },
+            {
+              title: "Florals & Stationery",
+              bullets: [
+                "Bespoke floral design for ceremony and reception.",
+                "Invitations, signage and printed details.",
+                "A cohesive look from save-the-date to farewell.",
+              ],
+            },
+          ],
+        },
+        {
+          title: "Planning",
+          cards: [
+            {
+              title: "Venue Selection & Management",
+              bullets: [
+                "Guidance on locations, from intimate gardens to grand estates.",
+                "Venue research, visits and tailored recommendations.",
+                "Contracts and venue liaison handled for you.",
+              ],
+            },
+            {
+              title: "Budget & Vendors",
+              bullets: [
+                "Transparent budget creation and management.",
+                "Vendor selection aligned with your style and budget.",
+                "Negotiation and liaison before and during the wedding.",
+              ],
+            },
+            {
+              title: "Timeline & Logistics",
+              bullets: [
+                "A planning roadmap with clear milestones.",
+                "Travel, transfers and accommodation coordination.",
+                "Permits and the small logistics of a destination wedding.",
+              ],
+            },
+          ],
+        },
+        {
+          title: "Coordination",
+          cards: [
+            {
+              title: "Guest Experience",
+              bullets: [
+                "A bespoke wedding website and RSVP management.",
+                "Dietary, travel and accommodation details collected.",
+                "Concierge support for your guests.",
+              ],
+            },
+            {
+              title: "Day-Of Coordination",
+              bullets: [
+                "A detailed run of show for every service and vendor.",
+                "On-site supervision from first light to last dance.",
+                "Music, speeches and transitions cued seamlessly.",
+              ],
+            },
+            {
+              title: "Post-Ceremony",
+              bullets: [
+                "Vendor breakdown and return of rentals.",
+                "Gift and keepsake handling.",
+                "A closing wrap-up so nothing is left behind.",
+              ],
+            },
+          ],
+        },
+      ],
+      groups: [
+        {
+          title: "Everything, end to end",
+          bullets: [
+            "Venue, vendors, budget and timeline managed from start to finish.",
+            "Creative direction and styling for every moment of the day.",
+            "Guest experience, travel and on-the-day coordination.",
+          ],
+        },
+      ],
+    },
+    {
       name: "Planning",
+      currency: "GHS",
+      priceMin: 20000,
+      summary: "We handle venue, budget and vendors end to end, so every decision is guided and nothing is left to chance.",
+      media: { label: "A bride seated with her bouquet", src: brideArmchairBouquet, focalPoint: "center" } as MarketingMedia,
       groups: [
         {
           title: "Venue Selection & Management",
@@ -179,6 +291,10 @@ export const PLANNING_PACKAGES = {
     },
     {
       name: "Design",
+      currency: "GHS",
+      priceMin: 30000,
+      summary: "From moodboards to floorplans, we shape a cohesive look and bring it to life with trusted vendors.",
+      media: { label: "A first dance among the clouds", src: receptionFirstDanceClouds, focalPoint: "center" } as MarketingMedia,
       groups: [
         {
           title: "Styling & Creative Direction",
@@ -200,6 +316,10 @@ export const PLANNING_PACKAGES = {
     },
     {
       name: "Guests",
+      currency: "GHS",
+      priceMin: 10000,
+      summary: "A bespoke wedding website, organised RSVPs and thoughtful guest support from invitation to farewell.",
+      media: { label: "A couple in white, in a hallway", src: coupleHallwayWhiteAttire, focalPoint: "center" } as MarketingMedia,
       groups: [
         {
           title: "Guestlist & RSVP",
@@ -219,6 +339,10 @@ export const PLANNING_PACKAGES = {
     },
     {
       name: "On the day",
+      currency: "GHS",
+      priceMin: 15000,
+      summary: "A detailed run of show and a team on-site from first light to last dance, so you can simply be present.",
+      media: { label: "A dance in a gold dress", src: receptionDanceGoldDress, focalPoint: "center" } as MarketingMedia,
       groups: [
         {
           title: "Timeline & Run of Show",

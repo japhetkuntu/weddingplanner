@@ -13,8 +13,10 @@ import {
   uploadMarketingImage,
   errorMessage,
 } from "@/lib/api";
+import { CURRENCIES } from "@/lib/currency";
 import type {
   MarketingCategories,
+  MarketingCategoryGroup,
   MarketingCategoryItem,
   MarketingContentBlock,
   MarketingFlow,
@@ -25,6 +27,8 @@ import type {
   MarketingImageBlock,
   MarketingParagraphs,
   MarketingPostItem,
+  MarketingPackageLabels,
+  MarketingPackageSection,
   MarketingPosts,
   MarketingSection,
   MarketingSectionLayout,
@@ -35,7 +39,7 @@ import type {
   MarketingText,
 } from "@/types";
 
-type ContentBlockKind = "text" | "heading-body" | "statement" | "image-block" | "paragraphs" | "flow-list" | "steps-list" | "categories-list" | "posts-list";
+type ContentBlockKind = "text" | "heading-body" | "statement" | "image-block" | "paragraphs" | "flow-list" | "steps-list" | "categories-list" | "package-labels" | "posts-list";
 
 interface ContentBlockConfig {
   key: string;
@@ -102,7 +106,8 @@ const PAGES: PageConfig[] = [
       { key: "intro", label: "Intro text", kind: "text" },
       { key: "divider", label: "Divider photo", kind: "image-block" },
       { key: "heading", label: "Heading before the categories", kind: "heading-body" },
-      { key: "categories", label: "Categories", kind: "categories-list" },
+      { key: "categories", label: "Packages (cards and each package's own page)", kind: "categories-list" },
+      { key: "package-labels", label: "Package wording (labels and button text)", kind: "package-labels" },
     ],
   },
   {
@@ -647,7 +652,9 @@ function ContentBlockForm({
     case "steps-list":
       return <StepsListForm value={value as MarketingSteps | null} onSave={onSave} />;
     case "categories-list":
-      return <CategoriesListForm value={value as MarketingCategories | null} onSave={onSave} />;
+      return <CategoriesListForm pageSlug={pageSlug} value={value as MarketingCategories | null} onSave={onSave} />;
+    case "package-labels":
+      return <PackageLabelsForm value={value as MarketingPackageLabels | null} onSave={onSave} />;
     case "posts-list":
       return <PostsListForm pageSlug={pageSlug} value={value as MarketingPosts | null} onSave={onSave} />;
     default:
@@ -856,16 +863,54 @@ function StepsListForm({ value, onSave }: { value: MarketingSteps | null; onSave
   );
 }
 
-function CategoriesListForm({ value, onSave }: { value: MarketingCategories | null; onSave: (v: MarketingCategories) => Promise<void> }) {
-  const [items, setItems] = useState<MarketingCategoryItem[]>(value?.items ?? []);
+function PackageLabelsForm({ value, onSave }: { value: MarketingPackageLabels | null; onSave: (v: MarketingPackageLabels) => Promise<void> }) {
+  const [v, setV] = useState<MarketingPackageLabels>(value ?? {});
+  const [saving, setSaving] = useState(false);
+  const fields: { key: keyof MarketingPackageLabels; label: string; placeholder: string }[] = [
+    { key: "startingFromLabel", label: "Price label", placeholder: "Starting from" },
+    { key: "moreLabel", label: "Card button", placeholder: "More" },
+    { key: "backgroundTitle", label: "Package page: background heading", placeholder: "Background information" },
+    { key: "includedTitle", label: "Package page: what's included heading", placeholder: "What's included" },
+    { key: "ctaTitle", label: "Package page: closing heading", placeholder: "Ready to begin?" },
+    { key: "ctaLabel", label: "Package page: closing button", placeholder: "Inquire for availability" },
+    { key: "allPackagesLabel", label: "Package page: back link", placeholder: "All packages" },
+  ];
+  return (
+    <form
+      onSubmit={async (e) => {
+        e.preventDefault();
+        setSaving(true);
+        await onSave(v);
+        setSaving(false);
+      }}
+    >
+      <p className="mb-3 text-xs text-ink/50">Leave a field blank to keep the current wording (shown as the placeholder).</p>
+      <div className="grid grid-cols-1 gap-x-4 sm:grid-cols-2">
+        {fields.map((f) => (
+          <div key={f.key}>
+            <Label>{f.label}</Label>
+            <Input value={v[f.key] ?? ""} placeholder={f.placeholder} onChange={(e) => setV({ ...v, [f.key]: e.target.value })} />
+          </div>
+        ))}
+      </div>
+      <SaveButton saving={saving} />
+    </form>
+  );
+}
+
+function CategoriesListForm({ pageSlug, value, onSave }: { pageSlug: string; value: MarketingCategories | null; onSave: (v: MarketingCategories) => Promise<void> }) {
+  // A package saved in the older flat shape (just `groups`) is edited as one untitled section.
+  const [items, setItems] = useState<MarketingCategoryItem[]>(
+    (value?.items ?? []).map((it) => (it.sections?.length || !it.groups?.length ? it : { ...it, sections: [{ title: "", cards: it.groups }] })),
+  );
   const [saving, setSaving] = useState(false);
 
-  function updateCategory(i: number, patch: Partial<MarketingCategoryItem>) {
+  function updatePackage(i: number, patch: Partial<MarketingCategoryItem>) {
     setItems(items.map((it, idx) => (idx === i ? { ...it, ...patch } : it)));
   }
 
-  function updateGroups(i: number, groups: MarketingCategoryItem["groups"]) {
-    updateCategory(i, { groups });
+  function updateSections(i: number, sections: MarketingPackageSection[]) {
+    updatePackage(i, { sections });
   }
 
   return (
@@ -873,63 +918,145 @@ function CategoriesListForm({ value, onSave }: { value: MarketingCategories | nu
       onSubmit={async (e) => {
         e.preventDefault();
         setSaving(true);
-        await onSave({ items });
+        await onSave({ items: items.map(({ groups: _legacy, ...rest }) => rest) });
         setSaving(false);
       }}
     >
-      {items.length === 0 ? <p className="text-xs text-ink/50">No categories added yet — the current live categories will keep showing.</p> : null}
-      <div className="space-y-5">
-        {items.map((category, i) => {
-          const groups = category.groups ?? [];
+      {items.length === 0 ? <p className="text-xs text-ink/50">No packages added yet — the current live packages will keep showing until you add one.</p> : null}
+      <div className="space-y-6">
+        {items.map((pkg, i) => {
+          const sections = pkg.sections ?? [];
           return (
-            <div key={i} className="border border-[#ddd] p-3">
-              <div className="mb-2 flex items-center justify-between">
-                <span className="text-xs font-bold uppercase tracking-[.06em] text-ink/50">Category {i + 1}</span>
-                <button type="button" onClick={() => setItems(items.filter((_, idx) => idx !== i))} className="text-xs font-bold text-primary">
-                  Remove category
-                </button>
+            <div key={i} className="border border-[#ddd] p-4">
+              <div className="mb-3 flex items-center justify-between">
+                <span className="text-sm font-bold">{pkg.name || `Package ${i + 1}`}</span>
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    disabled={i === 0}
+                    onClick={() => {
+                      const next = [...items];
+                      [next[i - 1], next[i]] = [next[i], next[i - 1]];
+                      setItems(next);
+                    }}
+                    className="text-xs font-bold text-ink/50 disabled:opacity-30"
+                  >
+                    Move up
+                  </button>
+                  <button type="button" onClick={() => setItems(items.filter((_, idx) => idx !== i))} className="text-xs font-bold text-primary">
+                    Remove package
+                  </button>
+                </div>
               </div>
-              <Label>Name</Label>
-              <Input value={category.name ?? ""} onChange={(e) => updateCategory(i, { name: e.target.value })} />
 
-              <Label className="mt-3">Sub-groups</Label>
-              <div className="space-y-3">
-                {groups.map((group, gi) => (
-                  <div key={gi} className="border border-[#eee] p-3">
-                    <div className="mb-2 flex items-center justify-between">
-                      <span className="text-[10px] font-bold uppercase tracking-[.06em] text-ink/40">Group {gi + 1}</span>
+              <p className="mb-2 text-[10px] font-bold uppercase tracking-[.1em] text-ink/40">On the packages list</p>
+              <Label>Name</Label>
+              <Input value={pkg.name ?? ""} onChange={(e) => updatePackage(i, { name: e.target.value })} />
+
+              <Label className="mt-3">Short summary (about 3 sentences)</Label>
+              <Textarea value={pkg.summary ?? ""} onChange={(e) => updatePackage(i, { summary: e.target.value })} />
+
+              <Label className="mt-3">Card image</Label>
+              <ImageField pageSlug={pageSlug} idPrefix={`package-${i}`} image={pkg.image} onChange={(image) => updatePackage(i, { image })} />
+
+              <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <div>
+                  <Label>Currency</Label>
+                  <Select value={pkg.currency ?? "GHS"} onChange={(e) => updatePackage(i, { currency: e.target.value })}>
+                    {CURRENCIES.map((c) => (
+                      <option key={c.code} value={c.code}>
+                        {c.label}
+                      </option>
+                    ))}
+                  </Select>
+                </div>
+                <div>
+                  <Label>Starting price</Label>
+                  <Input
+                    type="number"
+                    min={0}
+                    value={pkg.priceMin ?? ""}
+                    onChange={(e) => updatePackage(i, { priceMin: e.target.value === "" ? undefined : Number(e.target.value) })}
+                  />
+                </div>
+              </div>
+              <Label className="mt-3">Or custom price text (replaces the number, e.g. "By enquiry")</Label>
+              <Input value={pkg.priceRange ?? ""} onChange={(e) => updatePackage(i, { priceRange: e.target.value })} />
+
+              <div className="my-5 h-px bg-[#eee]" />
+              <p className="mb-2 text-[10px] font-bold uppercase tracking-[.1em] text-ink/40">On the package's own page</p>
+
+              <Label>Banner image (full width)</Label>
+              <ImageField pageSlug={pageSlug} idPrefix={`package-banner-${i}`} image={pkg.banner} onChange={(banner) => updatePackage(i, { banner })} />
+
+              <Label className="mt-3">Background information</Label>
+              <Textarea rows={5} value={pkg.background ?? ""} onChange={(e) => updatePackage(i, { background: e.target.value })} />
+
+              <Label className="mt-3">What's included — sections</Label>
+              <div className="space-y-4">
+                {sections.map((section, si) => {
+                  const cards = section.cards ?? [];
+                  const setCards = (next: MarketingCategoryGroup[]) =>
+                    updateSections(i, sections.map((s, idx) => (idx === si ? { ...s, cards: next } : s)));
+                  return (
+                    <div key={si} className="border border-[#ddd] bg-bg-warm p-3">
+                      <div className="mb-2 flex items-center justify-between">
+                        <span className="text-[10px] font-bold uppercase tracking-[.06em] text-ink/50">Section {si + 1}</span>
+                        <button type="button" onClick={() => updateSections(i, sections.filter((_, idx) => idx !== si))} className="text-xs font-bold text-primary">
+                          Remove section
+                        </button>
+                      </div>
+                      <Label>Section title (e.g. Design, Planning)</Label>
+                      <Input
+                        value={section.title ?? ""}
+                        onChange={(e) => updateSections(i, sections.map((s, idx) => (idx === si ? { ...s, title: e.target.value } : s)))}
+                      />
+
+                      <Label className="mt-3">Cards</Label>
+                      <div className="space-y-3">
+                        {cards.map((card, ci) => (
+                          <div key={ci} className="border border-[#eee] bg-white p-3">
+                            <div className="mb-2 flex items-center justify-between">
+                              <span className="text-[10px] font-bold uppercase tracking-[.06em] text-ink/40">Card {ci + 1}</span>
+                              <button type="button" onClick={() => setCards(cards.filter((_, idx) => idx !== ci))} className="text-xs font-bold text-primary">
+                                Remove card
+                              </button>
+                            </div>
+                            <Label>Card title</Label>
+                            <Input value={card.title ?? ""} onChange={(e) => setCards(cards.map((c, idx) => (idx === ci ? { ...c, title: e.target.value } : c)))} />
+                            <Label>Ticked items</Label>
+                            <StringListEditor
+                              items={card.bullets ?? []}
+                              onChange={(bullets) => setCards(cards.map((c, idx) => (idx === ci ? { ...c, bullets } : c)))}
+                              addLabel="Add item"
+                            />
+                          </div>
+                        ))}
+                      </div>
                       <button
                         type="button"
-                        onClick={() => updateGroups(i, groups.filter((_, idx) => idx !== gi))}
-                        className="text-xs font-bold text-primary"
+                        onClick={() => setCards([...cards, { title: "", bullets: [] }])}
+                        className="mt-2 text-xs font-bold uppercase tracking-[.06em] text-primary"
                       >
-                        Remove group
+                        + Add card
                       </button>
                     </div>
-                    <Label>Group title</Label>
-                    <Input value={group.title ?? ""} onChange={(e) => updateGroups(i, groups.map((g, idx) => (idx === gi ? { ...g, title: e.target.value } : g)))} />
-                    <Label>Bullets</Label>
-                    <StringListEditor
-                      items={group.bullets ?? []}
-                      onChange={(bullets) => updateGroups(i, groups.map((g, idx) => (idx === gi ? { ...g, bullets } : g)))}
-                      addLabel="Add bullet"
-                    />
-                  </div>
-                ))}
+                  );
+                })}
               </div>
               <button
                 type="button"
-                onClick={() => updateGroups(i, [...groups, { title: "", bullets: [] }])}
-                className="mt-2 text-xs font-bold uppercase tracking-[.06em] text-primary"
+                onClick={() => updateSections(i, [...sections, { title: "", cards: [] }])}
+                className="mt-3 text-xs font-bold uppercase tracking-[.06em] text-primary"
               >
-                + Add group
+                + Add section
               </button>
             </div>
           );
         })}
       </div>
-      <button type="button" onClick={() => setItems([...items, { name: "", groups: [] }])} className="mt-3 text-xs font-bold uppercase tracking-[.06em] text-primary">
-        + Add category
+      <button type="button" onClick={() => setItems([...items, { name: "", sections: [] }])} className="mt-4 text-xs font-bold uppercase tracking-[.06em] text-primary">
+        + Add package
       </button>
       <SaveButton saving={saving} />
     </form>

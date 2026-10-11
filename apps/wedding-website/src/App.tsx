@@ -2,6 +2,7 @@ import { Route, Routes } from "react-router-dom";
 import HomePage from "@/pages/marketing/HomePage";
 import WhatWeDoPage from "@/pages/marketing/WhatWeDoPage";
 import OurPlanningPackagesPage from "@/pages/marketing/OurPlanningPackagesPage";
+import PlanningPackagePage from "@/pages/marketing/PlanningPackagePage";
 import OurApproachPage from "@/pages/marketing/OurApproachPage";
 import OurJournalPage from "@/pages/marketing/OurJournalPage";
 import OurJournalPostPage from "@/pages/marketing/OurJournalPostPage";
@@ -20,6 +21,7 @@ export default function App() {
       <Route path="/" element={<HomePage />} />
       <Route path="/what-we-do" element={<WhatWeDoPage />} />
       <Route path="/our-planning-packages" element={<OurPlanningPackagesPage />} />
+      <Route path="/our-planning-packages/:packageSlug" element={<PlanningPackagePage />} />
       <Route path="/our-approach" element={<OurApproachPage />} />
       <Route path="/our-journal" element={<OurJournalPage />} />
       <Route path="/our-journal/:postSlug" element={<OurJournalPostPage />} />
