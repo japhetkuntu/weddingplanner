@@ -47,10 +47,12 @@ export default function HomePage() {
           <h1 className="mt-5 max-w-3xl whitespace-pre-line font-display text-5xl font-normal leading-[1.05] [text-shadow:0_2px_24px_rgba(0,0,0,0.5)] sm:text-7xl">
             {hero.title}
           </h1>
-          <RichText html={hero.subtitle} className="mt-6 max-w-md !text-base text-white/85" />
+          <div className="mt-6 max-w-md bg-primary px-6 py-4 shadow-[0_10px_30px_rgba(0,0,0,0.25)]">
+            <RichText html={hero.subtitle} align="center" className="!text-base text-white" />
+          </div>
           <Link
             to={hero.ctaTo}
-            className="mt-9 border border-white px-8 py-4 text-xs font-bold uppercase tracking-[.14em] text-white hover:bg-white hover:text-ink"
+            className="mt-9 border border-gold bg-gold px-8 py-4 text-xs font-bold uppercase tracking-[.14em] text-ink shadow-[0_10px_30px_rgba(0,0,0,0.25)] hover:brightness-95"
           >
             {hero.ctaLabel}
           </Link>

@@ -107,5 +107,6 @@ public class EnquiryService(
 
     private static EnquiryResponse ToResponse(MarketingEnquiry e) => new(
         e.Id, e.Name, e.Email, e.WeddingDate, e.Location, e.GuestCount, e.Budget, e.Message,
-        e.CreatedAtUtc.ToString("yyyy-MM-ddTHH:mm:ssZ"), e.IsRead);
+        e.CreatedAtUtc.ToString("yyyy-MM-ddTHH:mm:ssZ"), e.IsRead,
+        e.GroomName, e.ContactingFrom, e.IsIntimate, e.WantsConsultation, e.ConsultationAt);
 }

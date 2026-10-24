@@ -7,4 +7,9 @@ public record SubmitEnquiryRequest(
     string? Location,
     int? GuestCount,
     string? Budget,
-    string? Message);
+    string? Message,
+    string? GroomName = null,
+    string? ContactingFrom = null,
+    bool? IsIntimate = null,
+    bool? WantsConsultation = null,
+    string? ConsultationAt = null);

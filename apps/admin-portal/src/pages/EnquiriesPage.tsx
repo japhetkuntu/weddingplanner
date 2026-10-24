@@ -162,7 +162,7 @@ export default function EnquiriesPage() {
       <Drawer open={!!selected} onClose={() => setSelected(null)} title="Enquiry">
         {selected ? (
           <div>
-            <p className="font-display text-2xl">{selected.name}</p>
+            <p className="font-display text-2xl">{selected.groomName ? `${selected.name} & ${selected.groomName}` : selected.name}</p>
             <a href={`mailto:${selected.email}`} className="text-sm font-bold text-primary hover:underline">
               {selected.email}
             </a>
@@ -174,21 +174,43 @@ export default function EnquiriesPage() {
 
             <div className="grid grid-cols-2 gap-3 text-sm">
               <div>
-                <p className="text-xs font-bold uppercase tracking-[.06em] text-ink/40">Wedding date</p>
+                <p className="text-xs font-bold uppercase tracking-[.06em] text-ink/40">Planning to marry</p>
                 <p className="mt-0.5">{selected.weddingDate || "Not shared"}</p>
               </div>
               <div>
-                <p className="text-xs font-bold uppercase tracking-[.06em] text-ink/40">Location</p>
+                <p className="text-xs font-bold uppercase tracking-[.06em] text-ink/40">Getting married in</p>
                 <p className="mt-0.5">{selected.location || "Not shared"}</p>
               </div>
               <div>
-                <p className="text-xs font-bold uppercase tracking-[.06em] text-ink/40">Guests</p>
-                <p className="mt-0.5">{selected.guestCount ?? "Not shared"}</p>
+                <p className="text-xs font-bold uppercase tracking-[.06em] text-ink/40">Contacting from</p>
+                <p className="mt-0.5">{selected.contactingFrom || "Not shared"}</p>
               </div>
               <div>
-                <p className="text-xs font-bold uppercase tracking-[.06em] text-ink/40">Budget</p>
-                <p className="mt-0.5">{selected.budget || "Not shared"}</p>
+                <p className="text-xs font-bold uppercase tracking-[.06em] text-ink/40">Intimate celebration</p>
+                <p className="mt-0.5">{selected.isIntimate == null ? "Not shared" : selected.isIntimate ? "Yes" : "No"}</p>
               </div>
+              <div className="col-span-2">
+                <p className="text-xs font-bold uppercase tracking-[.06em] text-ink/40">Consultation</p>
+                <p className="mt-0.5">
+                  {selected.wantsConsultation == null
+                    ? "Not shared"
+                    : selected.wantsConsultation
+                      ? `Yes${selected.consultationAt ? ` — preferred ${new Date(selected.consultationAt).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })}` : ""}`
+                      : "No"}
+                </p>
+              </div>
+              {selected.guestCount != null ? (
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-[.06em] text-ink/40">Guests</p>
+                  <p className="mt-0.5">{selected.guestCount}</p>
+                </div>
+              ) : null}
+              {selected.budget ? (
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-[.06em] text-ink/40">Budget</p>
+                  <p className="mt-0.5">{selected.budget}</p>
+                </div>
+              ) : null}
             </div>
 
             {selected.message ? (

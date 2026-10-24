@@ -145,6 +145,12 @@ export interface MarketingFeatureDto {
   image?: MarketingImageDto | null;
 }
 
+/** Our Approach's process diagram: an uploaded picture, or circle labels as the fallback. */
+export interface MarketingDiagramDto {
+  image?: MarketingImageDto | null;
+  items?: string[] | null;
+}
+
 /** Editable journal category tabs. */
 export interface MarketingJournalCategoriesDto {
   items?: string[] | null;
@@ -173,6 +179,11 @@ export interface SubmitEnquiryPayload {
   guestCount?: number;
   budget?: string;
   message?: string;
+  groomName?: string;
+  contactingFrom?: string;
+  isIntimate?: boolean;
+  wantsConsultation?: boolean;
+  consultationAt?: string;
 }
 
 export interface MarketingSectionDto {

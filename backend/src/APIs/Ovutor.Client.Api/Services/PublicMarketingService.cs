@@ -71,6 +71,11 @@ public class PublicMarketingService(
                 GuestCount = request.GuestCount,
                 Budget = string.IsNullOrWhiteSpace(request.Budget) ? null : request.Budget,
                 Message = string.IsNullOrWhiteSpace(request.Message) ? null : request.Message,
+                GroomName = string.IsNullOrWhiteSpace(request.GroomName) ? null : request.GroomName.Trim(),
+                ContactingFrom = string.IsNullOrWhiteSpace(request.ContactingFrom) ? null : request.ContactingFrom.Trim(),
+                IsIntimate = request.IsIntimate,
+                WantsConsultation = request.WantsConsultation,
+                ConsultationAt = request.WantsConsultation == true && !string.IsNullOrWhiteSpace(request.ConsultationAt) ? request.ConsultationAt : null,
             };
             await enquiries.AddAsync(enquiry, ct);
 

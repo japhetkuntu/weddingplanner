@@ -4,7 +4,7 @@ import { RichText } from "@/components/RichText";
 import { PlaceholderImage } from "@/components/PlaceholderImage";
 import type { MarketingMedia } from "@/content/marketing";
 import { packageSlug } from "@/lib/packageSlug";
-import { formatPackagePrice } from "@/lib/formatPackagePrice";
+import { formatPackagePriceParts } from "@/lib/formatPackagePrice";
 
 export interface PackageGroup {
   title: string;
@@ -70,17 +70,23 @@ export function PackageShowcase({
             )}
           >
             <div className={cn("flex flex-col", featured && "md:w-1/2")}>
-              <h2 className="bg-primary px-4 py-4 text-center font-display text-xl leading-tight text-white">{pkg.name}</h2>
+              <h2 className="flex min-h-[5rem] items-center justify-center bg-primary px-4 py-3 text-center font-display text-xl leading-tight text-white">{pkg.name}</h2>
               <div className="relative aspect-[4/3] w-full overflow-hidden">
                 <PlaceholderImage image={pkg.media} className="absolute inset-0" />
               </div>
             </div>
             <div className={cn("flex flex-1 flex-col items-center px-5 py-6 text-center", featured && "justify-center md:w-1/2 md:px-10")}>
               <RichText html={pkg.summary} className={cn("!text-sm !leading-relaxed text-ink/75", !featured && "flex-1")} />
-              {formatPackagePrice(pkg) ? (
+              {formatPackagePriceParts(pkg).length ? (
                 <div className="mt-4 w-full border-t border-ink/10 pt-3">
                   <p className="text-[10px] font-bold uppercase tracking-[.16em] text-primary">{startingFromLabel}</p>
-                  <p className="mt-1 font-display text-xl">{formatPackagePrice(pkg)}</p>
+                  <div className="mt-1.5 space-y-0.5 font-display text-lg leading-snug">
+                    {formatPackagePriceParts(pkg).map((part, i) => (
+                      <p key={i} className="[overflow-wrap:anywhere]">
+                        {part}
+                      </p>
+                    ))}
+                  </div>
                 </div>
               ) : null}
               <Link

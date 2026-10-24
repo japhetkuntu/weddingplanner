@@ -19,6 +19,7 @@ import {
   type MarketingHeroDto,
   type MarketingSectionDto,
   type MarketingStepsDto,
+  type MarketingDiagramDto,
   type MarketingTextDto,
 } from "@/lib/marketingApi";
 
@@ -27,6 +28,35 @@ interface Step {
   title: string;
   body: string;
   media?: MarketingMedia;
+}
+
+/** The process as a row of circles joined by arrows, alternating gold and pink; it stacks into a
+ * column with downward arrows on narrow screens. */
+function ProcessDiagram({ labels }: { labels: string[] }) {
+  if (labels.length === 0) return null;
+  return (
+    <ol className="mx-auto mt-12 flex max-w-5xl flex-col items-center gap-3 lg:flex-row lg:justify-center lg:gap-0">
+      {labels.map((label, i) => (
+        <li key={i} className="flex flex-col items-center lg:flex-row">
+          <span
+            style={{ borderRadius: "50%" }}
+            className={cn(
+              "grid aspect-square w-40 place-items-center p-5 text-center font-display text-base font-semibold leading-snug shadow-[0_10px_30px_rgba(30,30,30,0.12)] sm:w-44",
+              i % 2 === 0 ? "bg-gold text-ink" : "bg-primary text-white",
+            )}
+          >
+            {label}
+          </span>
+          {i < labels.length - 1 ? (
+            <span aria-hidden="true" className="text-3xl leading-none text-ink lg:mx-3">
+              <span className="lg:hidden">&darr;</span>
+              <span className="hidden lg:inline">&rarr;</span>
+            </span>
+          ) : null}
+        </li>
+      ))}
+    </ol>
+  );
 }
 
 /** "Our Approach" — the process as stacking cards: each step's title pins to its own strip and the
@@ -42,6 +72,8 @@ export default function OurApproachPage() {
   const [steps, setSteps] = useState<Step[]>(OUR_APPROACH.steps as Step[]);
   const [sections, setSections] = useState<MarketingSectionDto[]>([]);
   const [layoutPage, setLayoutPage] = useState<MarketingPageDto | null>(null);
+  const [diagram, setDiagram] = useState<string[]>(OUR_APPROACH.diagram);
+  const [diagramImage, setDiagramImage] = useState<{ src: string; label: string } | null>(null);
   const [introTitle, setIntroTitle] = useState("Our approach");
 
   useEffect(() => {
@@ -50,6 +82,9 @@ export default function OurApproachPage() {
         setHero(mergeMediaHero(getContentBlock<MarketingHeroDto>(data, "hero"), OUR_APPROACH.hero));
         setIntroTitle(pick(getContentBlock<MarketingTextDto>(data, "intro")?.title, "Our approach"));
         setIntro(mergeText(getContentBlock<MarketingTextDto>(data, "intro"), OUR_APPROACH.intro));
+        const diagramBlock = getContentBlock<MarketingDiagramDto>(data, "diagram");
+        setDiagram(pickList(diagramBlock?.items, OUR_APPROACH.diagram, (item) => item));
+        setDiagramImage(diagramBlock?.image?.url ? { src: diagramBlock.image.url, label: diagramBlock.image.label ?? "" } : null);
         setSteps(
           pickList(getContentBlock<MarketingStepsDto>(data, "steps")?.items, OUR_APPROACH.steps as Step[], (item, i) => ({
             index: String(i + 1).padStart(2, "0"),
@@ -72,6 +107,11 @@ export default function OurApproachPage() {
           <StackedSection index={0} title={introTitle}>
             <div className="px-6 pb-14 pt-4 sm:px-10">
               <RichText html={intro} size="lg" align="center" className="mx-auto max-w-3xl text-ink/80" />
+              {diagramImage ? (
+                <img src={diagramImage.src} alt={diagramImage.label} className="mx-auto mt-12 h-auto w-full max-w-5xl" decoding="async" />
+              ) : (
+                <ProcessDiagram labels={diagram} />
+              )}
             </div>
           </StackedSection>
 

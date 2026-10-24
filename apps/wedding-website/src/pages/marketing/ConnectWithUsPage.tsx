@@ -23,8 +23,54 @@ import {
 } from "@/lib/marketingApi";
 
 const FIELD_CLASS =
-  "mt-1 w-full border-0 border-b border-white/30 bg-transparent pb-2 text-sm text-white placeholder:text-white/40 focus:border-white focus:outline-none";
-const LABEL_CLASS = "block text-[10px] font-bold uppercase tracking-[.12em] text-white/60";
+  "mt-2 w-full border border-white/30 bg-white/10 px-4 py-3 text-sm text-white placeholder:text-white/45 [color-scheme:dark] focus:border-gold focus:bg-white/15 focus:outline-none";
+const LABEL_CLASS = "block text-[11px] font-bold uppercase tracking-[.12em] text-white/80";
+
+/** Wording of the fields added for the studio's own enquiry questions. */
+const ASK = {
+  bride: "Bride-to-be",
+  groom: "Groom-to-be",
+  email: "Preferred email",
+  from: "Where are you contacting us from?",
+  where: "Where would you be getting married?",
+  when: "When are you planning to get married?",
+  intimate: "Are you planning to have an intimate celebration?",
+  consult: "Would you like us to schedule a consultation session for you?",
+  consultAt: "If yes, when would be your preferred date & time?",
+  message: "Is there anything you'd like to tell us, or ask?",
+  messageHint: "We're all ears",
+  yes: "Yes",
+  no: "No",
+};
+
+/** Yes / No choice shown as two buttons; picking the active one again clears it. */
+function YesNo({ value, onChange }: { value: boolean | null; onChange: (v: boolean | null) => void }) {
+  return (
+    <div className="mt-2 flex gap-3">
+      {([true, false] as const).map((v) => (
+        <button
+          key={String(v)}
+          type="button"
+          aria-pressed={value === v}
+          onClick={() => onChange(value === v ? null : v)}
+          className={cn(
+            "min-w-[96px] border px-6 py-3 text-xs font-bold uppercase tracking-[.1em] transition-colors",
+            value === v ? "border-gold bg-gold text-ink" : "border-white/40 text-white hover:border-white",
+          )}
+        >
+          {v ? ASK.yes : ASK.no}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+/** The note above the form as paragraphs: split on blank lines, and — for text saved before
+ * paragraphs were supported — before the "Please complete the form" call to action. */
+function noteParagraphs(note: string): string[] {
+  const parts = note.split(/\n\s*\n|\n/).flatMap((p) => p.split(/(?<=[.!?])\s+(?=Please complete the form)/));
+  return parts.map((p) => p.trim()).filter(Boolean);
+}
 
 /** "Connect with Us" (formerly "Contact"). annelaureweddings.com/contact's split intro (photo +
  * "Let's Connect") plus its full-width enquiry form below — on the platform's own brand-pink
@@ -40,12 +86,15 @@ export default function ConnectWithUsPage() {
   const [sent, setSent] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [intimate, setIntimate] = useState<boolean | null>(null);
+  const [consult, setConsult] = useState<boolean | null>(null);
   const [hero, setHero] = useState({ eyebrow: CONNECT.eyebrow, title: CONNECT.title, media: [CONNECT.media] });
   const [intro, setIntro] = useState({ paragraphs: CONNECT.paragraphs, formNote: CONNECT.formNote });
   const [sections, setSections] = useState<MarketingSectionDto[]>([]);
   const [layoutPage, setLayoutPage] = useState<MarketingPageDto | null>(null);
   const [details, setDetails] = useState<MarketingContactDetailsDto>({});
   const [feature, setFeature] = useState<MarketingFeatureDto | null>(null);
+  const contactLine = (details.email ?? STUDIO.email ?? "").trim();
   const featureView = {
     show: !feature?.hidden,
     heading: pick(feature?.heading, CONNECT.feature.heading),
@@ -71,17 +120,19 @@ export default function ConnectWithUsPage() {
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const form = new FormData(e.currentTarget);
-    const guestCount = form.get("guestCount");
     setSubmitting(true);
     setError(null);
     try {
       await submitEnquiry({
         name: String(form.get("name") ?? ""),
+        groomName: String(form.get("groomName") ?? "") || undefined,
         email: String(form.get("email") ?? ""),
-        weddingDate: String(form.get("weddingDate") ?? "") || undefined,
+        contactingFrom: String(form.get("contactingFrom") ?? "") || undefined,
         location: String(form.get("location") ?? "") || undefined,
-        guestCount: guestCount ? Number(guestCount) : undefined,
-        budget: String(form.get("budget") ?? "") || undefined,
+        weddingDate: String(form.get("weddingDate") ?? "") || undefined,
+        isIntimate: intimate ?? undefined,
+        wantsConsultation: consult ?? undefined,
+        consultationAt: consult ? String(form.get("consultationAt") ?? "") || undefined : undefined,
         message: String(form.get("message") ?? "") || undefined,
       });
       setSent(true);
@@ -116,7 +167,11 @@ export default function ConnectWithUsPage() {
     form: (
       <div className="bg-primary px-6 py-16 sm:px-10 sm:py-24">
           <h2 className="mb-3 text-center font-display text-3xl italic text-white sm:text-4xl">{L.enquiryHeading}</h2>
-          {intro.formNote ? <p className="mx-auto mb-10 max-w-md text-center text-sm text-white/70">{intro.formNote}</p> : null}
+          <div className="mx-auto mb-12 max-w-xl space-y-4 text-center text-sm leading-relaxed text-white/80">
+            {noteParagraphs(intro.formNote).map((p, i) => (
+              <p key={i}>{p}</p>
+            ))}
+          </div>
 
           {sent ? (
             <p className="mx-auto max-w-md text-center leading-relaxed text-white/80">
@@ -124,33 +179,48 @@ export default function ConnectWithUsPage() {
             </p>
           ) : (
             <form onSubmit={handleSubmit} className="mx-auto grid max-w-2xl grid-cols-1 gap-6 sm:grid-cols-2">
+              <label>
+                <span className={LABEL_CLASS}>{ASK.bride}</span>
+                <input required name="name" autoComplete="name" className={FIELD_CLASS} />
+              </label>
+              <label>
+                <span className={LABEL_CLASS}>{ASK.groom}</span>
+                <input name="groomName" className={FIELD_CLASS} />
+              </label>
               <label className="sm:col-span-2">
-                <span className={LABEL_CLASS}>{L.name}</span>
-                <input required name="name" className={FIELD_CLASS} />
+                <span className={LABEL_CLASS}>{ASK.email}</span>
+                <input required type="email" name="email" autoComplete="email" className={FIELD_CLASS} />
               </label>
               <label>
-                <span className={LABEL_CLASS}>{L.email}</span>
-                <input required type="email" name="email" className={FIELD_CLASS} />
+                <span className={LABEL_CLASS}>{ASK.from}</span>
+                <input name="contactingFrom" className={FIELD_CLASS} />
               </label>
               <label>
-                <span className={LABEL_CLASS}>{L.weddingDate}</span>
-                <input type="date" name="weddingDate" className={FIELD_CLASS} />
-              </label>
-              <label>
-                <span className={LABEL_CLASS}>{L.location}</span>
+                <span className={LABEL_CLASS}>{ASK.where}</span>
                 <input name="location" className={FIELD_CLASS} />
               </label>
-              <label>
-                <span className={LABEL_CLASS}>{L.guests}</span>
-                <input type="number" min={0} name="guestCount" className={FIELD_CLASS} />
-              </label>
               <label className="sm:col-span-2">
-                <span className={LABEL_CLASS}>{L.budget}</span>
-                <input name="budget" className={FIELD_CLASS} />
+                <span className={LABEL_CLASS}>{ASK.when}</span>
+                <input name="weddingDate" placeholder="e.g. December 2027" className={FIELD_CLASS} />
               </label>
+              <div className="sm:col-span-2">
+                <span className={LABEL_CLASS}>{ASK.intimate}</span>
+                <YesNo value={intimate} onChange={setIntimate} />
+              </div>
+              <div className="sm:col-span-2">
+                <span className={LABEL_CLASS}>{ASK.consult}</span>
+                <YesNo value={consult} onChange={setConsult} />
+              </div>
+              {consult ? (
+                <label className="sm:col-span-2">
+                  <span className={LABEL_CLASS}>{ASK.consultAt}</span>
+                  <input type="datetime-local" name="consultationAt" className={FIELD_CLASS} />
+                </label>
+              ) : null}
               <label className="sm:col-span-2">
-                <span className={LABEL_CLASS}>{L.message}</span>
-                <textarea name="message" rows={4} className={FIELD_CLASS} />
+                <span className={LABEL_CLASS}>{ASK.message}</span>
+                <span className="mt-0.5 block font-display text-sm italic text-white/70">{ASK.messageHint}</span>
+                <textarea name="message" rows={5} className={FIELD_CLASS} />
               </label>
               {error ? <p className="text-sm text-white sm:col-span-2">{error}</p> : null}
               <div className="sm:col-span-2">
@@ -179,11 +249,17 @@ export default function ConnectWithUsPage() {
             <RichText key={i} html={p} className="mt-4 max-w-lg text-ink/80" />
           ))}
           <div className="mt-8 space-y-1.5 text-sm text-ink/80">
-            <p>
-              <a href={`mailto:${details.email || STUDIO.email}`} className="font-semibold underline underline-offset-4 hover:text-ink">
-                {details.email || STUDIO.email}
-              </a>
-            </p>
+            {contactLine ? (
+              /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contactLine) ? (
+                <p>
+                  <a href={`mailto:${contactLine}`} className="font-semibold underline underline-offset-4 hover:text-ink">
+                    {contactLine}
+                  </a>
+                </p>
+              ) : (
+                <p className="font-semibold">{contactLine}</p>
+              )
+            ) : null}
             {details.phone ? <p>{details.phone}</p> : null}
             {details.location ? <p>{details.location}</p> : null}
             {details.hours ? <p className="text-ink/60">{details.hours}</p> : null}

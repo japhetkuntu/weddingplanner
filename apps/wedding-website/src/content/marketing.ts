@@ -376,6 +376,8 @@ export const OUR_APPROACH = {
     eyebrow: "How we work",
     title: "A process built\naround you",
   },
+  /** The labels in the process diagram under the intro — one circle each, alternating gold and pink. */
+  diagram: ["Consultation", "Tailored Proposal", "Design, Planning & Execution", "Wedding Day & Beyond"],
   intro: "No two weddings — and no two couples — are planned the same way. Our approach is a steady, four-part rhythm that flexes around your story, your timeline, and how involved you want to be at each stage. It's less a checklist than a conversation that deepens over time, one that leaves room for your wedding to surprise you in all the right ways.",
   steps: [
     {
@@ -592,7 +594,8 @@ export const CONNECT = {
     "Our process begins with a personalized consultation where we'll learn more about you, your style, and your wishes. From there, we'll craft a proposal tailored to your needs.",
     "We take on a limited number of weddings each year to ensure every couple receives our full attention and care.",
   ],
-  formNote: "Please complete the form below, and we'll be in touch shortly.",
+  formNote:
+    "Whether you're planning from abroad or preparing to celebrate in Accra or Abuja, Ovutor is here to make your wedding journey seamless, thoughtful, and unforgettable.\n\nPlease complete the form below to schedule a consultation session with us, and we would figure out how best we can help make your wedding uniquely yours and beautiful!",
   // The image-and-text section between the introduction and the enquiry form.
   feature: {
     heading: "Every love story begins with a conversation",

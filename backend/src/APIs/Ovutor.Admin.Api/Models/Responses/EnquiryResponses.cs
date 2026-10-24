@@ -10,4 +10,9 @@ public record EnquiryResponse(
     string? Budget,
     string? Message,
     string SubmittedAt,
-    bool IsRead);
+    bool IsRead,
+    string? GroomName = null,
+    string? ContactingFrom = null,
+    bool? IsIntimate = null,
+    bool? WantsConsultation = null,
+    string? ConsultationAt = null);

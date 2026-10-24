@@ -52,10 +52,11 @@ export function MarketingNav({ dark = true }: { dark?: boolean }) {
             onClick={() => setOpen(true)}
             aria-expanded={open}
             aria-label="Open menu"
-            className={cn("flex h-10 w-10 flex-col items-center justify-center gap-[5px] border", dark ? "border-white/50" : "border-ink/30")}
+            className="flex h-11 w-11 flex-col items-center justify-center gap-[6px] border border-gold bg-gold shadow-[0_6px_20px_rgba(0,0,0,0.3)] transition hover:brightness-95"
           >
-            <span className={cn("h-px w-4", dark ? "bg-white" : "bg-ink")} />
-            <span className={cn("h-px w-4", dark ? "bg-white" : "bg-ink")} />
+            <span className="h-[2px] w-5 bg-ink" />
+            <span className="h-[2px] w-5 bg-ink" />
+            <span className="h-[2px] w-5 bg-ink" />
           </button>
         </div>
       </header>

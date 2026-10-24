@@ -460,6 +460,12 @@ namespace Ovutor.Postgres.Sdk.Migrations
                     b.Property<string>("Budget")
                         .HasColumnType("text");
 
+                    b.Property<string>("ConsultationAt")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ContactingFrom")
+                        .HasColumnType("text");
+
                     b.Property<DateTime>("CreatedAtUtc")
                         .HasColumnType("timestamp with time zone");
 
@@ -467,10 +473,16 @@ namespace Ovutor.Postgres.Sdk.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("GroomName")
+                        .HasColumnType("text");
+
                     b.Property<int?>("GuestCount")
                         .HasColumnType("integer");
 
                     b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool?>("IsIntimate")
                         .HasColumnType("boolean");
 
                     b.Property<bool>("IsRead")
@@ -488,6 +500,9 @@ namespace Ovutor.Postgres.Sdk.Migrations
 
                     b.Property<DateTime?>("UpdatedAtUtc")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool?>("WantsConsultation")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("WeddingDate")
                         .HasColumnType("text");

@@ -43,10 +43,11 @@ import type {
   MarketingStatement,
   MarketingStepItem,
   MarketingSteps,
+  MarketingDiagram,
   MarketingText,
 } from "@/types";
 
-type ContentBlockKind = "text" | "heading-body" | "statement" | "image-block" | "paragraphs" | "flow-list" | "steps-list" | "categories-list" | "package-labels" | "seo" | "string-list" | "contact-details" | "feature" | "posts-list";
+type ContentBlockKind = "text" | "heading-body" | "statement" | "image-block" | "paragraphs" | "flow-list" | "steps-list" | "categories-list" | "package-labels" | "seo" | "string-list" | "diagram" | "contact-details" | "feature" | "posts-list";
 
 interface ContentBlockConfig {
   key: string;
@@ -138,6 +139,7 @@ const PAGES: PageConfig[] = [
     contentBlocks: [
       { key: "seo", label: "Browser tab title and search description", kind: "seo" },
       { key: "intro", label: "Intro text", kind: "text", withTitle: true },
+      { key: "diagram", label: "Process diagram (the circles under the intro)", kind: "diagram" },
       { key: "steps", label: "Steps", kind: "steps-list" },
     ],
   },
@@ -242,7 +244,7 @@ const PAGE_STRUCTURE: Record<
     },
     bottom: ["package-labels", "seo"],
   },
-  "our-approach": { top: [], blocks: { steps: { title: "Introduction and steps", keys: ["intro", "steps"] } }, bottom: ["seo"] },
+  "our-approach": { top: [], blocks: { steps: { title: "Introduction and steps", keys: ["intro", "diagram", "steps"] } }, bottom: ["seo"] },
   "our-journal": { top: [], blocks: { posts: { title: "Posts and categories", keys: ["posts", "categories"] } }, bottom: ["seo"] },
   "connect-with-us": {
     top: ["intro", "details"],
@@ -264,6 +266,8 @@ function blockHint(key: string, value: unknown): string {
   const n = (x: unknown) => (Array.isArray(x) ? x.length : 0);
   const plural = (c: number, word: string) => `${c} ${word}${c === 1 ? "" : "s"}`;
   switch (key) {
+    case "diagram":
+      return (v.image as { url?: string } | undefined)?.url ? "Your picture" : n(v.items) ? plural(n(v.items), "circle") : "Using built-in circles";
     case "steps":
       return n(v.items) ? plural(n(v.items), "step") : "Using built-in steps";
     case "flow":
@@ -1163,6 +1167,8 @@ function ContentBlockForm({
       return <CategoriesListForm pageSlug={pageSlug} value={value as MarketingCategories | null} onSave={onSave} />;
     case "seo":
       return <SeoForm value={value as MarketingSeo | null} onSave={onSave} />;
+    case "diagram":
+      return <DiagramForm pageSlug={pageSlug} value={value as MarketingDiagram | null} onSave={onSave} />;
     case "string-list":
       return <StringListForm value={value as MarketingStringList | null} onSave={onSave} />;
     case "contact-details":
@@ -1448,6 +1454,32 @@ function StringListForm({ value, onSave }: { value: MarketingStringList | null; 
       {items.length === 0 ? <LoadSamples label="Load the current categories" onLoad={() => setItems(SAMPLE_JOURNAL_CATEGORIES)} /> : null}
       <p className="mb-2 text-xs text-ink/50">"All Posts" is always shown first. Add, rename or remove categories freely; posts pick from this list.</p>
       <StringListEditor items={items} onChange={setItems} addLabel="Add category" />
+      <SaveButton saving={saving} />
+    </form>
+  );
+}
+
+/** The diagram under Our Approach's intro: an uploaded picture wins; without one the page draws
+ * circles from the labels below. */
+function DiagramForm({ pageSlug, value, onSave }: { pageSlug: string; value: MarketingDiagram | null; onSave: (v: MarketingDiagram) => Promise<void> }) {
+  const [image, setImage] = useState<MarketingImage>(value?.image ?? {});
+  const [items, setItems] = useState<string[]>(value?.items ?? []);
+  const [saving, setSaving] = useState(false);
+  return (
+    <form
+      onSubmit={async (e) => {
+        e.preventDefault();
+        setSaving(true);
+        await onSave({ image, items: items.map((x) => x.trim()).filter(Boolean) });
+        setSaving(false);
+      }}
+    >
+      <Label>Diagram picture</Label>
+      <p className="mb-2 text-xs text-ink/50">Upload your own diagram and it shows in full, uncropped, under the intro text. Remove it to go back to the drawn circles.</p>
+      <ImageField pageSlug={pageSlug} idPrefix="diagram" image={image} onChange={setImage} />
+      <Label className="mt-5">Circle labels (used when there's no picture)</Label>
+      <p className="mb-2 text-xs text-ink/50">One circle per line, joined by arrows and alternating gold and pink. Leave empty for the built-in four.</p>
+      <StringListEditor items={items} onChange={setItems} addLabel="Add a step" />
       <SaveButton saving={saving} />
     </form>
   );

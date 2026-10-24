@@ -413,6 +413,11 @@ export interface MarketingFeature {
   image?: MarketingImage;
 }
 
+export interface MarketingDiagram {
+  image?: MarketingImage;
+  items?: string[];
+}
+
 export interface MarketingStringList {
   items?: string[];
 }
@@ -450,4 +455,9 @@ export interface Enquiry {
   message?: string;
   submittedAt: string;
   isRead: boolean;
+  groomName?: string;
+  contactingFrom?: string;
+  isIntimate?: boolean;
+  wantsConsultation?: boolean;
+  consultationAt?: string;
 }
